@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { buildFurnitureGroup } from '../components/furniture/buildFurnitureGroup'
 import type { DimensionsMeters, FurnitureKind } from '../types/furniture'
+import { trackEvent } from '../utils/analytics'
 import type { UsdzExportResult } from '../utils/usdzExport'
 import { exportObjectToUsdz, isArQuickLookSupported, openArQuickLook } from '../utils/usdzExport'
 
@@ -28,6 +29,7 @@ export function useArQuickLook(kind: FurnitureKind, dimensions: DimensionsMeters
   const launchAr = useCallback(() => {
     const generateAndOpen = async (): Promise<void> => {
       setStatus('generating')
+      trackEvent('launch_ar', { furniture: kind })
       try {
         const furnitureGroup = buildFurnitureGroup(kind, dimensions)
         const usdzExport = await exportObjectToUsdz(furnitureGroup)

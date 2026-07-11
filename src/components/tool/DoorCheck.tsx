@@ -1,7 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { AlertTriangle, CheckCircle2, DoorOpen, XCircle } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { DimensionsCm } from '../../types/furniture'
+import { trackEvent } from '../../utils/analytics'
 import { clampDimensionCm, parseDimensionInput } from '../../utils/dimensionValidation'
 import type { DoorFit } from '../../utils/doorFit'
 import { computeDoorFit } from '../../utils/doorFit'
@@ -35,6 +36,11 @@ function describeFit(fit: DoorFit): { icon: typeof CheckCircle2; text: string } 
 export function DoorCheck({ dimensionsCm, doorWidthCm, onDoorWidthChange }: DoorCheckProps) {
   const [rawValue, setRawValue] = useState(doorWidthCm === null ? '' : String(doorWidthCm))
   const fit = doorWidthCm === null ? null : computeDoorFit(dimensionsCm, doorWidthCm)
+  const fitStatus = fit?.status ?? null
+
+  useEffect(() => {
+    if (fitStatus !== null) trackEvent('verdict_shown', { status: fitStatus })
+  }, [fitStatus])
 
   const handleChange = (nextRawValue: string): void => {
     setRawValue(nextRawValue)

@@ -1,7 +1,10 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './App'
+import { initAnalytics } from './utils/analytics'
 import './index.css'
+
+initAnalytics()
 
 const rootElement = document.getElementById('root')
 if (!rootElement) {

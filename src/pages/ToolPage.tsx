@@ -10,6 +10,7 @@ import { FurniturePicker } from '../components/tool/FurniturePicker'
 import { FurnitureViewer } from '../components/viewer/FurnitureViewer'
 import { useDimensionsForm } from '../hooks/useDimensionsForm'
 import type { DimensionsCm, FurnitureKind } from '../types/furniture'
+import { trackEvent } from '../utils/analytics'
 import { dimensionsCmToMeters } from '../utils/units'
 import type { ToolUrlState } from '../utils/urlState'
 import { buildToolSearch } from '../utils/urlState'
@@ -38,6 +39,12 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
   useEffect(() => {
     onStateChange(kind, form.dimensionsCm, doorWidthCm)
   }, [kind, form.dimensionsCm, doorWidthCm, onStateChange])
+
+  useEffect(() => {
+    trackEvent('view_tool', { furniture: kind })
+    // Dispara só na chegada — trocas de móvel já aparecem nos outros eventos.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const shareUrl = `${window.location.origin}${window.location.pathname}${buildToolSearch(kind, form.dimensionsCm, doorWidthCm)}`
 

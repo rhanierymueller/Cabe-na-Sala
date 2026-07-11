@@ -1,6 +1,7 @@
 import { Check, Share2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import type { DimensionsCm } from '../../types/furniture'
+import { trackEvent } from '../../utils/analytics'
 import { computeDoorFit } from '../../utils/doorFit'
 
 interface ShareButtonProps {
@@ -60,6 +61,11 @@ export function ShareButton({ furnitureLabel, dimensionsCm, doorWidthCm, shareUr
   const handleShare = (): void => {
     const share = async (): Promise<void> => {
       const text = buildShareText(furnitureLabel, dimensionsCm, doorWidthCm)
+      const hasNativeShare = typeof navigator.share === 'function'
+      trackEvent('share_click', {
+        method: hasNativeShare ? 'native' : 'copy',
+        has_verdict: doorWidthCm !== null,
+      })
 
       if (typeof navigator.share === 'function') {
         try {
