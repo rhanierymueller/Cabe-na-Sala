@@ -1,26 +1,39 @@
 import { motion } from 'framer-motion'
 import { ArrowLeft, Sofa } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ArButton } from '../components/ar/ArButton'
 import { DimensionsForm } from '../components/form/DimensionsForm'
 import { FURNITURE_CATALOG } from '../components/furniture/catalog'
+import { ShareButton } from '../components/share/ShareButton'
 import { FurniturePicker } from '../components/tool/FurniturePicker'
 import { FurnitureViewer } from '../components/viewer/FurnitureViewer'
 import { useDimensionsForm } from '../hooks/useDimensionsForm'
-import type { FurnitureKind } from '../types/furniture'
+import type { DimensionsCm, FurnitureKind } from '../types/furniture'
 import { dimensionsCmToMeters } from '../utils/units'
+import type { ToolUrlState } from '../utils/urlState'
+import { buildToolSearch } from '../utils/urlState'
 
 interface ToolPageProps {
+  /** Estado vindo de um link compartilhado (`?movel=...`), se houver. */
+  readonly initialState: ToolUrlState | null
   readonly onBackToLanding: () => void
+  readonly onStateChange: (kind: FurnitureKind, dimensionsCm: DimensionsCm) => void
 }
 
-const INITIAL_KIND: FurnitureKind = 'stove'
+const FALLBACK_KIND: FurnitureKind = 'stove'
 
-export function ToolPage({ onBackToLanding }: ToolPageProps) {
-  const [kind, setKind] = useState<FurnitureKind>(INITIAL_KIND)
+export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolPageProps) {
+  const [kind, setKind] = useState<FurnitureKind>(initialState?.kind ?? FALLBACK_KIND)
   const definition = FURNITURE_CATALOG[kind]
-  const form = useDimensionsForm(definition.defaultDimensionsCm)
+  const form = useDimensionsForm(initialState?.dimensionsCm ?? definition.defaultDimensionsCm)
   const dimensionsMeters = dimensionsCmToMeters(form.dimensionsCm)
+
+  // Mantém a URL espelhando o estado — todo ajuste vira link compartilhável.
+  useEffect(() => {
+    onStateChange(kind, form.dimensionsCm)
+  }, [kind, form.dimensionsCm, onStateChange])
+
+  const shareUrl = `${window.location.origin}${window.location.pathname}${buildToolSearch(kind, form.dimensionsCm)}`
 
   const handleSelectKind = (nextKind: FurnitureKind): void => {
     setKind(nextKind)
@@ -58,7 +71,13 @@ export function ToolPage({ onBackToLanding }: ToolPageProps) {
 
         <DimensionsForm form={form} furnitureLabel={definition.label} />
 
-        <ArButton kind={kind} dimensions={dimensionsMeters} />
+        <ArButton kind={kind} dimensions={dimensionsMeters} handoffUrl={shareUrl} />
+
+        <ShareButton
+          furnitureLabel={definition.label}
+          dimensionsCm={form.dimensionsCm}
+          shareUrl={shareUrl}
+        />
 
         <footer className="tool__footer">
           <p>Grade do chão: cada quadrado = 10 cm.</p>

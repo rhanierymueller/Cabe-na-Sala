@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://cabenasala.com/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://cabenasala.com/?movel=fogao</loc>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://cabenasala.com/?movel=sofa</loc>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://cabenasala.com/?movel=geladeira</loc>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://cabenasala.com/?movel=guarda-roupa</loc>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://cabenasala.com/?movel=cama</loc>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://cabenasala.com/?movel=mesa</loc>
+    <changefreq>monthly</changefreq>
+  </url>
+</urlset>
