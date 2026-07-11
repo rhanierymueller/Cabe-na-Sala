@@ -41,8 +41,8 @@ export function App() {
   }, [])
 
   const handleToolStateChange = useCallback(
-    (kind: FurnitureKind, dimensionsCm: DimensionsCm): void => {
-      window.history.replaceState(null, '', buildToolSearch(kind, dimensionsCm))
+    (kind: FurnitureKind, dimensionsCm: DimensionsCm, doorWidthCm: number | null): void => {
+      window.history.replaceState(null, '', buildToolSearch(kind, dimensionsCm, doorWidthCm))
     },
     [],
   )

@@ -102,7 +102,7 @@ export function ScrollStory({ onStart }: ScrollStoryProps) {
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.97 }}
           >
-            Pular a história — testar agora <ArrowRight size={18} aria-hidden="true" />
+            Descobrir se cabe <ArrowRight size={18} aria-hidden="true" />
           </motion.button>
         </div>
 

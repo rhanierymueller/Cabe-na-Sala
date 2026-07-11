@@ -18,7 +18,15 @@ describe('parseToolUrl', () => {
     expect(state).toEqual({
       kind: 'stove',
       dimensionsCm: { widthCm: 60, heightCm: 87, depthCm: 63 },
+      doorWidthCm: null,
     })
+  })
+
+  test('parses the optional door width param', () => {
+    expect(parseToolUrl('?movel=sofa&porta=80')?.doorWidthCm).toBe(80)
+    expect(parseToolUrl('?movel=sofa')?.doorWidthCm).toBeNull()
+    expect(parseToolUrl('?movel=sofa&porta=abc')?.doorWidthCm).toBeNull()
+    expect(parseToolUrl('?movel=sofa&porta=9999')?.doorWidthCm).toBe(400)
   })
 
   test('maps every catalog slug to its furniture kind', () => {
@@ -65,12 +73,20 @@ describe('buildToolSearch', () => {
     expect(search).toContain('l=210%2C5')
   })
 
+  test('includes the door width only when provided', () => {
+    const dimensions = { widthCm: 60, heightCm: 87, depthCm: 63 }
+
+    expect(buildToolSearch('stove', dimensions, 80)).toContain('porta=80')
+    expect(buildToolSearch('stove', dimensions, null)).not.toContain('porta')
+    expect(buildToolSearch('stove', dimensions)).not.toContain('porta')
+  })
+
   test('round-trips through parseToolUrl for every kind', () => {
     for (const kind of Object.keys(FURNITURE_CATALOG) as (keyof typeof FURNITURE_CATALOG)[]) {
       const dimensions = FURNITURE_CATALOG[kind].defaultDimensionsCm
-      const state = parseToolUrl(buildToolSearch(kind, dimensions))
+      const state = parseToolUrl(buildToolSearch(kind, dimensions, 78))
 
-      expect(state).toEqual({ kind, dimensionsCm: dimensions })
+      expect(state).toEqual({ kind, dimensionsCm: dimensions, doorWidthCm: 78 })
     }
   })
 })

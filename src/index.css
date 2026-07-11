@@ -335,6 +335,74 @@ body {
   font-size: 0.75rem;
 }
 
+/* ---------- Passa na porta? ---------- */
+
+.door-check {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.door-check__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.door-check__input {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: 0.9rem;
+}
+
+.door-check__input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.door-check__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.door-check__badge--fits {
+  background: rgba(52, 199, 123, 0.14);
+  color: #4fd695;
+}
+
+.door-check__badge--tight {
+  background: rgba(255, 184, 77, 0.14);
+  color: #ffc266;
+}
+
+.door-check__badge--blocked {
+  background: rgba(255, 99, 99, 0.14);
+  color: #ff8080;
+}
+
+.door-check__explain {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
 /* ---------- Compartilhar ---------- */
 
 .share {

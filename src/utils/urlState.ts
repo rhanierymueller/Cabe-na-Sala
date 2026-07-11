@@ -10,9 +10,12 @@ import { clampDimensionCm, parseDimensionInput } from './dimensionValidation'
 export interface ToolUrlState {
   readonly kind: FurnitureKind
   readonly dimensionsCm: DimensionsCm
+  /** Largura do vão (porta/corredor) para o veredito "passa?" — opcional. */
+  readonly doorWidthCm: number | null
 }
 
 const KIND_PARAM = 'movel'
+const DOOR_PARAM = 'porta'
 
 /** Slugs em português — são a parte visível do link compartilhado. */
 const KIND_TO_SLUG: Record<FurnitureKind, string> = {
@@ -60,6 +63,8 @@ export function parseToolUrl(search: string): ToolUrlState | null {
   if (kind === undefined) return null
 
   const defaults = FURNITURE_CATALOG[kind].defaultDimensionsCm
+  const rawDoorWidth = params.get(DOOR_PARAM)
+  const parsedDoorWidth = rawDoorWidth === null ? null : parseDimensionInput(rawDoorWidth)
 
   return {
     kind,
@@ -68,6 +73,7 @@ export function parseToolUrl(search: string): ToolUrlState | null {
       heightCm: parseAxis(params, 'heightCm', defaults.heightCm),
       depthCm: parseAxis(params, 'depthCm', defaults.depthCm),
     },
+    doorWidthCm: parsedDoorWidth === null ? null : clampDimensionCm(parsedDoorWidth),
   }
 }
 
@@ -77,12 +83,17 @@ function formatCm(valueCm: number): string {
 }
 
 /** Serializa o estado da ferramenta como query string canônica. */
-export function buildToolSearch(kind: FurnitureKind, dimensionsCm: DimensionsCm): string {
+export function buildToolSearch(
+  kind: FurnitureKind,
+  dimensionsCm: DimensionsCm,
+  doorWidthCm: number | null = null,
+): string {
   const params = new URLSearchParams()
   params.set(KIND_PARAM, KIND_TO_SLUG[kind])
   params.set(AXIS_TO_PARAM.widthCm, formatCm(dimensionsCm.widthCm))
   params.set(AXIS_TO_PARAM.heightCm, formatCm(dimensionsCm.heightCm))
   params.set(AXIS_TO_PARAM.depthCm, formatCm(dimensionsCm.depthCm))
+  if (doorWidthCm !== null) params.set(DOOR_PARAM, formatCm(doorWidthCm))
 
   return `?${params.toString()}`
 }
