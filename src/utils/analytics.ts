@@ -20,7 +20,12 @@ export type AnalyticsEventName = 'view_tool' | 'verdict_shown' | 'launch_ar' | '
 
 type AnalyticsParams = Readonly<Record<string, string | number | boolean>>
 
-const GA_MEASUREMENT_ID: string | undefined = import.meta.env.VITE_GA_ID
+/** ID público de medição do GA4 (propriedade "Cabe na Sala"). */
+const PRODUCTION_GA_ID = 'G-X65M40LX42'
+
+/** Em dev o GA fica desligado (sem VITE_GA_ID) para não sujar as métricas. */
+const GA_MEASUREMENT_ID: string | undefined =
+  import.meta.env.VITE_GA_ID ?? (import.meta.env.PROD ? PRODUCTION_GA_ID : undefined)
 
 let isInitialized = false
 
