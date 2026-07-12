@@ -18,6 +18,7 @@
 - [Guarda-roupa](https://cabenasala.com/?movel=guarda-roupa)
 - [Cama](https://cabenasala.com/?movel=cama)
 - [Mesa](https://cabenasala.com/?movel=mesa)
+- [Quadro](https://cabenasala.com/?movel=quadro): moldura com ~4 cm de profundidade
 
 Parâmetros de URL: `movel` (slug acima), `l` (largura em cm), `a` (altura em cm), `p` (profundidade em cm), `porta` (largura do vão em cm, opcional). Exemplo: `https://cabenasala.com/?movel=geladeira&l=70&a=180&p=75&porta=80` abre uma geladeira de 70×180×75 cm testada contra uma porta de 80 cm.
 

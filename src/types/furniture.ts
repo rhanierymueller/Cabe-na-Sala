@@ -16,7 +16,7 @@ export interface DimensionsMeters {
 export type DimensionAxis = keyof DimensionsCm
 
 /** Categorias de móvel disponíveis no catálogo paramétrico. */
-export type FurnitureKind = 'stove' | 'sofa' | 'fridge' | 'wardrobe' | 'bed' | 'table'
+export type FurnitureKind = 'stove' | 'sofa' | 'fridge' | 'wardrobe' | 'bed' | 'table' | 'frame'
 
 export interface DimensionFieldConfig {
   readonly axis: DimensionAxis

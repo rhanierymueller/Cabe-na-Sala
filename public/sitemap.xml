@@ -29,4 +29,8 @@
     <loc>https://cabenasala.com/?movel=mesa</loc>
     <changefreq>monthly</changefreq>
   </url>
+  <url>
+    <loc>https://cabenasala.com/?movel=quadro</loc>
+    <changefreq>monthly</changefreq>
+  </url>
 </urlset>

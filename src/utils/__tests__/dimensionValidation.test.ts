@@ -56,7 +56,7 @@ describe('clampDimensionCm', () => {
   })
 
   test('clamps values below the minimum', () => {
-    expect(clampDimensionCm(1)).toBe(MIN_DIMENSION_CM)
+    expect(clampDimensionCm(MIN_DIMENSION_CM / 2)).toBe(MIN_DIMENSION_CM)
   })
 
   test('clamps values above the maximum', () => {

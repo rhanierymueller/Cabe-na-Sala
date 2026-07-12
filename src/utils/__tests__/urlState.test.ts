@@ -35,6 +35,7 @@ describe('parseToolUrl', () => {
     expect(parseToolUrl('?movel=guarda-roupa')?.kind).toBe('wardrobe')
     expect(parseToolUrl('?movel=cama')?.kind).toBe('bed')
     expect(parseToolUrl('?movel=mesa')?.kind).toBe('table')
+    expect(parseToolUrl('?movel=quadro')?.kind).toBe('frame')
   })
 
   test('falls back to catalog defaults for missing or invalid dimensions', () => {
@@ -53,9 +54,9 @@ describe('parseToolUrl', () => {
   })
 
   test('clamps dimensions outside the allowed limits', () => {
-    const state = parseToolUrl('?movel=fogao&l=2&a=9999')
+    const state = parseToolUrl('?movel=fogao&l=0,4&a=9999')
 
-    expect(state?.dimensionsCm.widthCm).toBe(10)
+    expect(state?.dimensionsCm.widthCm).toBe(1)
     expect(state?.dimensionsCm.heightCm).toBe(400)
   })
 })

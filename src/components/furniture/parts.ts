@@ -56,4 +56,5 @@ export const MATERIALS = {
   woodDark: { color: '#5f4c37', roughness: 0.7, metalness: 0.05 },
   mattress: { color: '#d9dde3', roughness: 0.85, metalness: 0 },
   pillow: { color: '#eceef2', roughness: 0.9, metalness: 0 },
+  canvas: { color: '#e9e4d6', roughness: 0.95, metalness: 0 },
 } as const satisfies Record<string, MaterialSpec>
