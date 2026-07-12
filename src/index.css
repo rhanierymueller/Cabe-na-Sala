@@ -335,6 +335,19 @@ body {
   font-size: 0.75rem;
 }
 
+.ar-hint__safari {
+  margin-top: 12px;
+  text-decoration: none;
+}
+
+.ar-hint__caption--copied {
+  color: #4fd695;
+}
+
+.ar-hint__caption--copied strong {
+  color: inherit;
+}
+
 /* ---------- Passa na porta? ---------- */
 
 .door-check {
