@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { buildFurnitureGroup } from '../components/furniture/buildFurnitureGroup'
+import { FURNITURE_CATALOG } from '../components/furniture/catalog'
 import type { DimensionsMeters, FurnitureKind } from '../types/furniture'
 import { trackEvent } from '../utils/analytics'
 import type { UsdzExportResult } from '../utils/usdzExport'
@@ -32,7 +33,8 @@ export function useArQuickLook(kind: FurnitureKind, dimensions: DimensionsMeters
       trackEvent('launch_ar', { furniture: kind })
       try {
         const furnitureGroup = buildFurnitureGroup(kind, dimensions)
-        const usdzExport = await exportObjectToUsdz(furnitureGroup)
+        const placement = FURNITURE_CATALOG[kind].arPlacement ?? 'floor'
+        const usdzExport = await exportObjectToUsdz(furnitureGroup, placement)
 
         lastExportRef.current?.revoke()
         lastExportRef.current = usdzExport

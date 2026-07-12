@@ -8,7 +8,12 @@ import {
   Sofa,
   UtensilsCrossed,
 } from 'lucide-react'
-import type { DimensionsCm, DimensionsMeters, FurnitureKind } from '../../../types/furniture'
+import type {
+  ArPlacement,
+  DimensionsCm,
+  DimensionsMeters,
+  FurnitureKind,
+} from '../../../types/furniture'
 import type { FurnitureLayout } from '../parts'
 import { DEFAULT_BED_DIMENSIONS_CM, computeBedLayout } from './bed'
 import { DEFAULT_FRAME_DIMENSIONS_CM, computeFrameLayout } from './frame'
@@ -24,6 +29,8 @@ export interface FurnitureDefinition {
   readonly icon: LucideIcon
   readonly defaultDimensionsCm: DimensionsCm
   readonly computeLayout: (dimensions: DimensionsMeters) => FurnitureLayout
+  /** Onde o AR ancora: chão (padrão) ou parede (quadros). */
+  readonly arPlacement?: ArPlacement
 }
 
 export const FURNITURE_CATALOG: Record<FurnitureKind, FurnitureDefinition> = {
@@ -75,6 +82,7 @@ export const FURNITURE_CATALOG: Record<FurnitureKind, FurnitureDefinition> = {
     icon: Image,
     defaultDimensionsCm: DEFAULT_FRAME_DIMENSIONS_CM,
     computeLayout: computeFrameLayout,
+    arPlacement: 'wall',
   },
 }
 

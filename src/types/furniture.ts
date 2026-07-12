@@ -18,6 +18,9 @@ export type DimensionAxis = keyof DimensionsCm
 /** Categorias de móvel disponíveis no catálogo paramétrico. */
 export type FurnitureKind = 'stove' | 'sofa' | 'fridge' | 'wardrobe' | 'bed' | 'table' | 'frame'
 
+/** Onde o AR ancora o objeto: chão (padrão) ou parede (quadros). */
+export type ArPlacement = 'floor' | 'wall'
+
 export interface DimensionFieldConfig {
   readonly axis: DimensionAxis
   readonly label: string

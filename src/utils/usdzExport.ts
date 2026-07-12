@@ -1,5 +1,7 @@
 import type { Object3D } from 'three'
+import { Box3, Group } from 'three'
 import { USDZExporter } from 'three/examples/jsm/exporters/USDZExporter.js'
+import type { ArPlacement } from '../types/furniture'
 
 /**
  * Trava o gesto de pinça/escala no AR Quick Look — regra de produto:
@@ -17,12 +19,41 @@ export interface UsdzExportResult {
 }
 
 /**
+ * Na ancoragem vertical o Quick Look encosta o plano XZ do modelo na
+ * parede, com +Y apontando para fora dela. Deita o objeto de costas
+ * (frente vira +Y) e centraliza — o quadro fica pendurado, não em pé.
+ */
+function orientForWallAnchor(object: Object3D): Group {
+  const bounds = new Box3().setFromObject(object)
+  const depth = bounds.max.z - bounds.min.z
+  const height = bounds.max.y - bounds.min.y
+
+  const wrapper = new Group()
+  wrapper.add(object)
+  object.rotation.x = -Math.PI / 2
+  object.position.set(0, depth / 2, height / 2)
+  wrapper.updateMatrixWorld(true)
+
+  return wrapper
+}
+
+/**
  * Converte um objeto Three.js em um arquivo USDZ gerado no navegador,
  * retornando uma blob URL que o Safari abre direto no AR Quick Look.
+ * `placement: 'wall'` ancora o objeto em paredes (planos verticais).
  */
-export async function exportObjectToUsdz(object: Object3D): Promise<UsdzExportResult> {
+export async function exportObjectToUsdz(
+  object: Object3D,
+  placement: ArPlacement = 'floor',
+): Promise<UsdzExportResult> {
   const exporter = new USDZExporter()
-  const usdzData = await exporter.parseAsync(object)
+  const sceneToExport = placement === 'wall' ? orientForWallAnchor(object) : object
+  const usdzData = await exporter.parseAsync(sceneToExport, {
+    ar: {
+      anchoring: { type: 'plane' },
+      planeAnchoring: { alignment: placement === 'wall' ? 'vertical' : 'horizontal' },
+    },
+  })
   const blob = new Blob([usdzData], { type: USDZ_MIME_TYPE })
   const blobUrl = URL.createObjectURL(blob)
 
