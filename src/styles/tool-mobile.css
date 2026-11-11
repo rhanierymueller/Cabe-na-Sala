@@ -1,0 +1,164 @@
+/* Ferramenta em telas estreitas e preferências de movimento. Carrega depois de index.css. */
+
+/* ---------- Celular: 3D em tela cheia + folha que sobe de baixo ---------- */
+
+@media (max-width: 900px) {
+  .tool__canvas {
+    inset: 0 0 var(--sheet-peek) 0;
+  }
+
+  .tool__backdrop {
+    top: 20%;
+    font-size: 11.5vw;
+  }
+
+  .tool__top {
+    top: 8px;
+    left: 8px;
+    width: auto;
+    padding: 0;
+  }
+
+  .app__back {
+    font-size: 0.95rem;
+  }
+
+  .furniture-dock {
+    top: 60px;
+    left: 12px;
+    right: 12px;
+    translate: none;
+    justify-content: space-between;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .furniture-dock__item {
+    padding: 0 8px;
+    gap: 6px;
+  }
+
+  .tool__panel {
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    max-height: var(--sheet-peek);
+    border-width: 1px 0 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    transition: max-height 0.45s var(--ease-out);
+  }
+
+  .tool__panel--open {
+    max-height: 86dvh;
+  }
+
+  .tool__panel--open .tool__cta {
+    border-top: 1px solid var(--color-border);
+  }
+
+  .tool__handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    min-height: 34px;
+    padding: 10px 0 2px;
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .tool__handle::before {
+    content: '';
+    position: absolute;
+    top: 7px;
+    width: 36px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.28);
+    border-radius: var(--radius-pill);
+  }
+
+  .tool__handle svg {
+    transition: rotate 0.3s ease;
+  }
+
+  .tool__panel--open .tool__handle svg {
+    rotate: 180deg;
+  }
+
+  .tool__scroll {
+    padding: 4px 20px 0;
+  }
+
+  .tool__cta {
+    padding: 10px 20px max(16px, env(safe-area-inset-bottom));
+  }
+
+  /* Recolhida: só as três medidas lado a lado e o botão principal. */
+  .tool__panel:not(.tool__panel--open) .tool__scroll {
+    overflow: hidden;
+  }
+
+  .tool__panel:not(.tool__panel--open) .tool__more,
+  .tool__panel:not(.tool__panel--open) .dimensions-form__title,
+  .tool__panel:not(.tool__panel--open) .dimensions-form__subtitle,
+  .tool__panel:not(.tool__panel--open) .dimension-field__hint,
+  .tool__panel:not(.tool__panel--open) .dimension-field__slider,
+  .tool__panel:not(.tool__panel--open) .ar-hint__caption,
+  .tool__panel:not(.tool__panel--open) .ar-qr {
+    display: none;
+  }
+
+  .tool__panel:not(.tool__panel--open) .dimensions-form__fields {
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .tool__panel:not(.tool__panel--open) .dimension-field {
+    flex: 1;
+    grid-template-columns: 1fr;
+    row-gap: 2px;
+    padding: 8px 12px;
+    background: var(--color-surface-raised);
+    border: none;
+    border-radius: var(--radius-md);
+  }
+
+  .tool__panel:not(.tool__panel--open) .dimension-field__label {
+    color: var(--color-text-muted);
+    font-size: 0.75rem;
+  }
+
+  .tool__panel:not(.tool__panel--open) .dimension-field__input {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    font-size: 1.6rem;
+    text-align: left;
+  }
+
+  .tool__panel:not(.tool__panel--open) .ar-hint {
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+
+  .dimensions-form__title {
+    margin-top: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .photo-model__tape {
+    animation: none;
+  }
+
+  .tool__panel {
+    transition: none;
+  }
+}

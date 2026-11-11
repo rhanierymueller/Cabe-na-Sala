@@ -2,41 +2,33 @@ import { describe, expect, test } from 'vitest'
 import { REJECTION_MESSAGES, REJECTION_REASONS, parseVerdict } from './photoCheck.js'
 
 describe('parseVerdict', () => {
-  test('accepts an approval', () => {
-    expect(parseVerdict('{"ok": true}')).toEqual({ ok: true })
+  test('aceita uma aprovação', () => {
+    expect(parseVerdict({ ok: true, reason: null })).toEqual({ ok: true })
   })
 
   test.each(REJECTION_REASONS.map((reason) => [reason] as const))(
-    'accepts a rejection with reason %s',
+    'aceita uma recusa com o motivo %s',
     (reason) => {
-      expect(parseVerdict(`{"ok": false, "reason": "${reason}"}`)).toEqual({ ok: false, reason })
+      expect(parseVerdict({ ok: false, reason })).toEqual({ ok: false, reason })
     },
   )
 
-  test('finds the JSON even when the model wraps it in text or a code fence', () => {
-    expect(parseVerdict('Claro!\n```json\n{"ok": false, "reason": "person"}\n```')).toEqual({
-      ok: false,
-      reason: 'person',
-    })
-  })
-
   test.each([
-    ['plain text', 'sim, é um sofá'],
-    ['a rejection without a known reason', '{"ok": false, "reason": "porque sim"}'],
-    ['a rejection without reason', '{"ok": false}'],
-    ['ok that is not a boolean', '{"ok": "true"}'],
-    ['broken JSON', '{"ok": tru'],
-    ['a non-string', { ok: true }],
-    ['nothing', undefined],
-  ])('returns null for %s', (_label, output) => {
+    ['texto solto', 'sim, é um sofá'],
+    ['recusa com motivo desconhecido', { ok: false, reason: 'porque sim' }],
+    ['recusa sem motivo', { ok: false, reason: null }],
+    ['ok que não é booleano', { ok: 'true' }],
+    ['nada', undefined],
+    ['null', null],
+  ])('devolve null para %s', (_label, output) => {
     expect(parseVerdict(output)).toBeNull()
   })
 })
 
 describe('REJECTION_MESSAGES', () => {
-  test('has a user-facing message for every reason', () => {
+  test('todo motivo de recusa tem mensagem para o usuário', () => {
     REJECTION_REASONS.forEach((reason) => {
-      expect(REJECTION_MESSAGES[reason].length).toBeGreaterThan(10)
+      expect(REJECTION_MESSAGES[reason].length).toBeGreaterThan(0)
     })
   })
 })

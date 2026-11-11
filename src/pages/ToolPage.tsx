@@ -7,6 +7,7 @@ import { FURNITURE_CATALOG } from '../components/furniture/catalog'
 import { disposeModel } from '../components/furniture/scanned/loadModel'
 import { ShareButton } from '../components/share/ShareButton'
 import { RoomPhotoEntry } from '../components/room/RoomPhotoEntry'
+import { AdMeasures } from '../components/tool/AdMeasures'
 import { DoorCheck } from '../components/tool/DoorCheck'
 import { FurniturePicker } from '../components/tool/FurniturePicker'
 import { PhotoModel } from '../components/tool/PhotoModel'
@@ -103,13 +104,15 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
           aria-expanded={isSheetOpen}
         >
           <ChevronUp size={14} aria-hidden="true" />
-          {isSheetOpen ? 'Fechar' : 'Foto, porta e ajustes'}
+          {isSheetOpen ? 'Fechar' : 'Anúncio, foto e porta'}
         </button>
 
         <div className="tool__scroll">
           <DimensionsForm form={form} furnitureLabel={definition.label} />
 
           <div className="tool__more">
+            <AdMeasures dimensionsCm={form.dimensionsCm} onApply={form.reset} />
+
             <PhotoModel
               dimensions={dimensionsMeters}
               model={scannedModel}

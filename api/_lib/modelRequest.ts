@@ -18,6 +18,16 @@ export function isValidImageDataUrl(value: unknown): value is string {
   )
 }
 
+export type ImageMediaType = 'image/jpeg' | 'image/png' | 'image/webp'
+
+/** Separa tipo e conteúdo de um data URL já validado por isValidImageDataUrl. */
+export function splitImageDataUrl(
+  dataUrl: string,
+): { readonly mediaType: ImageMediaType; readonly data: string } | null {
+  const match = /^data:(image\/(?:jpeg|png|webp));base64,(.+)$/s.exec(dataUrl)
+  return match ? { mediaType: match[1] as ImageMediaType, data: match[2] } : null
+}
+
 export function isValidRequestId(value: unknown): value is string {
   return typeof value === 'string' && REQUEST_ID_PATTERN.test(value)
 }

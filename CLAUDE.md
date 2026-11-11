@@ -25,15 +25,23 @@ Diferencial vs. IKEA Place / Amazon "ver no quarto": **agnóstico de loja**
   flutuando sobre o objeto** em AR (ex.: setas com "75 cm").
 - **Sem login.** Persistência futura via localStorage se necessário.
 - **Sem backend.** Site 100% estático. Custo de operação ~R$0.
-  - **Única exceção (nov/2026): `api/modelo3d.ts`**, função de servidor na Vercel
+  - **Exceção 1 (nov/2026): `api/modelo3d.ts`**, função de servidor na Vercel
     que transforma a foto do anúncio em modelo 3D via fal.ai (`fal-ai/trellis`).
     Existe só para guardar `FAL_KEY` fora do navegador. Sem a chave, responde
     "indisponível" e o resto do site segue estático. Sem banco de dados próprio, sem login.
+  - **Exceção 2 (nov/2026): `api/medidas.ts`**, lê largura, altura e
+    profundidade do texto colado ou do print de um anúncio, via Claude
+    (`@anthropic-ai/sdk`, `claude-haiku-5-5`, sem raciocínio, resposta em JSON
+    de formato fixo). Chave em `ANTHROPIC_API_KEY`; sem ela responde
+    "indisponível". O mesmo cliente (`api/_lib/claude.ts`) confere a foto do
+    anúncio antes da geração 3D. O que é comum às rotas pagas (envelope,
+    teto do corpo, contagem de uso, recusa em deploy sem Redis e Turnstile)
+    fica em `api/_lib/routeGuard.ts`.
   - **A rota é pública e cada geração custa dinheiro.** Camadas de proteção
     (todas no código; variáveis no `.env.example`):
     mesma origem → anti-robô Turnstile conferido no servidor → validação de
-    tamanho/formato/assinatura da imagem → conferência "a foto faz sentido?" por
-    modelo de visão barato (mesma chave da fal) → limites por IP (hora/dia) e
+    tamanho/formato/assinatura da imagem → conferência "a foto faz sentido?" pelo
+    Claude (falha aberta: sem chave ou com erro, a foto passa) → limites por IP (hora/dia) e
     teto diário global em Redis compartilhado (Vercel KV/Upstash) → só consulta
     pedido criado por nós. **Seguro por padrão:** em qualquer deploy na Vercel a
     rota se recusa a rodar sem o Redis e sem o Turnstile configurados. O teto
