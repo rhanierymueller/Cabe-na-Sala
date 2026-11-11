@@ -1,13 +1,16 @@
 import { ContactShadows, Grid, OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
-import type { DimensionsMeters, FurnitureKind } from '../../types/furniture'
+import type { DimensionsMeters, FurnitureKind, ScannedModel } from '../../types/furniture'
 import { FurnitureModel } from '../furniture/FurnitureModel'
+import { ScannedModelView } from '../furniture/scanned/ScannedModelView'
 import { DimensionCotas } from './DimensionCotas'
 import { StudioLights } from './StudioLights'
 
 interface FurnitureViewerProps {
   readonly kind: FurnitureKind
   readonly dimensions: DimensionsMeters
+  /** Modelo do produto real (foto ou arquivo); sem ele, vale o móvel do catálogo. */
+  readonly scannedModel?: ScannedModel | null
 }
 
 const CAMERA_FOV = 45
@@ -37,7 +40,7 @@ function computeCameraPose(dimensions: DimensionsMeters): CameraPose {
  * luz de estúdio, cotas técnicas e câmera orbital. O Canvas remonta a cada troca de
  * móvel (key) para reenquadrar a câmera no tamanho da nova peça.
  */
-export function FurnitureViewer({ kind, dimensions }: FurnitureViewerProps) {
+export function FurnitureViewer({ kind, dimensions, scannedModel }: FurnitureViewerProps) {
   const cameraPose = computeCameraPose(dimensions)
 
   return (
@@ -51,7 +54,11 @@ export function FurnitureViewer({ kind, dimensions }: FurnitureViewerProps) {
 
       <StudioLights />
 
-      <FurnitureModel kind={kind} dimensions={dimensions} />
+      {scannedModel ? (
+        <ScannedModelView model={scannedModel} dimensions={dimensions} />
+      ) : (
+        <FurnitureModel kind={kind} dimensions={dimensions} />
+      )}
       <DimensionCotas dimensions={dimensions} />
 
       <Grid

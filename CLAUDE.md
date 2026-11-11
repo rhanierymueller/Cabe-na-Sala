@@ -25,6 +25,15 @@ Diferencial vs. IKEA Place / Amazon "ver no quarto": **agnóstico de loja**
   flutuando sobre o objeto** em AR (ex.: setas com "75 cm").
 - **Sem login.** Persistência futura via localStorage se necessário.
 - **Sem backend.** Site 100% estático. Custo de operação ~R$0.
+  - **Única exceção (nov/2026): `api/modelo3d.ts`**, função de servidor na Vercel
+    que transforma a foto do anúncio em modelo 3D via fal.ai (`fal-ai/trellis`).
+    Existe só para guardar `FAL_KEY` fora do navegador. Sem a chave, responde
+    "indisponível" e o resto do site segue estático. Cada geração custa dinheiro:
+    há limite por IP e por instância em memória (fraco); ligar limite de gasto no
+    painel da fal antes de divulgar. Sem banco, sem login.
+  - O modelo da foto é **esticado até a caixa das medidas digitadas**
+    (`scanned/fitModel.ts`): a forma vem da foto, o tamanho vem de quem mediu.
+    Também aceita `.glb` enviado direto, sem passar pelo servidor.
 - Modelos 3D **gerados por código** (caixas estilizadas com encosto/pés etc.),
   para esticar limpo em qualquer medida. Assets low-poly CC0 (Kenney, Quaternius,
   Poly Haven) só como polimento futuro — modelo artístico deforma ao esticar.

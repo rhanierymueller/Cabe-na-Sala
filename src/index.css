@@ -535,6 +535,154 @@ input {
   line-height: 1.45;
 }
 
+/* ---------- Foto do anúncio → modelo 3D ---------- */
+
+.photo-model {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 18px;
+  border-top: 1px dashed var(--color-border);
+}
+
+.photo-model__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.photo-model__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.photo-model__hint,
+.photo-model__status {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.photo-model__status {
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+}
+
+.photo-model__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 14px;
+  background: transparent;
+  border: 2px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  color: var(--color-accent);
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.photo-model__button:hover {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+
+.photo-model__button--quiet {
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.photo-model__button--quiet:hover {
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+}
+
+.photo-model__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.photo-model__progress,
+.photo-model__active {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+/* Fita de trena correndo enquanto o modelo é gerado. */
+.photo-model__tape {
+  width: 100%;
+  height: 10px;
+  background: var(--ruler-ticks), var(--color-accent);
+  background-size:
+    40px 100%,
+    8px 50%,
+    auto;
+  background-repeat: repeat-x;
+  background-position: 0 100%;
+  animation: tape-run 1.1s linear infinite;
+}
+
+@keyframes tape-run {
+  to {
+    background-position:
+      40px 100%,
+      40px 100%,
+      0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .photo-model__tape {
+    animation: none;
+  }
+}
+
+.photo-model__stamp {
+  margin: 0;
+  padding: 5px 10px;
+  border: 2px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  rotate: -1.2deg;
+}
+
+.photo-model__link {
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.photo-model__error {
+  margin: 0;
+  color: var(--color-error);
+  font-size: 0.8rem;
+}
+
 /* ---------- Compartilhar ---------- */
 
 .share {

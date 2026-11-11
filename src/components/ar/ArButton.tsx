@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Smartphone } from 'lucide-react'
 import { useMemo } from 'react'
 import { useArQuickLook } from '../../hooks/useArQuickLook'
-import type { DimensionsMeters, FurnitureKind } from '../../types/furniture'
+import type { DimensionsMeters, FurnitureKind, ScannedModel } from '../../types/furniture'
 import { detectPlatform } from '../../utils/platform'
 import { ArHandoffQr } from './ArHandoffQr'
 import { SafariHandoff } from './SafariHandoff'
@@ -12,6 +12,8 @@ interface ArButtonProps {
   readonly dimensions: DimensionsMeters
   /** Link desta configuração — QR no desktop, deep link no iPhone. */
   readonly handoffUrl: string
+  /** Modelo do produto real; quando presente, é ele que vai para o AR. */
+  readonly scannedModel?: ScannedModel | null
 }
 
 /**
@@ -20,8 +22,8 @@ interface ArButtonProps {
  * iPhone em outro navegador → abrir no Safari; Android → aviso honesto;
  * desktop → QR de handoff para o celular.
  */
-export function ArButton({ kind, dimensions, handoffUrl }: ArButtonProps) {
-  const { isSupported, status, launchAr } = useArQuickLook(kind, dimensions)
+export function ArButton({ kind, dimensions, handoffUrl, scannedModel = null }: ArButtonProps) {
+  const { isSupported, status, launchAr } = useArQuickLook(kind, dimensions, scannedModel)
   const platform = useMemo(() => detectPlatform(), [])
 
   if (!isSupported && platform === 'ios') {

@@ -1,3 +1,5 @@
+import type { Object3D } from 'three'
+
 /** Dimensões em centímetros — unidade usada na UI (o que o usuário digita). */
 export interface DimensionsCm {
   readonly widthCm: number
@@ -25,4 +27,18 @@ export interface DimensionFieldConfig {
   readonly axis: DimensionAxis
   readonly label: string
   readonly hint: string
+}
+
+/** De onde veio o modelo que substitui o móvel paramétrico. */
+export type ScannedModelSource = 'photo' | 'file'
+
+/**
+ * Modelo 3D do produto real (gerado a partir de uma foto ou enviado como
+ * arquivo). A forma vem dele; o tamanho continua vindo das medidas digitadas.
+ */
+export interface ScannedModel {
+  readonly scene: Object3D
+  readonly source: ScannedModelSource
+  /** Giros de 90° no eixo vertical — o gerador não sabe onde é a frente. */
+  readonly quarterTurns: 0 | 1 | 2 | 3
 }

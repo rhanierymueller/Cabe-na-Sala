@@ -16,7 +16,12 @@ declare global {
   }
 }
 
-export type AnalyticsEventName = 'view_tool' | 'verdict_shown' | 'launch_ar' | 'share_click'
+export type AnalyticsEventName =
+  | 'view_tool'
+  | 'verdict_shown'
+  | 'launch_ar'
+  | 'share_click'
+  | 'photo_model_ready'
 
 type AnalyticsParams = Readonly<Record<string, string | number | boolean>>
 

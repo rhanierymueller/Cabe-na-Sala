@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { buildFurnitureGroup } from '../components/furniture/buildFurnitureGroup'
 import { FURNITURE_CATALOG } from '../components/furniture/catalog'
-import type { DimensionsMeters, FurnitureKind } from '../types/furniture'
+import { buildScannedGroup } from '../components/furniture/scanned/fitModel'
+import type { DimensionsMeters, FurnitureKind, ScannedModel } from '../types/furniture'
 import { trackEvent } from '../utils/analytics'
 import type { UsdzExportResult } from '../utils/usdzExport'
 import { exportObjectToUsdz, isArQuickLookSupported, openArQuickLook } from '../utils/usdzExport'
@@ -15,10 +16,14 @@ export interface ArQuickLook {
 }
 
 /**
- * Gera o USDZ do móvel selecionado com as medidas atuais e abre o AR
- * Quick Look. O modelo é regenerado a cada toque, sempre atualizado.
+ * Gera o USDZ do móvel selecionado (ou do modelo vindo da foto) com as
+ * medidas atuais e abre o AR Quick Look. O modelo é regenerado a cada toque, sempre atualizado.
  */
-export function useArQuickLook(kind: FurnitureKind, dimensions: DimensionsMeters): ArQuickLook {
+export function useArQuickLook(
+  kind: FurnitureKind,
+  dimensions: DimensionsMeters,
+  scannedModel: ScannedModel | null = null,
+): ArQuickLook {
   const [status, setStatus] = useState<ArLaunchStatus>('idle')
   const isSupported = useMemo(isArQuickLookSupported, [])
   const lastExportRef = useRef<UsdzExportResult | null>(null)
@@ -30,9 +35,11 @@ export function useArQuickLook(kind: FurnitureKind, dimensions: DimensionsMeters
   const launchAr = useCallback(() => {
     const generateAndOpen = async (): Promise<void> => {
       setStatus('generating')
-      trackEvent('launch_ar', { furniture: kind })
+      trackEvent('launch_ar', { furniture: kind, model: scannedModel?.source ?? 'catalog' })
       try {
-        const furnitureGroup = buildFurnitureGroup(kind, dimensions)
+        const furnitureGroup = scannedModel
+          ? buildScannedGroup(scannedModel.scene, dimensions, scannedModel.quarterTurns)
+          : buildFurnitureGroup(kind, dimensions)
         const placement = FURNITURE_CATALOG[kind].arPlacement ?? 'floor'
         const usdzExport = await exportObjectToUsdz(furnitureGroup, placement)
 
@@ -48,7 +55,7 @@ export function useArQuickLook(kind: FurnitureKind, dimensions: DimensionsMeters
     }
 
     void generateAndOpen()
-  }, [kind, dimensions])
+  }, [kind, dimensions, scannedModel])
 
   return { isSupported, status, launchAr }
 }

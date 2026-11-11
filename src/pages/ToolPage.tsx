@@ -1,15 +1,17 @@
 import { motion } from 'framer-motion'
 import { ArrowLeft } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { ArButton } from '../components/ar/ArButton'
 import { DimensionsForm } from '../components/form/DimensionsForm'
 import { FURNITURE_CATALOG } from '../components/furniture/catalog'
+import { disposeModel } from '../components/furniture/scanned/loadModel'
 import { ShareButton } from '../components/share/ShareButton'
 import { DoorCheck } from '../components/tool/DoorCheck'
 import { FurniturePicker } from '../components/tool/FurniturePicker'
+import { PhotoModel } from '../components/tool/PhotoModel'
 import { FurnitureViewer } from '../components/viewer/FurnitureViewer'
 import { useDimensionsForm } from '../hooks/useDimensionsForm'
-import type { DimensionsCm, FurnitureKind } from '../types/furniture'
+import type { DimensionsCm, FurnitureKind, ScannedModel } from '../types/furniture'
 import { trackEvent } from '../utils/analytics'
 import { dimensionsCmToMeters } from '../utils/units'
 import type { ToolUrlState } from '../utils/urlState'
@@ -31,6 +33,7 @@ const FALLBACK_KIND: FurnitureKind = 'stove'
 export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolPageProps) {
   const [kind, setKind] = useState<FurnitureKind>(initialState?.kind ?? FALLBACK_KIND)
   const [doorWidthCm, setDoorWidthCm] = useState<number | null>(initialState?.doorWidthCm ?? null)
+  const [scannedModel, setScannedModel] = useState<ScannedModel | null>(null)
   const definition = FURNITURE_CATALOG[kind]
   const form = useDimensionsForm(initialState?.dimensionsCm ?? definition.defaultDimensionsCm)
   const dimensionsMeters = dimensionsCmToMeters(form.dimensionsCm)
@@ -48,7 +51,17 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
 
   const shareUrl = `${window.location.origin}${window.location.pathname}${buildToolSearch(kind, form.dimensionsCm, doorWidthCm)}`
 
+  // Troca o modelo e libera a GPU do anterior (girar mantém a mesma cena).
+  const handleScannedModelChange = useCallback((next: ScannedModel | null): void => {
+    setScannedModel((current) => {
+      if (current && current.scene !== next?.scene) disposeModel(current.scene)
+      return next
+    })
+  }, [])
+
   const handleSelectKind = (nextKind: FurnitureKind): void => {
+    // O modelo da foto pertence ao produto anterior.
+    handleScannedModelChange(null)
     setKind(nextKind)
     form.reset(FURNITURE_CATALOG[nextKind].defaultDimensionsCm)
   }
@@ -62,7 +75,7 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
       transition={{ duration: 0.35 }}
     >
       <div className="tool__canvas" aria-label="Visualização 3D do móvel">
-        <FurnitureViewer kind={kind} dimensions={dimensionsMeters} />
+        <FurnitureViewer kind={kind} dimensions={dimensionsMeters} scannedModel={scannedModel} />
       </div>
 
       <FurniturePicker selectedKind={kind} onSelect={handleSelectKind} />
@@ -82,13 +95,24 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
 
         <DimensionsForm form={form} furnitureLabel={definition.label} />
 
+        <PhotoModel
+          dimensions={dimensionsMeters}
+          model={scannedModel}
+          onModelChange={handleScannedModelChange}
+        />
+
         <DoorCheck
           dimensionsCm={form.dimensionsCm}
           doorWidthCm={doorWidthCm}
           onDoorWidthChange={setDoorWidthCm}
         />
 
-        <ArButton kind={kind} dimensions={dimensionsMeters} handoffUrl={shareUrl} />
+        <ArButton
+          kind={kind}
+          dimensions={dimensionsMeters}
+          handoffUrl={shareUrl}
+          scannedModel={scannedModel}
+        />
 
         <ShareButton
           furnitureLabel={definition.label}
