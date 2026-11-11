@@ -36,7 +36,8 @@ Diferencial vs. IKEA Place / Amazon "ver no quarto": **agnóstico de loja**
     "indisponível". O mesmo cliente (`api/_lib/claude.ts`) confere a foto do
     anúncio antes da geração 3D. O que é comum às rotas pagas (envelope,
     teto do corpo, contagem de uso, recusa em deploy sem Redis e Turnstile)
-    fica em `api/_lib/routeGuard.ts`.
+    fica em `api/_lib/routeGuard.ts`; a porta de entrada da rota do Claude
+    (origem, anti-robô, limites), em `api/_lib/claudeRoute.ts`.
   - **A rota é pública e cada geração custa dinheiro.** Camadas de proteção
     (todas no código; variáveis no `.env.example`):
     mesma origem → anti-robô Turnstile conferido no servidor → validação de
@@ -52,18 +53,10 @@ Diferencial vs. IKEA Place / Amazon "ver no quarto": **agnóstico de loja**
   - O modelo da foto é **esticado até a caixa das medidas digitadas**
     (`scanned/fitModel.ts`): a forma vem da foto, o tamanho vem de quem mediu.
     Também aceita `.glb` enviado direto, sem passar pelo servidor.
-- **"Ver na foto da minha sala"** (`components/room/`, `utils/roomPhoto.ts`):
-  alternativa ao AR que funciona em qualquer aparelho. A pessoa marca na foto
-  uma altura conhecida (porta de 210 cm), o código estima a câmera e desenha o
-  móvel 3D por cima. A foto nunca sai do aparelho (blob local). **É estimativa,
-  não medição**: assume a câmera principal do celular e 1,45 m de altura; a
-  interface diz "aproximado" e a medida exata continua sendo a digitada.
-  Ao abrir a foto, `api/reference.ts` pede ao Claude (modelo maior, porque
-  apontar lugar na foto exige mais visão) uma referência de altura conhecida:
-  porta (210 cm), bancada (90 cm) ou pé-direito. A linha já aparece marcada e
-  a pessoa só confirma; se nada for achado, marca à mão como antes. Se a
-  marcação não fecha com a altura de câmera padrão, o cálculo tenta alturas
-  vizinhas. O comum às rotas do Claude fica em `api/_lib/claudeRoute.ts`.
+- **"Ver na foto da minha sala" foi removido (nov/2026)**: marcar uma altura
+  na foto do cômodo e arrastar o móvel por cima ficou trabalhoso demais para
+  pouco ganho (o tamanho era só estimado). Não reabrir sem uma forma bem mais
+  simples de usar.
 - **O site identifica o móvel.** As duas rotas pagas devolvem `kind` (um dos
   tipos do catálogo ou null) junto com a resposta: o anúncio colado e a foto
   enviada trocam o móvel selecionado sozinhos. A lista de tipos do servidor
@@ -154,7 +147,7 @@ agora é página de produto Apple / SpaceX. O móvel é fotografado como produto
    quadro) com medidas padrão pré-preenchidas. Falta: TV por polegadas.
 3. ✅ Exportação USDZ + botão AR Quick Look (iPhone do dev = aparelho de teste).
 4. WebXR no Android (hit-test, ancorar, arrastar, girar) + medidas flutuantes.
-   Até lá, o Android usa a foto da sala.
+   Até lá, o Android vê o móvel em 3D na tela.
 5. Botões de afiliado nível 1 (links de busca com medida).
 6. ✅ Deploy na Vercel (cabenasala.com). Falta: primeiras páginas de SEO.
 

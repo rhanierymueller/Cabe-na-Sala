@@ -82,7 +82,7 @@ que a pessoa vê no link compartilhado (`?movel=fogao&l=60&porta=80`), que fica 
 
 ### Pastas
 
-- `components/<função>/`: uma pasta por função da interface (`photo-model`, `room`,
+- `components/<função>/`: uma pasta por função da interface (`photo-model`, `ad-measures`,
   `door-check`…). Peça genérica, sem regra de negócio, vai em `components/ui/`.
 - `hooks/`: estado e fluxos dos componentes.
 - `services/`: tudo que fala com a rede (rotas de `api/`, anti-robô, Analytics).

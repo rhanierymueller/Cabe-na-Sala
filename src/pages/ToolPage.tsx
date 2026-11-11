@@ -8,9 +8,9 @@ import { FURNITURE_CATALOG } from '../components/furniture/catalog'
 import { PhotoModel } from '../components/photo-model/PhotoModel'
 import { ShareButton } from '../components/share/ShareButton'
 import { FurniturePicker } from '../components/tool/FurniturePicker'
+import { PhotoShortcut } from '../components/tool/PhotoShortcut'
 import { SheetHandle } from '../components/tool/SheetHandle'
 import { ToolHeader } from '../components/tool/ToolHeader'
-import { ToolShortcuts } from '../components/tool/ToolShortcuts'
 import { ToolStage } from '../components/tool/ToolStage'
 import { useBottomSheet } from '../hooks/useBottomSheet'
 import { useToolSelection } from '../hooks/useToolSelection'
@@ -82,7 +82,7 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
 
         <div className="tool__cta">
           <ArButton kind={kind} dimensions={dimensions} handoffUrl={shareUrl} scannedModel={scannedModel} />
-          <ToolShortcuts kind={kind} dimensions={dimensions} scannedModel={scannedModel} />
+          <PhotoShortcut />
         </div>
       </aside>
     </motion.div>

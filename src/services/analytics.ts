@@ -22,8 +22,6 @@ type AnalyticsEventName =
   | 'launch_ar'
   | 'share_click'
   | 'photo_model_ready'
-  | 'room_photo_placed'
-  | 'room_photo_saved'
 
 type AnalyticsParams = Readonly<Record<string, string | number | boolean>>
 

@@ -4,8 +4,7 @@ import { splitImageDataUrl } from './modelRequest.js'
 /**
  * Acesso ao Claude para as tarefas de "entender" (conferir foto, ler medidas).
  * Por padrão, modelo pequeno e sem raciocínio, com resposta em JSON de formato
- * fixo: são classificações e extrações curtas em rota pública. Uma chamada
- * pode pedir um modelo maior quando a tarefa exige (apontar lugares na foto).
+ * fixo: são classificações e extrações curtas em rota pública.
  */
 
 const DEFAULT_MODEL = 'claude-haiku-5-5'
@@ -23,8 +22,6 @@ interface ClaudeJsonRequest {
   /** JSON Schema da resposta. */
   readonly schema: Record<string, unknown>
   readonly maxTokens: number
-  /** Modelo desta chamada; sem ele vale o padrão (pequeno). */
-  readonly model?: string
 }
 
 export function isClaudeConfigured(): boolean {
@@ -49,7 +46,7 @@ function buildContent(request: ClaudeJsonRequest): Anthropic.ContentBlockParam[]
  */
 export async function askClaudeForJson(request: ClaudeJsonRequest): Promise<unknown | null> {
   const client = new Anthropic({ timeout: REQUEST_TIMEOUT_MS, maxRetries: 1 })
-  const model = request.model ?? (process.env.CLAUDE_MODEL || DEFAULT_MODEL)
+  const model = process.env.CLAUDE_MODEL || DEFAULT_MODEL
   const isSmallModel = model.startsWith(SMALL_MODEL_PREFIX)
   const response = await client.messages.create({
     model,

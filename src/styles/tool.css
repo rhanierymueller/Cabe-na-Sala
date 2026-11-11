@@ -165,13 +165,7 @@
   line-height: 1.5;
 }
 
-/* Atalhos sob o botão principal. No computador só existe o da foto da sala. */
-.tool__shortcuts {
-  display: grid;
-  gap: 10px;
-  margin-top: 10px;
-}
-
+/* O atalho da foto do anúncio só existe no celular. */
 .tool__photo-shortcut {
   display: none;
 }

@@ -1,8 +1,8 @@
 # Cabe na Sala 🛋️
 
 Digite as medidas de um móvel (ou cole o anúncio, ou envie a foto) e veja se ele
-cabe na sua casa: em 3D no tamanho real, em AR no iPhone ou desenhado sobre a
-foto da sua sala. Sem app e sem login.
+cabe na sua casa: em 3D no tamanho real e em AR no iPhone. Sem app e sem
+login.
 
 No ar em [cabenasala.com](https://cabenasala.com).
 
@@ -16,7 +16,6 @@ No ar em [cabenasala.com](https://cabenasala.com).
   guarda-roupa, cama, mesa, rack, quadro) que esticam na medida digitada.
 - Veredito "passa na porta?" e link compartilhável com móvel, medidas e porta.
 - AR Quick Look no iPhone (USDZ gerado no navegador, escala travada).
-- "Ver na foto da minha sala": o móvel desenhado sobre uma foto, em qualquer aparelho.
 - Foto do anúncio → modelo 3D do produto real, esticado até as medidas digitadas.
 - Medidas lidas do texto ou do print do anúncio.
 
@@ -34,7 +33,6 @@ só para guardar chaves pagas fora do navegador:
 | ---------------- | ------------------------------------------------ | --------------- |
 | `/api/model3d`   | Foto do anúncio → modelo 3D (fal.ai)             | `FAL_KEY`       |
 | `/api/measures`  | Medidas lidas do anúncio (Claude)                | `ANTHROPIC_API_KEY` |
-| `/api/reference` | Altura de referência na foto da sala (Claude)    | `ANTHROPIC_API_KEY` |
 
 Sem as chaves, cada rota responde "indisponível" e o resto do site funciona.
 Para usá-las no dev, copie `.env.example` para `.env.local` e preencha. Em deploy,
@@ -66,7 +64,6 @@ src/
 │   ├── ad-measures/ #   medidas pelo anúncio
 │   ├── door-check/  #   "passa na porta?"
 │   ├── share/       #   enviar para quem decide junto
-│   ├── room/        #   ver na foto da minha sala
 │   ├── ar/          #   AR Quick Look e saídas de quem não tem AR
 │   ├── landing/     #   scrollytelling da landing
 │   └── ui/          #   peças genéricas (campo de arquivo)
