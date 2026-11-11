@@ -76,7 +76,19 @@ export function createRateLimiter(maxPerWindow: number, windowMs: number): RateL
   }
 }
 
-/** Primeiro IP do x-forwarded-for — o do cliente, segundo a Vercel. */
-export function clientIpFrom(forwardedFor: string | null): string {
-  return forwardedFor?.split(',')[0]?.trim() || 'desconhecido'
+const UNKNOWN_CLIENT = 'desconhecido'
+/** Cabeçalhos de IP em ordem de confiança: os dois primeiros são escritos pela Vercel. */
+const CLIENT_IP_HEADERS = ['x-vercel-forwarded-for', 'x-real-ip', 'x-forwarded-for'] as const
+
+/**
+ * IP do cliente para o limite de uso. Prefere os cabeçalhos que a plataforma
+ * define (o cliente não consegue forjar); x-forwarded-for é só o último recurso.
+ * Sem IP, todos caem na mesma chave — o limite fica mais rígido, não mais frouxo.
+ */
+export function clientIpFrom(headers: Pick<Headers, 'get'>): string {
+  for (const name of CLIENT_IP_HEADERS) {
+    const firstAddress = headers.get(name)?.split(',')[0]?.trim()
+    if (firstAddress) return firstAddress
+  }
+  return UNKNOWN_CLIENT
 }

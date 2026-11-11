@@ -16,6 +16,12 @@ import {
  *   GET  /api/modelo3d?id=...                → { status, modelUrl? }
  *
  * A geração leva ~1 min, então o POST só enfileira e o navegador consulta.
+ *
+ * SEGURANÇA: a checagem de origem NÃO é autenticação — só barra uso casual
+ * por outros sites. A rota é pública e cada POST custa dinheiro. As defesas
+ * reais são o limite de uso abaixo (fraco, em memória) e o limite de gasto
+ * configurado no painel do provedor. Antes de divulgar: limite em
+ * armazenamento compartilhado (Vercel KV/Upstash) e desafio anti-robô.
  */
 
 const MODEL_ENDPOINT = 'fal-ai/trellis'
@@ -70,7 +76,7 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const nowMs = Date.now()
-  const clientIp = clientIpFrom(request.headers.get('x-forwarded-for'))
+  const clientIp = clientIpFrom(request.headers)
   if (!perIpLimiter.tryConsume(clientIp, nowMs)) {
     return respond(429, null, 'Você já gerou vários modelos. Tente de novo em uma hora.')
   }

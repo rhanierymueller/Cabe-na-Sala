@@ -102,11 +102,22 @@ describe('createRateLimiter', () => {
 })
 
 describe('clientIpFrom', () => {
-  test('takes the first address of the chain', () => {
-    expect(clientIpFrom('203.0.113.7, 10.0.0.1')).toBe('203.0.113.7')
+  test('prefers the address written by the platform over a client-supplied one', () => {
+    const headers = new Headers({
+      'x-forwarded-for': '1.2.3.4',
+      'x-real-ip': '203.0.113.7',
+    })
+
+    expect(clientIpFrom(headers)).toBe('203.0.113.7')
   })
 
-  test('falls back when the header is missing', () => {
-    expect(clientIpFrom(null)).toBe('desconhecido')
+  test('takes the first address of the chain', () => {
+    const headers = new Headers({ 'x-forwarded-for': '203.0.113.7, 10.0.0.1' })
+
+    expect(clientIpFrom(headers)).toBe('203.0.113.7')
+  })
+
+  test('falls back to one shared key when there is no address', () => {
+    expect(clientIpFrom(new Headers())).toBe('desconhecido')
   })
 })
