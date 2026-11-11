@@ -15,6 +15,8 @@ import { FurnitureViewer } from '../components/viewer/FurnitureViewer'
 import { useDimensionsForm } from '../hooks/useDimensionsForm'
 import type { DimensionsCm, FurnitureKind, ScannedModel } from '../types/furniture'
 import { trackEvent } from '../utils/analytics'
+import { clampDimensionCm } from '../utils/dimensionValidation'
+import type { AdMeasures as FoundMeasures } from '../utils/measuresApi'
 import { dimensionsCmToMeters } from '../utils/units'
 import type { ToolUrlState } from '../utils/urlState'
 import { buildToolSearch } from '../utils/urlState'
@@ -38,6 +40,8 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
   const [scannedModel, setScannedModel] = useState<ScannedModel | null>(null)
   // Só importa no celular: a folha de baixo recolhida ou aberta.
   const [isSheetOpen, setIsSheetOpen] = useState(false)
+  // Muda só quando a pessoa troca de móvel: remonta a foto do anúncio e cancela a geração.
+  const [photoSession, setPhotoSession] = useState(0)
   const definition = FURNITURE_CATALOG[kind]
   const form = useDimensionsForm(initialState?.dimensionsCm ?? definition.defaultDimensionsCm)
   const dimensionsMeters = dimensionsCmToMeters(form.dimensionsCm)
@@ -68,8 +72,42 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
     if (nextKind === kind) return
     // O modelo da foto pertence ao produto anterior.
     handleScannedModelChange(null)
+    setPhotoSession((session) => session + 1)
     setKind(nextKind)
     form.reset(FURNITURE_CATALOG[nextKind].defaultDimensionsCm)
+  }
+
+  /** O anúncio disse as medidas e, quando deu, que móvel é. */
+  const handleAdRead = (found: FoundMeasures): void => {
+    const nextKind = found.kind ?? kind
+    // Medida que o anúncio não traz: a que está na tela, ou a padrão do móvel novo.
+    const base =
+      nextKind === kind ? form.dimensionsCm : FURNITURE_CATALOG[nextKind].defaultDimensionsCm
+    if (nextKind !== kind) {
+      handleScannedModelChange(null)
+      setPhotoSession((session) => session + 1)
+      setKind(nextKind)
+    }
+    form.reset({
+      widthCm: clampDimensionCm(found.widthCm ?? base.widthCm),
+      heightCm: clampDimensionCm(found.heightCm ?? base.heightCm),
+      depthCm: clampDimensionCm(found.depthCm ?? base.depthCm),
+    })
+  }
+
+  /**
+   * A foto mostrou outro tipo de móvel. Troca o tipo sem cancelar a geração;
+   * as medidas só mudam se ainda forem as padrão (ninguém digitou nada).
+   */
+  const handlePhotoKind = (detectedKind: FurnitureKind): void => {
+    if (detectedKind === kind) return
+    const defaults = definition.defaultDimensionsCm
+    const isUntouched =
+      form.dimensionsCm.widthCm === defaults.widthCm &&
+      form.dimensionsCm.heightCm === defaults.heightCm &&
+      form.dimensionsCm.depthCm === defaults.depthCm
+    setKind(detectedKind)
+    if (isUntouched) form.reset(FURNITURE_CATALOG[detectedKind].defaultDimensionsCm)
   }
 
   return (
@@ -113,14 +151,15 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
           <DimensionsForm form={form} furnitureLabel={definition.label} />
 
           <div className="tool__more">
-            <AdMeasures dimensionsCm={form.dimensionsCm} onApply={form.reset} />
+            <AdMeasures onRead={handleAdRead} />
 
             <PhotoModel
-              // Trocar de móvel remonta o componente e cancela a geração em andamento.
-              key={kind}
+              // Trocar de móvel à mão remonta o componente e cancela a geração em andamento.
+              key={photoSession}
               dimensions={dimensionsMeters}
               model={scannedModel}
               onModelChange={handleScannedModelChange}
+              onKindDetected={handlePhotoKind}
             />
 
             <DoorCheck

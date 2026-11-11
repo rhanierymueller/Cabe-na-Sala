@@ -3,7 +3,14 @@ import { REJECTION_MESSAGES, REJECTION_REASONS, parseVerdict } from './photoChec
 
 describe('parseVerdict', () => {
   test('aceita uma aprovação', () => {
-    expect(parseVerdict({ ok: true, reason: null })).toEqual({ ok: true })
+    expect(parseVerdict({ ok: true, reason: null, kind: 'cabinet' })).toEqual({
+      ok: true,
+      kind: 'cabinet',
+    })
+  })
+
+  test('aprovação com tipo desconhecido fica sem tipo', () => {
+    expect(parseVerdict({ ok: true, reason: null, kind: 'piano' })).toEqual({ ok: true, kind: null })
   })
 
   test.each(REJECTION_REASONS.map((reason) => [reason] as const))(

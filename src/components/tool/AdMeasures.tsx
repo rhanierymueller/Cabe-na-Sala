@@ -2,15 +2,15 @@ import { ClipboardPaste, ImageUp } from 'lucide-react'
 import type { ChangeEvent } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import type { DimensionsCm } from '../../types/furniture'
+import { FURNITURE_CATALOG } from '../furniture/catalog'
 import { ChallengeError, requestChallengeToken } from '../../utils/challenge'
-import { clampDimensionCm } from '../../utils/dimensionValidation'
 import { resizeImageToDataUrl } from '../../utils/imageResize'
 import type { AdMeasures as FoundMeasures } from '../../utils/measuresApi'
 import { MeasuresApiError, readAdMeasures } from '../../utils/measuresApi'
 
 interface AdMeasuresProps {
-  readonly dimensionsCm: DimensionsCm
-  readonly onApply: (dimensionsCm: DimensionsCm) => void
+  /** Recebe o que foi lido: medidas (null onde faltou) e o tipo de móvel reconhecido. */
+  readonly onRead: (found: FoundMeasures) => void
 }
 
 type Feedback = { readonly kind: 'ok' | 'error'; readonly text: string }
@@ -29,15 +29,17 @@ const AXES = Object.keys(AXIS_LABELS) as readonly (keyof DimensionsCm)[]
 
 function describeResult(found: FoundMeasures): string {
   const missing = AXES.filter((axis) => found[axis] === null).map((axis) => AXIS_LABELS[axis])
-  if (missing.length === 0) return 'Medidas preenchidas. Confira com o anúncio.'
-  return `Preenchi o que achei. Faltou: ${missing.join(' e ')}.`
+  const what = found.kind ? `${FURNITURE_CATALOG[found.kind].label}: ` : ''
+  if (missing.length === 0) return `${what}medidas preenchidas. Confira com o anúncio.`
+  return `${what}preenchi o que achei. Faltou: ${missing.join(' e ')}.`
 }
 
 /**
  * "Tem o anúncio aberto?": a pessoa cola a descrição ou envia um print e as
- * medidas são preenchidas. O que o anúncio não informa fica como estava.
+ * medidas são preenchidas e o móvel certo é selecionado. O que o anúncio não
+ * informa fica como estava.
  */
-export function AdMeasures({ dimensionsCm, onApply }: AdMeasuresProps) {
+export function AdMeasures({ onRead }: AdMeasuresProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const abortRef = useRef<AbortController | null>(null)
   const [text, setText] = useState('')
@@ -65,11 +67,7 @@ export function AdMeasures({ dimensionsCm, onApply }: AdMeasuresProps) {
           challengeToken,
           signal: controller.signal,
         })
-        onApply({
-          widthCm: clampDimensionCm(found.widthCm ?? dimensionsCm.widthCm),
-          heightCm: clampDimensionCm(found.heightCm ?? dimensionsCm.heightCm),
-          depthCm: clampDimensionCm(found.depthCm ?? dimensionsCm.depthCm),
-        })
+        onRead(found)
         setFeedback({ kind: 'ok', text: describeResult(found) })
       } catch (error: unknown) {
         if (controller.signal.aborted) return

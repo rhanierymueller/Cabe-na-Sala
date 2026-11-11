@@ -26,7 +26,7 @@ import { isOverLimit, readJsonBody, resolveRouteGuard, respond } from './_lib/ro
  * Foto → modelo 3D. Única rota de servidor do projeto: existe só para
  * guardar a chave do provedor (FAL_KEY) fora do navegador.
  *
- *   POST /api/modelo3d  { image, challengeToken? }  → { id }
+ *   POST /api/modelo3d  { image, challengeToken? }  → { id, kind }
  *   GET  /api/modelo3d?id=...                        → { status, modelUrl? }
  *
  * A geração leva ~30 s a 1 min, então o POST só enfileira e o navegador consulta.
@@ -50,7 +50,7 @@ const DAY_S = 24 * HOUR_S
 const MINUTE_S = 60
 /** Conferir a foto é barato, mas não gratuito. */
 const MAX_CHECKS_PER_IP_PER_HOUR = 12
-const PHOTO_CHECK_MAX_TOKENS = 100
+const PHOTO_CHECK_MAX_TOKENS = 120
 const MAX_JOBS_PER_IP_PER_HOUR = 3
 const MAX_JOBS_PER_IP_PER_DAY = 8
 const DEFAULT_MAX_JOBS_PER_DAY = 100
@@ -94,7 +94,7 @@ function resolveProtections(): Protections | null {
  * limitada.
  */
 async function checkPhoto(image: string): Promise<PhotoVerdict> {
-  if (!isClaudeConfigured()) return { ok: true }
+  if (!isClaudeConfigured()) return { ok: true, kind: null }
   try {
     const verdict = parseVerdict(
       await askClaudeForJson({
@@ -110,7 +110,7 @@ async function checkPhoto(image: string): Promise<PhotoVerdict> {
   } catch (error: unknown) {
     console.error('Conferência da foto indisponível; seguindo sem ela', error)
   }
-  return { ok: true }
+  return { ok: true, kind: null }
 }
 
 export async function POST(request: Request): Promise<Response> {
@@ -170,7 +170,7 @@ export async function POST(request: Request): Promise<Response> {
   try {
     const job = await fal.queue.submit(MODEL_ENDPOINT, { input: { image_url: image } })
     await store.remember(`job:id:${job.request_id}`, JOB_TTL_S)
-    return respond(202, { id: job.request_id })
+    return respond(202, { id: job.request_id, kind: verdict.kind })
   } catch (error: unknown) {
     console.error('Falha ao enfileirar a geração do modelo 3D', error)
     return respond(502, null, 'Não foi possível iniciar a geração. Tente de novo.')

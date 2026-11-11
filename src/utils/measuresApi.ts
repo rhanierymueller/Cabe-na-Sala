@@ -3,6 +3,9 @@
  * O navegador nunca fala com o provedor: só com /api/medidas.
  */
 
+import { toFurnitureKind } from '../components/furniture/catalog'
+import type { FurnitureKind } from '../types/furniture'
+
 const ENDPOINT = '/api/medidas'
 const GENERIC_ERROR_MESSAGE = 'Não foi possível ler o anúncio. Digite as medidas.'
 
@@ -19,6 +22,8 @@ export interface AdMeasures {
   readonly widthCm: number | null
   readonly heightCm: number | null
   readonly depthCm: number | null
+  /** Tipo de móvel reconhecido; null quando o catálogo não tem nada parecido. */
+  readonly kind: FurnitureKind | null
 }
 
 export interface AdMeasuresRequest {
@@ -62,5 +67,6 @@ export async function readAdMeasures({
     widthCm: toMeasure(data.widthCm),
     heightCm: toMeasure(data.heightCm),
     depthCm: toMeasure(data.depthCm),
+    kind: toFurnitureKind(data.kind),
   }
 }

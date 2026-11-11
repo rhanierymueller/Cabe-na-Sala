@@ -66,6 +66,15 @@ export function cylinder(
 /** Paleta compartilhada — o viewer e o AR mostram exatamente o mesmo material. */
 export const MATERIALS = {
   steel: { color: '#d4d7da', roughness: 0.42, metalness: 0.25 },
+  /** Aço escovado dos eletrodomésticos atuais. */
+  inox: { color: '#aeb2b6', roughness: 0.34, metalness: 0.6 },
+  blackGlass: { color: '#0b0c0e', roughness: 0.06, metalness: 0.35 },
+  blackSteel: { color: '#1b1c1f', roughness: 0.45, metalness: 0.5 },
+  /** Espelho: claro e brilhante. Metal puro refletiria o estúdio escuro e sairia preto. */
+  mirror: { color: '#c3ccd2', roughness: 0.12, metalness: 0.45 },
+  lacquer: { color: '#d9d4cb', roughness: 0.5, metalness: 0 },
+  oak: { color: '#c9a67e', roughness: 0.6, metalness: 0.02 },
+  oakDark: { color: '#8f7254', roughness: 0.62, metalness: 0.02 },
   darkSteel: { color: '#33373c', roughness: 0.4, metalness: 0.6 },
   graphite: { color: '#8f9499', roughness: 0.5, metalness: 0.2 },
   cooktop: { color: '#24272b', roughness: 0.2, metalness: 0.55 },

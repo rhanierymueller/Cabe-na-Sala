@@ -3,6 +3,9 @@
  * O navegador nunca fala com o provedor: só com /api/modelo3d.
  */
 
+import { toFurnitureKind } from '../components/furniture/catalog'
+import type { FurnitureKind } from '../types/furniture'
+
 const ENDPOINT = '/api/modelo3d'
 const POLL_INTERVAL_MS = 3000
 /** A geração costuma levar ~1 min; depois disso desistimos com mensagem clara. */
@@ -48,7 +51,7 @@ async function startJob(
   imageDataUrl: string,
   challengeToken: string | null,
   signal: AbortSignal,
-): Promise<string> {
+): Promise<{ readonly id: string; readonly kind: FurnitureKind | null }> {
   const response = await fetch(ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -57,7 +60,7 @@ async function startJob(
   })
   const data = unwrap(response, await readEnvelope(response))
   if (typeof data.id !== 'string') throw new ModelApiError()
-  return data.id
+  return { id: data.id, kind: toFurnitureKind(data.kind) }
 }
 
 async function checkJob(id: string, signal: AbortSignal): Promise<JobState> {
@@ -91,8 +94,11 @@ export interface GenerationRequest {
   /** Token do desafio anti-robô; null quando o ambiente não usa desafio. */
   readonly challengeToken: string | null
   readonly signal: AbortSignal
-  /** Chamado quando o servidor aceitou a foto e a geração entrou na fila. */
-  readonly onAccepted?: () => void
+  /**
+   * Chamado quando o servidor aceitou a foto e a geração entrou na fila, com
+   * o tipo de móvel que ele reconheceu nela (null se nenhum do catálogo).
+   */
+  readonly onAccepted?: (kind: FurnitureKind | null) => void
 }
 
 /**
@@ -105,8 +111,8 @@ export async function generateModelFromPhoto({
   signal,
   onAccepted,
 }: GenerationRequest): Promise<string> {
-  const id = await startJob(imageDataUrl, challengeToken, signal)
-  onAccepted?.()
+  const { id, kind } = await startJob(imageDataUrl, challengeToken, signal)
+  onAccepted?.(kind)
   const deadlineMs = Date.now() + GENERATION_TIMEOUT_MS
 
   while (Date.now() < deadlineMs) {

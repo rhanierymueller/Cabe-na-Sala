@@ -58,6 +58,12 @@ Diferencial vs. IKEA Place / Amazon "ver no quarto": **agnóstico de loja**
   móvel 3D por cima. A foto nunca sai do aparelho (blob local). **É estimativa,
   não medição**: assume a câmera principal do celular e 1,45 m de altura; a
   interface diz "aproximado" e a medida exata continua sendo a digitada.
+- **O site identifica o móvel.** As duas rotas pagas devolvem `kind` (um dos
+  tipos do catálogo ou null) junto com a resposta: o anúncio colado e a foto
+  enviada trocam o móvel selecionado sozinhos. A lista de tipos do servidor
+  fica em `api/_lib/furnitureKinds.ts` e tem de acompanhar `FurnitureKind`. O
+  que não tem modelo próprio (rack, cômoda, aparador, criado-mudo) cai no
+  móvel baixo genérico `cabinet` ("Rack").
 - Modelos 3D **gerados por código** (caixas estilizadas com encosto/pés etc.),
   para esticar limpo em qualquer medida. Assets low-poly CC0 (Kenney, Quaternius,
   Poly Haven) só como polimento futuro — modelo artístico deforma ao esticar.

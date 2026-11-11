@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { normalizeModel, suggestQuarterTurns } from '../components/furniture/scanned/fitModel'
 import { EmptyModelError, loadGlbModel } from '../components/furniture/scanned/loadModel'
-import type { DimensionsMeters, ScannedModel, ScannedModelSource } from '../types/furniture'
+import type {
+  DimensionsMeters,
+  FurnitureKind,
+  ScannedModel,
+  ScannedModelSource,
+} from '../types/furniture'
 import { trackEvent } from '../utils/analytics'
 import { ChallengeError, requestChallengeToken } from '../utils/challenge'
 import { resizeImageToDataUrl } from '../utils/imageResize'
@@ -79,6 +84,8 @@ function isAbort(error: unknown): boolean {
 export function usePhotoModel(
   dimensions: DimensionsMeters,
   onModelReady: (model: ScannedModel) => void,
+  /** A foto mostrou um móvel de outro tipo que o selecionado. */
+  onKindDetected: (kind: FurnitureKind) => void,
 ): PhotoModel {
   const [phase, setPhase] = useState<PhotoModelPhase>('idle')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -135,7 +142,10 @@ export function usePhotoModel(
               imageDataUrl,
               challengeToken,
               signal: controller.signal,
-              onAccepted: () => showPhase('generating'),
+              onAccepted: (detectedKind) => {
+                showPhase('generating')
+                if (detectedKind && abortRef.current === controller) onKindDetected(detectedKind)
+              },
             })
           }
 
@@ -161,7 +171,7 @@ export function usePhotoModel(
 
       void run()
     },
-    [onModelReady],
+    [onModelReady, onKindDetected],
   )
 
   return {

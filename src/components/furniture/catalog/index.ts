@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react'
 import {
+  Archive,
   BedDouble,
   DoorClosed,
   Flame,
@@ -16,6 +17,7 @@ import type {
 } from '../../../types/furniture'
 import type { FurnitureLayout } from '../parts'
 import { DEFAULT_BED_DIMENSIONS_CM, computeBedLayout } from './bed'
+import { DEFAULT_CABINET_DIMENSIONS_CM, computeCabinetLayout } from './cabinet'
 import { DEFAULT_FRAME_DIMENSIONS_CM, computeFrameLayout } from './frame'
 import { DEFAULT_FRIDGE_DIMENSIONS_CM, computeFridgeLayout } from './fridge'
 import { DEFAULT_SOFA_DIMENSIONS_CM, computeSofaLayout } from './sofa'
@@ -76,6 +78,13 @@ export const FURNITURE_CATALOG: Record<FurnitureKind, FurnitureDefinition> = {
     defaultDimensionsCm: DEFAULT_TABLE_DIMENSIONS_CM,
     computeLayout: computeTableLayout,
   },
+  cabinet: {
+    kind: 'cabinet',
+    label: 'Rack',
+    icon: Archive,
+    defaultDimensionsCm: DEFAULT_CABINET_DIMENSIONS_CM,
+    computeLayout: computeCabinetLayout,
+  },
   frame: {
     kind: 'frame',
     label: 'Quadro',
@@ -94,7 +103,13 @@ export const FURNITURE_KINDS: readonly FurnitureKind[] = [
   'wardrobe',
   'bed',
   'table',
+  'cabinet',
   'frame',
 ]
+
+/** Valida um tipo vindo de fora (URL, servidor). */
+export function toFurnitureKind(value: unknown): FurnitureKind | null {
+  return FURNITURE_KINDS.includes(value as FurnitureKind) ? (value as FurnitureKind) : null
+}
 
 export { DEFAULT_STOVE_DIMENSIONS_CM }

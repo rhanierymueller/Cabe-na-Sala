@@ -3,10 +3,11 @@ import { MAX_AD_TEXT_LENGTH, isValidAdText, parseAdMeasures } from './adMeasures
 
 describe('parseAdMeasures', () => {
   test('aceita as três medidas dentro da faixa', () => {
-    expect(parseAdMeasures({ widthCm: 210, heightCm: 88.04, depthCm: 95 })).toEqual({
+    expect(parseAdMeasures({ widthCm: 210, heightCm: 88.04, depthCm: 95, kind: 'sofa' })).toEqual({
       widthCm: 210,
       heightCm: 88,
       depthCm: 95,
+      kind: 'sofa',
     })
   })
 
@@ -15,6 +16,7 @@ describe('parseAdMeasures', () => {
       widthCm: 60,
       heightCm: null,
       depthCm: 58,
+      kind: null,
     })
   })
 
@@ -23,6 +25,7 @@ describe('parseAdMeasures', () => {
       widthCm: null,
       heightCm: 88,
       depthCm: null,
+      kind: null,
     })
   })
 
@@ -31,10 +34,21 @@ describe('parseAdMeasures', () => {
       widthCm: null,
       heightCm: 88,
       depthCm: null,
+      kind: null,
     })
   })
 
-  test.each([null, 'texto', 42, {}, { widthCm: null, heightCm: null, depthCm: null }])(
+  test('descarta tipo de móvel fora do catálogo', () => {
+    expect(parseAdMeasures({ widthCm: 60, heightCm: 80, depthCm: 5, kind: 'piano' })?.kind).toBeNull()
+  })
+
+  test.each([
+    null,
+    'texto',
+    42,
+    {},
+    { widthCm: null, heightCm: null, depthCm: null, kind: 'sofa' },
+  ])(
     'devolve null quando nada foi encontrado: %j',
     (output) => {
       expect(parseAdMeasures(output)).toBeNull()

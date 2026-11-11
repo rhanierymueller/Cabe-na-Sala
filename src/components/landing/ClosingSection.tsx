@@ -43,7 +43,7 @@ export function ClosingSection({ onStart }: ClosingSectionProps) {
           Meça. Veja. <span className="text-accent">Compre certo.</span>
         </motion.h2>
         <motion.p className="closing__subtitle" variants={riseInVariants}>
-          Seis categorias prontas para testar — e vem mais por aí.
+          Oito categorias prontas para testar — e vem mais por aí.
         </motion.p>
 
         <motion.ul className="closing__categories" variants={riseInVariants}>

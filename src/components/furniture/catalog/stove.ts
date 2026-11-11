@@ -10,7 +10,7 @@ export const DEFAULT_STOVE_DIMENSIONS_CM: DimensionsCm = {
 }
 
 const FEET_HEIGHT_RATIO = 0.05
-const FEET_THICKNESS_RATIO = 0.08
+const PLINTH_RECESS_RATIO = 0.04
 const COOKTOP_THICKNESS_RATIO = 0.03
 const CONTROL_PANEL_HEIGHT_RATIO = 0.12
 const BURNER_RADIUS_RATIO = 0.16
@@ -25,8 +25,9 @@ const GRATE_LENGTH_RATIO = 0.82
 const GRATE_SPREAD_RATIO = 0.07
 const DOOR_WIDTH_RATIO = 0.92
 const DOOR_THICKNESS_RATIO = 0.03
-const WINDOW_WIDTH_RATIO = 0.8
-const WINDOW_HEIGHT_RATIO = 0.58
+/** A porta é quase toda de vidro preto, com uma moldura fina de inox. */
+const WINDOW_WIDTH_RATIO = 0.9
+const WINDOW_HEIGHT_RATIO = 0.8
 const HANDLE_LENGTH_RATIO = 0.8
 const HANDLE_RADIUS_RATIO = 0.018
 const HANDLE_STANDOFF_RATIO = 0.06
@@ -44,19 +45,11 @@ export function computeStoveLayout(dimensions: DimensionsMeters): FurnitureLayou
   const frontZ = depthM / 2
   const doorThickness = widthM * DOOR_THICKNESS_RATIO
 
-  const footThickness = Math.min(widthM, depthM) * FEET_THICKNESS_RATIO
-  const feet = [-1, 1].flatMap((signX) =>
-    [-1, 1].map((signZ) =>
-      box(
-        [
-          signX * (widthM / 2 - footThickness / 2),
-          feetHeight / 2,
-          signZ * (depthM / 2 - footThickness / 2),
-        ],
-        [footThickness, feetHeight, footThickness],
-        MATERIALS.darkSteel,
-      ),
-    ),
+  // Rodapé preto recuado no lugar dos pezinhos.
+  const plinth = box(
+    [0, feetHeight / 2, -depthM * PLINTH_RECESS_RATIO],
+    [widthM * 0.94, feetHeight, depthM * (1 - PLINTH_RECESS_RATIO * 2)],
+    MATERIALS.blackSteel,
   )
 
   const burnerRadius = Math.min(widthM, depthM) * BURNER_RADIUS_RATIO
@@ -122,12 +115,12 @@ export function computeStoveLayout(dimensions: DimensionsMeters): FurnitureLayou
   const doorCenterY = doorBottom + doorHeight / 2
 
   return [
-    ...feet,
+    plinth,
     roundedBox(
       [0, feetHeight + bodyHeight / 2, 0],
       [widthM, bodyHeight, depthM],
-      MATERIALS.steel,
-      0.04,
+      MATERIALS.inox,
+      0.03,
     ),
     roundedBox(
       [0, heightM - cooktopThickness / 2, 0],
@@ -140,22 +133,22 @@ export function computeStoveLayout(dimensions: DimensionsMeters): FurnitureLayou
     box(
       [0, heightM - cooktopThickness - panelHeight / 2, frontZ + doorThickness / 2],
       [widthM, panelHeight, doorThickness],
-      MATERIALS.steel,
+      MATERIALS.blackGlass,
     ),
     ...knobs,
     roundedBox(
       [0, doorCenterY, frontZ + doorThickness / 2],
       [widthM * DOOR_WIDTH_RATIO, doorHeight, doorThickness],
-      MATERIALS.steel,
-      0.4,
+      MATERIALS.inox,
+      0.15,
     ),
     box(
-      [0, doorCenterY, frontZ + doorThickness],
+      [0, doorCenterY - doorHeight * 0.04, frontZ + doorThickness],
       [widthM * WINDOW_WIDTH_RATIO, doorHeight * WINDOW_HEIGHT_RATIO, doorThickness * 0.4],
-      MATERIALS.glass,
+      MATERIALS.blackGlass,
     ),
     cylinder(
-      [0, doorTop - doorHeight * 0.08, frontZ + doorThickness + widthM * HANDLE_STANDOFF_RATIO],
+      [0, doorTop - doorHeight * 0.055, frontZ + doorThickness + widthM * HANDLE_STANDOFF_RATIO],
       widthM * HANDLE_RADIUS_RATIO,
       widthM * HANDLE_LENGTH_RATIO,
       MATERIALS.chrome,

@@ -3,7 +3,7 @@ import type { ChangeEvent } from 'react'
 import { useMemo, useRef } from 'react'
 import type { PhotoModelPhase } from '../../hooks/usePhotoModel'
 import { CAMERA_ACCEPT, PHOTO_MODEL_ACCEPT, usePhotoModel } from '../../hooks/usePhotoModel'
-import type { DimensionsMeters, ScannedModel } from '../../types/furniture'
+import type { DimensionsMeters, FurnitureKind, ScannedModel } from '../../types/furniture'
 import { detectPlatform } from '../../utils/platform'
 import { nextQuarterTurn } from '../furniture/scanned/fitModel'
 
@@ -11,6 +11,7 @@ interface PhotoModelProps {
   readonly dimensions: DimensionsMeters
   readonly model: ScannedModel | null
   readonly onModelChange: (model: ScannedModel | null) => void
+  readonly onKindDetected: (kind: FurnitureKind) => void
 }
 
 const ICON_SIZE = 15
@@ -26,12 +27,12 @@ const BUSY_LABEL: Partial<Record<PhotoModelPhase, string>> = {
  * "Use a foto do anúncio": troca o móvel genérico pelo produto de verdade.
  * A forma vem da foto; o tamanho continua vindo das medidas digitadas.
  */
-export function PhotoModel({ dimensions, model, onModelChange }: PhotoModelProps) {
+export function PhotoModel({ dimensions, model, onModelChange, onKindDetected }: PhotoModelProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const cameraRef = useRef<HTMLInputElement>(null)
   // No computador o atributo capture é ignorado e o botão só confundiria.
   const hasCamera = useMemo(() => detectPlatform() !== 'desktop', [])
-  const photoModel = usePhotoModel(dimensions, onModelChange)
+  const photoModel = usePhotoModel(dimensions, onModelChange, onKindDetected)
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const file = event.target.files?.[0]
