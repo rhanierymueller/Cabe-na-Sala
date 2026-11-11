@@ -1,6 +1,7 @@
 import { fal } from '@fal-ai/client'
 import { isPlausibleChallengeToken, verifyChallenge } from './_lib/challenge.js'
 import { askClaudeForJson, isClaudeConfigured } from './_lib/claude.js'
+import { segmentPrompt } from './_lib/furnitureKinds.js'
 import {
   MAX_IMAGE_DATA_URL_LENGTH,
   clientIpFrom,
@@ -43,7 +44,8 @@ import { isOverLimit, readJsonBody, resolveRouteGuard, respond } from './_lib/ro
  * O teto final é o saldo pré-pago no provedor, sem recarga automática.
  */
 
-const MODEL_ENDPOINT = 'fal-ai/trellis'
+/** SAM 3D (Meta): recorta o móvel da foto pelo nome e reconstrói só ele, sem o fundo. */
+const MODEL_ENDPOINT = 'fal-ai/sam-3/3d-objects'
 
 const HOUR_S = 60 * 60
 const DAY_S = 24 * HOUR_S
@@ -168,7 +170,9 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   try {
-    const job = await fal.queue.submit(MODEL_ENDPOINT, { input: { image_url: image } })
+    const job = await fal.queue.submit(MODEL_ENDPOINT, {
+      input: { image_url: image, prompt: segmentPrompt(verdict.kind), export_textured_glb: true },
+    })
     await store.remember(`job:id:${job.request_id}`, JOB_TTL_S)
     return respond(202, { id: job.request_id, kind: verdict.kind })
   } catch (error: unknown) {
@@ -207,7 +211,7 @@ export async function GET(request: Request): Promise<Response> {
     }
 
     const result = await fal.queue.result(MODEL_ENDPOINT, { requestId: id })
-    const modelUrl = (result.data as { model_mesh?: { url?: unknown } } | null)?.model_mesh?.url
+    const modelUrl = (result.data as { model_glb?: { url?: unknown } } | null)?.model_glb?.url
     if (!isTrustedModelUrl(modelUrl)) {
       console.error('Resultado do provedor sem URL de modelo confiável', { id })
       return respond<{ status: JobStatus }>(200, { status: 'failed' })
