@@ -18,6 +18,8 @@ export function StudioLights() {
         shadow-mapSize={[1024, 1024]}
         shadow-bias={-0.0004}
       />
+      {/* Contraluz: recorta a silhueta de móvel escuro contra o fundo escuro. */}
+      <directionalLight position={[-2.5, 3.5, -4]} intensity={1.6} color="#ffe9cf" />
       <Environment resolution={256}>
         <Lightformer form="rect" intensity={2.4} position={[0, 5, 1]} scale={[8, 4, 1]} target={SCENE_CENTER} />
         <Lightformer form="rect" intensity={1.4} color="#ffe2b8" position={[-5, 2, 2]} scale={[4, 4, 1]} target={SCENE_CENTER} />

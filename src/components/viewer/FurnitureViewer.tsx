@@ -14,8 +14,8 @@ interface FurnitureViewerProps {
 }
 
 const CAMERA_FOV = 45
-const GRID_CELL_COLOR = '#3a362f'
-const GRID_SECTION_COLOR = '#5a5449'
+const GRID_CELL_COLOR = '#2c2e33'
+const GRID_SECTION_COLOR = '#4a4d55'
 const MIN_CAMERA_DISTANCE = 1.8
 
 interface CameraPose {
@@ -48,7 +48,7 @@ export function FurnitureViewer({ kind, dimensions, scannedModel }: FurnitureVie
       shadows
       camera={{ position: cameraPose.position, fov: CAMERA_FOV }}
       dpr={[1, 2]}
-      // Fundo transparente: o foco de luz vem do CSS de .tool__canvas.
+      // Fundo transparente: a poça de luz e as medidas gigantes vêm do CSS.
       gl={{ alpha: true }}
     >
       <StudioLights />

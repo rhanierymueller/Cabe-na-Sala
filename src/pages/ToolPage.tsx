@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, ChevronUp } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { ArButton } from '../components/ar/ArButton'
 import { DimensionsForm } from '../components/form/DimensionsForm'
@@ -34,6 +34,8 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
   const [kind, setKind] = useState<FurnitureKind>(initialState?.kind ?? FALLBACK_KIND)
   const [doorWidthCm, setDoorWidthCm] = useState<number | null>(initialState?.doorWidthCm ?? null)
   const [scannedModel, setScannedModel] = useState<ScannedModel | null>(null)
+  // Só importa no celular: a folha de baixo recolhida ou aberta.
+  const [isSheetOpen, setIsSheetOpen] = useState(false)
   const definition = FURNITURE_CATALOG[kind]
   const form = useDimensionsForm(initialState?.dimensionsCm ?? definition.defaultDimensionsCm)
   const dimensionsMeters = dimensionsCmToMeters(form.dimensionsCm)
@@ -75,56 +77,70 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
       transition={{ duration: 0.35 }}
     >
       <div className="tool__canvas" aria-label="Visualização 3D do móvel">
+        <p className="tool__backdrop" aria-hidden="true">
+          {form.dimensionsCm.widthCm} × {form.dimensionsCm.heightCm} × {form.dimensionsCm.depthCm}
+        </p>
         <FurnitureViewer kind={kind} dimensions={dimensionsMeters} scannedModel={scannedModel} />
       </div>
 
+      <header className="tool__top">
+        <h1 className="app__brand">
+          <button type="button" className="app__back" onClick={onBackToLanding} title="Voltar ao início">
+            <ArrowLeft size={18} aria-hidden="true" />
+            Cabe na Sala
+          </button>
+        </h1>
+      </header>
+
       <FurniturePicker selectedKind={kind} onSelect={handleSelectKind} />
 
-      <motion.aside
-        className="tool__panel"
-        initial={{ opacity: 0, x: -16 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.4, ease: 'easeOut' }}
-      >
-        <header className="tool__header">
-          <button type="button" className="app__back" onClick={onBackToLanding}>
-            <ArrowLeft size={14} aria-hidden="true" /> Início
-          </button>
-          <h1 className="app__brand">Cabe na Sala</h1>
-        </header>
+      <aside className={`tool__panel${isSheetOpen ? ' tool__panel--open' : ''}`}>
+        <button
+          type="button"
+          className="tool__handle"
+          onClick={() => setIsSheetOpen((isOpen) => !isOpen)}
+          aria-expanded={isSheetOpen}
+        >
+          <ChevronUp size={14} aria-hidden="true" />
+          {isSheetOpen ? 'Fechar' : 'Foto, porta e ajustes'}
+        </button>
 
-        <DimensionsForm form={form} furnitureLabel={definition.label} />
+        <div className="tool__scroll">
+          <DimensionsForm form={form} furnitureLabel={definition.label} />
 
-        <PhotoModel
-          dimensions={dimensionsMeters}
-          model={scannedModel}
-          onModelChange={handleScannedModelChange}
-        />
+          <div className="tool__more">
+            <PhotoModel
+              dimensions={dimensionsMeters}
+              model={scannedModel}
+              onModelChange={handleScannedModelChange}
+            />
 
-        <DoorCheck
-          dimensionsCm={form.dimensionsCm}
-          doorWidthCm={doorWidthCm}
-          onDoorWidthChange={setDoorWidthCm}
-        />
+            <DoorCheck
+              dimensionsCm={form.dimensionsCm}
+              doorWidthCm={doorWidthCm}
+              onDoorWidthChange={setDoorWidthCm}
+            />
 
-        <ArButton
-          kind={kind}
-          dimensions={dimensionsMeters}
-          handoffUrl={shareUrl}
-          scannedModel={scannedModel}
-        />
+            <ShareButton
+              furnitureLabel={definition.label}
+              dimensionsCm={form.dimensionsCm}
+              doorWidthCm={doorWidthCm}
+              shareUrl={shareUrl}
+            />
 
-        <ShareButton
-          furnitureLabel={definition.label}
-          dimensionsCm={form.dimensionsCm}
-          doorWidthCm={doorWidthCm}
-          shareUrl={shareUrl}
-        />
+            <p className="tool__footer">Cada quadrado do chão mede 10 cm. Cotas em centímetros.</p>
+          </div>
+        </div>
 
-        <footer className="tool__footer">
-          <p>Grade do chão: 1 quadrado = 10 cm · cotas em cm</p>
-        </footer>
-      </motion.aside>
+        <div className="tool__cta">
+          <ArButton
+            kind={kind}
+            dimensions={dimensionsMeters}
+            handoffUrl={shareUrl}
+            scannedModel={scannedModel}
+          />
+        </div>
+      </aside>
     </motion.div>
   )
 }

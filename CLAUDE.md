@@ -51,21 +51,28 @@ Diferencial vs. IKEA Place / Amazon "ver no quarto": **agnóstico de loja**
 - Zero anúncio dentro da experiência 3D/AR. Anúncio só em páginas de conteúdo,
   discreto, e só quando houver tráfego.
 
-## Identidade visual: "trena" (decidida em nov/2026)
+## Identidade visual: "estúdio" (decidida em nov/2026)
 
-A interface antiga (azul sobre grafite, vidro fosco, cantos redondos) parecia
-genérica. A identidade é o instrumento de medir:
+A "trena" (grafite + amarelo, cantos retos) foi rejeitada pelo dev; a referência
+agora é página de produto Apple / SpaceX. O móvel é fotografado como produto:
 
-- Grafite quente (`#12110f`) + amarelo de trena (`#ffd60a`) com tinta preta.
-  Nada de azul, degradê, brilho ou `backdrop-filter`.
-- Tipografia: Bricolage Grotesque (texto e títulos) + IBM Plex Mono (todo
-  número, medida e rótulo técnico).
-- Cantos retos (3–6 px), linhas duras, sombra dura deslocada em botão primário.
-- Elementos próprios: controle deslizante em forma de fita de trena, cotas de
-  desenho técnico em volta do móvel no 3D, marca com cota sob o nome, veredito
-  da porta como carimbo.
-- Tokens em `src/index.css` (`:root`). Móveis usam `roundedBox` de `parts.ts`
-  para quinas; viewer e AR compartilham `partGeometry.ts`.
+- Grafite neutro (`#0d0e10`), tudo em branco (`#f5f5f7`) sobre escuro. **A única
+  cor é a luz**: uma poça quente (`--color-light`, `#ffe9cf`) no chão sob o
+  móvel e uma contraluz no 3D, para móvel escuro não sumir no fundo. Verde,
+  âmbar e vermelho só no veredito da porta. Nada de fundo claro (cansa à noite).
+- Tipografia: fonte do sistema nos aparelhos Apple (SF Pro) e Inter (Google
+  Fonts, já na CSP) no resto. Largura normal, peso 600–700, números com
+  `tabular-nums`. Fonte condensada foi testada e rejeitada pelo dev.
+- Assinatura: as medidas gigantes e quase apagadas atrás do móvel
+  (`.tool__backdrop`; o canvas é transparente e fica por cima).
+- Formas: pílulas e cantos de 16–28 px, vidro fosco no painel e no seletor,
+  botão principal branco. Cotas do 3D em linha branca fina com etiqueta escura.
+- Computador: painel flutuante à esquerda, palco 3D no resto. Celular: 3D em
+  tela cheia e folha inferior (`.tool__panel--open`); recolhida mostra só as três
+  medidas e o botão principal.
+- Tokens em `src/index.css` (`:root`). Interface fica acima de `z-index: 5`
+  (etiquetas do drei `Html`). Móveis usam `roundedBox` de `parts.ts`; viewer e
+  AR compartilham `partGeometry.ts`.
 
 ## Stack
 

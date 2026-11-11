@@ -1,7 +1,8 @@
 .landing {
   min-height: 100dvh;
   background:
-    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255, 214, 10, 0.1), transparent),
+    radial-gradient(ellipse 60% 34% at 50% 62dvh, rgba(255, 233, 207, 0.2), transparent 75%) no-repeat,
+    radial-gradient(ellipse 80% 60% at 50% 30dvh, #2b2d33, transparent 70%) no-repeat,
     var(--color-background);
   /* clip (e não hidden): hidden cria um scroll container e quebra o
      position: sticky do palco do scrollytelling. */
@@ -13,8 +14,8 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
-  background: var(--color-accent);
+  height: 2px;
+  background: var(--color-light);
   transform-origin: left;
   z-index: 10;
 }
@@ -66,33 +67,24 @@
 }
 
 .story__badge {
-  display: inline-block;
-  margin: 0 0 16px;
-  padding: 6px 14px;
-  background: rgba(255, 214, 10, 0.12);
-  border: 1px solid rgba(255, 214, 10, 0.35);
-  border-radius: var(--radius-sm);
-  color: var(--color-accent);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
+  margin: 0 0 14px;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
   font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 .story__title {
   margin: 0 0 12px;
-  font-size: clamp(3rem, 9vw, 5.5rem);
+  font-size: clamp(3.5rem, 11vw, 8rem);
   line-height: 1;
   letter-spacing: -0.04em;
-  font-weight: 800;
-  text-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+  font-weight: 700;
 }
 
 .story__subtitle {
-  margin: 0 0 24px;
+  margin: 0 0 28px;
   color: var(--color-text-muted);
-  font-size: clamp(1rem, 2vw, 1.15rem);
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
   line-height: 1.5;
 }
 
@@ -104,9 +96,9 @@
   width: min(92%, 36rem);
   margin: 0;
   font-size: clamp(1.35rem, 3.4vw, 2.1rem);
-  font-weight: 650;
-  letter-spacing: -0.02em;
-  line-height: 1.25;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
   text-align: center;
   text-shadow: 0 6px 28px rgba(0, 0, 0, 0.65);
   pointer-events: none;
@@ -134,11 +126,10 @@
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: var(--color-accent);
-  border: none;
-  border-radius: 1px;
-  color: var(--color-accent-ink);
-  font-family: var(--font-mono);
+  background: rgba(13, 14, 16, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
   font-size: 13px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -161,19 +152,20 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 14px 28px;
+  min-height: 52px;
+  padding: 0 28px;
   background: var(--color-accent);
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-pill);
   color: var(--color-accent-ink);
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: 600;
   cursor: pointer;
-  box-shadow: 5px 5px 0 var(--color-accent-ink), 5px 5px 0 1px var(--color-border);
 }
 
 .cta-button--large {
-  padding: 18px 40px;
+  min-height: 60px;
+  padding: 0 40px;
   font-size: 1.1rem;
 }
 
@@ -181,28 +173,25 @@
 
 .proof {
   position: relative;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  padding: 120px 24px 100px;
-}
-
-.proof__content,
-.proof .phone-frame {
-  position: relative;
-  z-index: 1;
+  gap: 72px;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 140px 32px;
 }
 
 .proof__content {
-  max-width: 40rem;
-  margin-bottom: 48px;
-  text-align: center;
+  max-width: 30rem;
 }
 
 .proof__title {
-  margin: 0 0 12px;
-  font-size: clamp(1.9rem, 4.5vw, 3rem);
-  letter-spacing: -0.03em;
+  margin: 0 0 16px;
+  font-size: clamp(2.2rem, 5.5vw, 4rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
 }
 
 .proof__subtitle {
@@ -214,18 +203,17 @@
 
 .phone-frame {
   margin: 0;
-  width: min(320px, 78vw);
+  width: min(280px, 70vw);
 }
 
 .phone-frame__screen {
   padding: 12px;
-  background: #0a0c10;
-  border: 1px solid #2e3542;
+  background: #050506;
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 44px;
   box-shadow:
-    0 40px 90px rgba(0, 0, 0, 0.55),
-    0 0 0 1px rgba(255, 214, 10, 0.12),
-    0 0 80px rgba(255, 214, 10, 0.1);
+    0 40px 90px rgba(0, 0, 0, 0.6),
+    0 0 120px rgba(255, 233, 207, 0.14);
 }
 
 .phone-frame__screen img {
@@ -237,9 +225,8 @@
 .phone-frame__caption {
   margin-top: 16px;
   color: var(--color-text-muted);
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   text-align: center;
-  letter-spacing: 0.03em;
 }
 
 /* ---------- Fechamento ---------- */
@@ -272,7 +259,7 @@
   background:
     linear-gradient(180deg, var(--color-background) 0%, transparent 30%),
     linear-gradient(0deg, var(--color-background) 0%, transparent 35%),
-    radial-gradient(ellipse 70% 60% at 50% 50%, rgba(18, 17, 15, 0.8), transparent);
+    radial-gradient(ellipse 70% 60% at 50% 50%, rgba(13, 14, 16, 0.8), transparent);
   pointer-events: none;
 }
 
@@ -288,7 +275,7 @@
   height: 480px;
   left: -140px;
   top: 10%;
-  background: rgba(255, 214, 10, 0.14);
+  background: rgba(255, 233, 207, 0.12);
 }
 
 .closing__glow--fast {
@@ -296,13 +283,15 @@
   height: 360px;
   right: -100px;
   bottom: 0;
-  background: rgba(255, 214, 10, 0.1);
+  background: rgba(255, 233, 207, 0.08);
 }
 
 .closing__title {
-  margin: 0 0 12px;
-  font-size: clamp(1.9rem, 4.5vw, 3rem);
-  letter-spacing: -0.03em;
+  margin: 0 0 16px;
+  font-size: clamp(2.2rem, 5.5vw, 4rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
 }
 
 .closing__subtitle {
@@ -322,35 +311,28 @@
 }
 
 .text-accent {
-  color: var(--color-accent);
+  color: var(--color-light);
 }
 
 .category-chip {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 16px;
-  background: var(--color-surface);
+  padding: 10px 18px;
+  background: var(--color-surface-raised);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-pill);
   color: var(--color-text-muted);
   font-size: 0.9rem;
 }
 
 .category-chip--available {
-  border-color: rgba(255, 214, 10, 0.5);
   color: var(--color-text);
 }
 
 .category-chip__badge {
-  padding: 2px 8px;
-  background: rgba(255, 214, 10, 0.15);
-  border-radius: var(--radius-sm);
-  color: var(--color-accent);
-  font-size: 0.68rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
 }
 
 /* ---------- Footer ---------- */
@@ -387,5 +369,13 @@
 
   .closing {
     padding: 96px 20px;
+  }
+
+  .proof {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 40px;
+    padding: 96px 24px;
+    text-align: center;
   }
 }

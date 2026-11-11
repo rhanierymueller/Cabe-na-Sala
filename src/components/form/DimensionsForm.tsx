@@ -19,7 +19,7 @@ export function DimensionsForm({ form, furnitureLabel }: DimensionsFormProps) {
       transition={{ duration: 0.4, ease: 'easeOut' }}
       aria-label="Medidas do móvel"
     >
-      <h2 className="dimensions-form__title">Medidas — {furnitureLabel}</h2>
+      <h2 className="dimensions-form__title">{furnitureLabel}</h2>
       <p className="dimensions-form__subtitle">
         Copie as medidas do anúncio e veja o móvel se ajustar na hora.
       </p>
@@ -40,15 +40,6 @@ export function DimensionsForm({ form, furnitureLabel }: DimensionsFormProps) {
         ))}
       </div>
 
-      <motion.p
-        className="dimensions-form__summary"
-        key={`${dimensionsCm.widthCm}-${dimensionsCm.heightCm}-${dimensionsCm.depthCm}`}
-        initial={{ opacity: 0.4 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-      >
-        {dimensionsCm.widthCm} × {dimensionsCm.heightCm} × {dimensionsCm.depthCm} cm
-      </motion.p>
     </motion.section>
   )
 }

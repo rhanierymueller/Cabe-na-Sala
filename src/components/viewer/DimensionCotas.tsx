@@ -9,8 +9,8 @@ interface DimensionCotasProps {
 
 type Point = readonly [number, number, number]
 
-const COTA_COLOR = '#ffd60a'
-const COTA_LINE_WIDTH = 1.6
+const COTA_COLOR = '#f5f5f7'
+const COTA_LINE_WIDTH = 1.2
 /** Distância entre a cota e o móvel. */
 const OFFSET_M = 0.14
 /** Meio comprimento do tracinho nas pontas da cota. */
