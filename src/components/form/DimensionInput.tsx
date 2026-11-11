@@ -50,7 +50,7 @@ export function DimensionInput({
       </div>
 
       <input
-        className="dimension-field__slider"
+        className="slider dimension-field__slider"
         type="range"
         min={MIN_DIMENSION_CM}
         max={MAX_DIMENSION_CM}

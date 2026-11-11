@@ -3,7 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import type { DimensionsMeters, FurnitureKind, ScannedModel } from '../../types/furniture'
 import { FurnitureModel } from '../furniture/FurnitureModel'
 import { ScannedModelView } from '../furniture/scanned/ScannedModelView'
-import { DimensionCotas } from './DimensionCotas'
+import { DimensionLines } from './DimensionLines'
 import { StudioLights } from './StudioLights'
 
 interface FurnitureViewerProps {
@@ -58,7 +58,7 @@ export function FurnitureViewer({ kind, dimensions, scannedModel }: FurnitureVie
       ) : (
         <FurnitureModel kind={kind} dimensions={dimensions} />
       )}
-      <DimensionCotas dimensions={dimensions} />
+      <DimensionLines dimensions={dimensions} />
 
       <Grid
         infiniteGrid

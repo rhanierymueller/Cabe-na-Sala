@@ -13,7 +13,7 @@ import { isOverLimit, readJsonBody, resolveRouteGuard, respond } from './routeGu
 const HOUR_S = 60 * 60
 const DAY_S = 24 * HOUR_S
 
-export interface ClaudeRouteOptions<T> {
+interface ClaudeRouteOptions<T> {
   /** Nome para o log, no formato "de medidas". */
   readonly routeName: string
   /** Prefixo das chaves de contagem de uso. */

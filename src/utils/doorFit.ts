@@ -5,7 +5,7 @@ import type { DimensionsCm } from '../types/furniture'
  * orientado pelo menor lado horizontal — largura ou profundidade.
  * Não considera manobra em L nem inclinação: veredito honesto e simples.
  */
-export type DoorFitStatus = 'fits' | 'tight' | 'blocked'
+type DoorFitStatus = 'fits' | 'tight' | 'blocked'
 
 export interface DoorFit {
   readonly status: DoorFitStatus
@@ -25,4 +25,9 @@ export function computeDoorFit(dimensionsCm: DimensionsCm, doorWidthCm: number):
   if (gapCm < 0) return { status: 'blocked', gapCm, neededCm }
   if (gapCm < TIGHT_MARGIN_CM) return { status: 'tight', gapCm, neededCm }
   return { status: 'fits', gapCm, neededCm }
+}
+
+/** Medida do veredito para ler: sem sinal, uma casa decimal, vírgula ("2,5"). */
+export function formatFitCm(valueCm: number): string {
+  return String(Math.round(Math.abs(valueCm) * 10) / 10).replace('.', ',')
 }

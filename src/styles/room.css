@@ -154,33 +154,6 @@
   border-color: var(--color-text);
 }
 
-.room__button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 0 18px;
-  background: var(--color-surface-raised);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
-  color: var(--color-text);
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.room__button--primary {
-  background: var(--color-accent);
-  border-color: transparent;
-  color: var(--color-accent-ink);
-}
-
-.room__button:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
 .room__error {
   margin: 0;
   color: var(--color-error);
@@ -202,6 +175,7 @@
   cursor: pointer;
 }
 
-.room-entry {
-  width: 100%;
+/* O botão que abre a foto da sala: texto longo no computador, curto no celular. */
+.room-entry__short {
+  display: none;
 }

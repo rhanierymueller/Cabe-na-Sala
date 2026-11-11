@@ -63,6 +63,43 @@ const BISECTION_STEPS = 40
 /** Chão mais longe que isto é quase horizonte: o toque não vale como posição. */
 const MAX_GROUND_DISTANCE_M = 30
 
+/** Retângulo onde a foto aparece na tela (o de getBoundingClientRect). */
+interface ScreenRect {
+  readonly left: number
+  readonly top: number
+  readonly width: number
+  readonly height: number
+}
+
+function clamp(value: number, max: number): number {
+  return Math.min(Math.max(value, 0), max)
+}
+
+/** Prende o ponto dentro da foto. */
+export function clampToPhoto(point: PhotoPoint, size: PhotoSize): PhotoPoint {
+  return { x: clamp(point.x, size.widthPx), y: clamp(point.y, size.heightPx) }
+}
+
+/**
+ * Converte um toque na tela no pixel correspondente da foto original, preso
+ * às bordas. Devolve null enquanto a foto não tem tamanho na tela.
+ */
+export function photoPointFromClient(
+  clientX: number,
+  clientY: number,
+  rect: ScreenRect,
+  size: PhotoSize,
+): PhotoPoint | null {
+  if (rect.width === 0 || rect.height === 0) return null
+  return clampToPhoto(
+    {
+      x: ((clientX - rect.left) / rect.width) * size.widthPx,
+      y: ((clientY - rect.top) / rect.height) * size.heightPx,
+    },
+    size,
+  )
+}
+
 export function focalLengthPx(size: PhotoSize): number {
   return Math.max(size.widthPx, size.heightPx) * FOCAL_TO_LONG_SIDE
 }
@@ -95,11 +132,15 @@ export function groundPointFromPixel(
   return Math.hypot(ground.x, ground.z) > MAX_GROUND_DISTANCE_M ? null : ground
 }
 
-interface Reference {
-  /** Ponta da referência que encosta no chão. */
+/** Linha marcada na foto sobre algo vertical de altura conhecida. */
+export interface ReferenceLine {
+  /** Ponta que encosta no chão. */
   readonly bottom: PhotoPoint
   /** Ponta de cima, na vertical da de baixo. */
   readonly top: PhotoPoint
+}
+
+interface Reference extends ReferenceLine {
   readonly heightM: number
 }
 

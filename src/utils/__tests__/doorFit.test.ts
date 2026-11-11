@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { computeDoorFit } from '../doorFit'
+import { computeDoorFit, formatFitCm } from '../doorFit'
 
 const SOFA = { widthCm: 210, heightCm: 90, depthCm: 95 }
 
@@ -44,5 +44,15 @@ describe('computeDoorFit', () => {
 
     expect(fit.gapCm).toBeCloseTo(1.5, 5)
     expect(fit.status).toBe('tight')
+  })
+})
+
+describe('formatFitCm', () => {
+  test('shows one decimal with a comma and no sign', () => {
+    expect(formatFitCm(-2.46)).toBe('2,5')
+  })
+
+  test('drops the decimal of a whole number', () => {
+    expect(formatFitCm(15)).toBe('15')
   })
 })

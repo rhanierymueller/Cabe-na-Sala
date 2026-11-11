@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest'
 import { MAX_DIMENSION_CM, MIN_DIMENSION_CM } from '../../constants/dimensions'
 import {
   clampDimensionCm,
+  fillMissingMeasures,
   isWithinDimensionLimits,
   parseDimensionInput,
 } from '../dimensionValidation'
@@ -61,5 +62,25 @@ describe('clampDimensionCm', () => {
 
   test('clamps values above the maximum', () => {
     expect(clampDimensionCm(9999)).toBe(MAX_DIMENSION_CM)
+  })
+})
+
+describe('fillMissingMeasures', () => {
+  const BASE = { widthCm: 60, heightCm: 87, depthCm: 63 }
+
+  test('keeps the current value for a measure the listing does not bring', () => {
+    expect(fillMissingMeasures({ widthCm: 76, heightCm: null, depthCm: null }, BASE)).toEqual({
+      widthCm: 76,
+      heightCm: 87,
+      depthCm: 63,
+    })
+  })
+
+  test('clamps a found measure to the tool limits', () => {
+    expect(fillMissingMeasures({ widthCm: 900, heightCm: 0.2, depthCm: 63 }, BASE)).toEqual({
+      widthCm: MAX_DIMENSION_CM,
+      heightCm: MIN_DIMENSION_CM,
+      depthCm: 63,
+    })
   })
 })

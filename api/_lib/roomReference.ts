@@ -4,16 +4,16 @@
  * valida os pontos e a altura é este arquivo.
  */
 
-export const REFERENCE_KINDS = ['door', 'counter', 'ceiling'] as const
-export type ReferenceKind = (typeof REFERENCE_KINDS)[number]
+const REFERENCE_KINDS = ['door', 'counter', 'ceiling'] as const
+type ReferenceKind = (typeof REFERENCE_KINDS)[number]
 
 /** Ponto na foto em fração da largura e da altura (0 a 1), a partir do canto superior esquerdo. */
-export interface RelativePoint {
+interface RelativePoint {
   readonly x: number
   readonly y: number
 }
 
-export interface RoomReference {
+interface RoomReference {
   readonly kind: ReferenceKind
   readonly bottom: RelativePoint
   readonly top: RelativePoint

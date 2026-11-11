@@ -3,16 +3,16 @@ import { Box3, Group, Vector3 } from 'three'
 import type { DimensionsMeters } from '../../../types/furniture'
 
 /** Giros de 90° em torno do eixo vertical — o gerador não sabe onde é a frente. */
-export type QuarterTurns = 0 | 1 | 2 | 3
+type QuarterTurns = 0 | 1 | 2 | 3
 
-export type Size3 = readonly [number, number, number]
+type Size3 = readonly [number, number, number]
 
 const QUARTER_TURN_RAD = Math.PI / 2
 const QUARTER_TURNS_IN_FULL_TURN = 4
 /** Abaixo disto (em unidades do modelo) um lado é considerado sem volume. */
 const MIN_SIDE = 1e-6
 
-export interface NormalizedModel {
+interface NormalizedModel {
   /** Modelo recentrado: base em y = 0, centro em x/z = 0, já girado. */
   readonly root: Group
   /** Tamanho da caixa envolvente do modelo normalizado, na unidade dele. */

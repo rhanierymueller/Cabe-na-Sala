@@ -25,11 +25,11 @@ Diferencial vs. IKEA Place / Amazon "ver no quarto": **agnóstico de loja**
   flutuando sobre o objeto** em AR (ex.: setas com "75 cm").
 - **Sem login.** Persistência futura via localStorage se necessário.
 - **Sem backend.** Site 100% estático. Custo de operação ~R$0.
-  - **Exceção 1 (nov/2026): `api/modelo3d.ts`**, função de servidor na Vercel
+  - **Exceção 1 (nov/2026): `api/model3d.ts`**, função de servidor na Vercel
     que transforma a foto do anúncio em modelo 3D via fal.ai (`fal-ai/trellis`).
     Existe só para guardar `FAL_KEY` fora do navegador. Sem a chave, responde
     "indisponível" e o resto do site segue estático. Sem banco de dados próprio, sem login.
-  - **Exceção 2 (nov/2026): `api/medidas.ts`**, lê largura, altura e
+  - **Exceção 2 (nov/2026): `api/measures.ts`**, lê largura, altura e
     profundidade do texto colado ou do print de um anúncio, via Claude
     (`@anthropic-ai/sdk`, `claude-haiku-5-5`, sem raciocínio, resposta em JSON
     de formato fixo). Chave em `ANTHROPIC_API_KEY`; sem ela responde
@@ -58,7 +58,7 @@ Diferencial vs. IKEA Place / Amazon "ver no quarto": **agnóstico de loja**
   móvel 3D por cima. A foto nunca sai do aparelho (blob local). **É estimativa,
   não medição**: assume a câmera principal do celular e 1,45 m de altura; a
   interface diz "aproximado" e a medida exata continua sendo a digitada.
-  Ao abrir a foto, `api/referencia.ts` pede ao Claude (modelo maior, porque
+  Ao abrir a foto, `api/reference.ts` pede ao Claude (modelo maior, porque
   apontar lugar na foto exige mais visão) uma referência de altura conhecida:
   porta (210 cm), bancada (90 cm) ou pé-direito. A linha já aparece marcada e
   a pessoa só confirma; se nada for achado, marca à mão como antes. Se a
@@ -96,9 +96,11 @@ agora é página de produto Apple / SpaceX. O móvel é fotografado como produto
 - Computador: painel flutuante à esquerda, palco 3D no resto. Celular: 3D em
   tela cheia e folha inferior (`.tool__panel--open`); recolhida mostra só as três
   medidas e o botão principal.
-- Tokens em `src/index.css` (`:root`). Interface fica acima de `z-index: 5`
-  (etiquetas do drei `Html`). Móveis usam `roundedBox` de `parts.ts`; viewer e
-  AR compartilham `partGeometry.ts`.
+- Tokens em `src/styles/base.css` (`:root`). Cada área da interface tem o seu
+  arquivo em `src/styles/`; `src/index.css` só define a ordem da cascata. O botão
+  em pílula é um só (`.button` e variantes, em `controls.css`). Interface fica
+  acima de `z-index: 5` (etiquetas do drei `Html`). Móveis usam `roundedBox` de
+  `parts.ts`; viewer e AR compartilham `partGeometry.ts`.
 
 ## Stack
 
@@ -145,15 +147,16 @@ agora é página de produto Apple / SpaceX. O móvel é fotografado como produto
 
 ## Milestones (pequenos de propósito — o objetivo nº 1 é TERMINAR)
 
-1. **[AGORA]** Página com inputs largura × altura × profundidade + móvel 3D
-   gerado por código esticando em tempo real na tela (desktop, sem AR ainda).
-   Caso de teste oficial: o fogão que o dev vai comprar.
-2. Galeria de formas (sofá, fogão, geladeira, guarda-roupa, cama, mesa, TV por
-   polegadas) com medidas padrão pré-preenchidas.
-3. Exportação USDZ + botão AR Quick Look (iPhone do dev = aparelho de teste).
+1. ✅ Página com inputs largura × altura × profundidade + móvel 3D gerado por
+   código esticando em tempo real na tela. Caso de teste oficial: o fogão que o
+   dev vai comprar.
+2. ✅ Galeria de formas (fogão, sofá, geladeira, guarda-roupa, cama, mesa, rack,
+   quadro) com medidas padrão pré-preenchidas. Falta: TV por polegadas.
+3. ✅ Exportação USDZ + botão AR Quick Look (iPhone do dev = aparelho de teste).
 4. WebXR no Android (hit-test, ancorar, arrastar, girar) + medidas flutuantes.
+   Até lá, o Android usa a foto da sala.
 5. Botões de afiliado nível 1 (links de busca com medida).
-6. Deploy na Vercel + primeiras páginas de SEO.
+6. ✅ Deploy na Vercel (cabenasala.com). Falta: primeiras páginas de SEO.
 
 ## Contexto do dev (para calibrar as respostas)
 

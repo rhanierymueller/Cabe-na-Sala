@@ -10,7 +10,7 @@ import type { Vec3 } from '../furniture/parts'
  *   ENCAIXE → o móvel desliza para trás e assenta exato no vão; medidas surgem
  */
 
-export interface StoryFrame {
+interface StoryFrame {
   /** Posição do móvel — ele desliza da frente do palco até o vão da cozinha. */
   readonly stovePosition: Vec3
   readonly stoveRotationY: number
@@ -21,7 +21,7 @@ export interface StoryFrame {
   readonly areLabelsVisible: boolean
 }
 
-export interface StoryCaption {
+interface StoryCaption {
   readonly range: readonly [number, number]
   readonly text: string
 }
@@ -90,7 +90,7 @@ function lerp(from: number, to: number, t: number): number {
 }
 
 /** Progresso 0→1 dentro de uma janela do scroll, com easing suave. */
-export function easedWindow(progress: number, from: number, to: number): number {
+function easedWindow(progress: number, from: number, to: number): number {
   return smoothstep(clamp01((progress - from) / (to - from)))
 }
 
@@ -142,7 +142,7 @@ const MAX_DISTANCE_FACTOR = 1.9
 const DISTANCE_EXPONENT = 0.55
 const MAX_LOOK_AT_LIFT_M = 0.15
 
-export interface PortraitCompensation {
+interface PortraitCompensation {
   /** Multiplica a posição da câmera — afasta em telas estreitas (retrato). */
   readonly distanceFactor: number
   /** Sobe o ponto de mira para o móvel assentar mais baixo no quadro. */

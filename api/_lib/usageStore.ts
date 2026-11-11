@@ -14,7 +14,7 @@ export interface UsageStore {
   readonly has: (key: string) => Promise<boolean>
 }
 
-export interface ResolvedStore {
+interface ResolvedStore {
   readonly store: UsageStore
   /** false = memória local; não protege em produção. */
   readonly isShared: boolean

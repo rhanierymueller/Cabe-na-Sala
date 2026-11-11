@@ -3,7 +3,7 @@
  * Safari do iOS, então cada plataforma sem suporte ganha uma saída útil
  * (iPhone/Chrome → abrir no Safari; Android → aviso; desktop → QR).
  */
-export type Platform = 'ios' | 'android' | 'desktop'
+type Platform = 'ios' | 'android' | 'desktop'
 
 export function detectPlatform(
   userAgent: string = navigator.userAgent,
@@ -20,7 +20,7 @@ export function detectPlatform(
 }
 
 /** Origem canônica do site em produção. */
-export const CANONICAL_ORIGIN = 'https://cabenasala.com'
+const CANONICAL_ORIGIN = 'https://cabenasala.com'
 
 /**
  * Esquema do iOS que abre uma URL diretamente no Safari — a saída para quem

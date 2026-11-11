@@ -20,7 +20,7 @@ describe.each(FURNITURE_KINDS.map((kind) => [kind] as const))('%s', (kind) => {
     })
   })
 
-  test('rests on the floor and matches the real width (escala real é sagrada)', () => {
+  test('rests on the floor and matches the real width (real scale is sacred)', () => {
     // Arrange & Act
     const group = buildFurnitureGroup(kind, dimensions)
     const boundingBox = new Box3().setFromObject(group)

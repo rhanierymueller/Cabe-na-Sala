@@ -1,0 +1,252 @@
+/* Ferramenta no computador: palco de estúdio, painel flutuante e seletor de móveis. O celular fica em tool-mobile.css. */
+
+.tool {
+  position: relative;
+  height: 100dvh;
+  overflow: hidden;
+  /* Parede de estúdio: escurece nas bordas, clareia onde o móvel está. */
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 38%, #2b2d33 0%, transparent 70%), var(--color-background);
+}
+
+.tool__canvas {
+  position: absolute;
+  inset: 0 0 0 calc(var(--panel-width) + var(--panel-gap));
+  /* Poça de luz quente no chão: é ela que segura um móvel escuro no escuro. */
+  background: radial-gradient(
+    ellipse 46% 24% at 50% 61%,
+    rgba(255, 233, 207, 0.34) 0%,
+    rgba(255, 233, 207, 0.1) 45%,
+    transparent 75%
+  );
+}
+
+/* As medidas, gigantes e quase apagadas, atrás do móvel. */
+.tool__backdrop {
+  position: absolute;
+  top: 13%;
+  left: 0;
+  right: 0;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.055);
+  font-size: clamp(3rem, 8.2vw, 11rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.05em;
+  line-height: 0.9;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+.tool__top {
+  position: absolute;
+  top: var(--panel-gap);
+  left: var(--panel-gap);
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  width: var(--panel-width);
+  height: 48px;
+  padding: 0 8px;
+}
+
+.tool__brand {
+  margin: 0;
+  font: inherit;
+}
+
+.tool__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px 8px 8px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.tool__back:hover {
+  background: var(--color-surface-raised);
+}
+
+.tool__back svg {
+  color: var(--color-text-muted);
+}
+
+.tool__panel {
+  position: absolute;
+  top: calc(var(--panel-gap) + 56px);
+  left: var(--panel-gap);
+  bottom: var(--panel-gap);
+  /* Acima das etiquetas do 3D (drei Html usa z-index até 5). */
+  z-index: 11;
+  display: flex;
+  flex-direction: column;
+  width: var(--panel-width);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  -webkit-backdrop-filter: blur(28px) saturate(1.4);
+  backdrop-filter: blur(28px) saturate(1.4);
+  overflow: hidden;
+}
+
+.tool__scroll {
+  flex: 1;
+  min-height: 0;
+  padding: 24px 24px 8px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+.tool__more {
+  display: flex;
+  flex-direction: column;
+}
+
+.tool__cta {
+  padding: 16px 24px 24px;
+}
+
+/*
+ * No computador o "ver na minha casa" (QR) sai do painel e vira um cartão no
+ * canto inferior direito do palco. Ele continua filho do painel (no celular
+ * mora na folha), então é posicionado a partir da borda esquerda do painel.
+ */
+@media (min-width: 901px) {
+  .tool__panel {
+    overflow: visible;
+  }
+
+  .tool__scroll {
+    padding-bottom: 24px;
+    border-radius: inherit;
+  }
+
+  .tool__cta {
+    --cta-width: 248px;
+    position: absolute;
+    bottom: 0;
+    left: calc(100vw - var(--panel-gap) * 2 - var(--cta-width) - 1px);
+    width: var(--cta-width);
+    padding: 20px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    -webkit-backdrop-filter: blur(28px) saturate(1.4);
+    backdrop-filter: blur(28px) saturate(1.4);
+    text-align: center;
+  }
+
+  .tool__cta .ar-qr {
+    width: 132px;
+    height: 132px;
+  }
+}
+
+/* A alça só existe no celular. */
+.tool__handle {
+  display: none;
+}
+
+.tool__footer {
+  margin: 24px 0 8px;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+/* Atalhos sob o botão principal. No computador só existe o da foto da sala. */
+.tool__shortcuts {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.tool__photo-shortcut {
+  display: none;
+}
+
+/* ---------- Seletor de móveis ---------- */
+
+.furniture-dock {
+  position: absolute;
+  top: var(--panel-gap);
+  left: calc(50% + (var(--panel-width) + var(--panel-gap)) / 2);
+  z-index: 12;
+  translate: -50% 0;
+  display: flex;
+  gap: 2px;
+  padding: 5px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  -webkit-backdrop-filter: blur(28px) saturate(1.4);
+  backdrop-filter: blur(28px) saturate(1.4);
+}
+
+.furniture-dock__item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 12px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-pill);
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.furniture-dock__item:hover {
+  color: var(--color-text);
+}
+
+.furniture-dock__item--selected,
+.furniture-dock__item--selected:hover {
+  color: var(--color-accent-ink);
+}
+
+.furniture-dock__item svg,
+.furniture-dock__label {
+  position: relative;
+  z-index: 1;
+}
+
+.furniture-dock__indicator {
+  position: absolute;
+  inset: 0;
+  background: var(--color-accent);
+  border-radius: var(--radius-pill);
+}
+
+/* ---------- Medidas no 3D ---------- */
+
+.dimension-line__label {
+  display: inline-block;
+  padding: 3px 9px;
+  background: rgba(13, 14, 16, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}

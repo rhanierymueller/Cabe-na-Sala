@@ -4,7 +4,7 @@ import type { MotionValue } from 'framer-motion'
 import { useRef, useState } from 'react'
 import type { Group } from 'three'
 import { dimensionsCmToMeters } from '../../utils/units'
-import { DEFAULT_STOVE_DIMENSIONS_CM } from '../furniture/catalog'
+import { FURNITURE_CATALOG } from '../furniture/catalog'
 import { FurnitureModel } from '../furniture/FurnitureModel'
 import { DimensionLabels } from './DimensionLabels'
 import { StudioLights } from '../viewer/StudioLights'
@@ -15,7 +15,7 @@ interface StorySceneProps {
   readonly progress: MotionValue<number>
 }
 
-const STORY_DIMENSIONS = dimensionsCmToMeters(DEFAULT_STOVE_DIMENSIONS_CM)
+const STORY_DIMENSIONS = dimensionsCmToMeters(FURNITURE_CATALOG.stove.defaultDimensionsCm)
 const KITCHEN_HIDDEN_SCALE = 0.001
 
 /**

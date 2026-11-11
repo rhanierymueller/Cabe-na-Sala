@@ -1,0 +1,126 @@
+/* Controles usados em várias telas: botão em pílula, campo de arquivo escondido e régua deslizante. */
+
+/* ---------- Botão em pílula ---------- */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Ação secundária ao lado de outra: sem fundo. */
+.button--quiet {
+  background: none;
+  color: var(--color-text-muted);
+}
+
+/* Ação principal da tela: o botão branco. */
+.button--primary {
+  background: var(--color-accent);
+  border-color: transparent;
+  color: var(--color-accent-ink);
+}
+
+.button--primary:hover:not(:disabled) {
+  background: #ffffff;
+}
+
+.button--large {
+  min-height: 52px;
+  padding: 0 28px;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+}
+
+.button--xlarge {
+  min-height: 60px;
+  padding: 0 40px;
+  font-size: 1.1rem;
+}
+
+.button--block {
+  width: 100%;
+}
+
+/* ---------- Campo de arquivo ---------- */
+
+/* Fora da vista, mas na página: os botões abrem o seletor com click(). */
+.file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---------- Régua deslizante ---------- */
+
+.slider {
+  appearance: none;
+  -webkit-appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  margin: 2px 0 0;
+  background: transparent;
+  cursor: ew-resize;
+}
+
+.slider::-webkit-slider-runnable-track {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-pill);
+}
+
+.slider::-moz-range-track {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-pill);
+}
+
+.slider::-moz-range-progress {
+  height: 3px;
+  background: var(--color-text);
+  border-radius: var(--radius-pill);
+}
+
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: -8.5px;
+  background: var(--color-text);
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--color-text);
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}

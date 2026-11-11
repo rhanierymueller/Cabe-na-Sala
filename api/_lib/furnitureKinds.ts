@@ -4,7 +4,7 @@
  * `FurnitureKind` em src/types/furniture.ts.
  */
 
-export const FURNITURE_KIND_VALUES = [
+const FURNITURE_KIND_VALUES = [
   'stove',
   'sofa',
   'fridge',

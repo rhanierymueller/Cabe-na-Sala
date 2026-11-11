@@ -10,7 +10,7 @@ export const MAX_AD_TEXT_LENGTH = 6000
 const MIN_CM = 1
 const MAX_CM = 400
 
-export interface AdMeasures {
+interface AdMeasures {
   readonly widthCm: number | null
   readonly heightCm: number | null
   readonly depthCm: number | null

@@ -1,8 +1,8 @@
 import { ImagePlus } from 'lucide-react'
-import type { ChangeEvent } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { DimensionsMeters, FurnitureKind, ScannedModel } from '../../types/furniture'
+import { HiddenFileInput } from '../ui/HiddenFileInput'
 import { RoomPhotoStage } from './RoomPhotoStage'
 
 interface RoomPhotoEntryProps {
@@ -26,25 +26,19 @@ export function RoomPhotoEntry({ kind, dimensions, scannedModel }: RoomPhotoEntr
 
   const handleClose = useCallback(() => setPhotoUrl(null), [])
 
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    const file = event.target.files?.[0]
-    // Limpa o campo para a mesma foto poder ser escolhida de novo.
-    event.target.value = ''
-    if (file) setPhotoUrl(URL.createObjectURL(file))
-  }
-
   return (
     <>
-      <input
+      <HiddenFileInput
         ref={inputRef}
-        className="photo-model__input"
-        type="file"
         accept="image/*"
-        onChange={handleInputChange}
-        aria-label="Escolher foto do ambiente"
-        tabIndex={-1}
+        label="Escolher foto do ambiente"
+        onFile={(file) => setPhotoUrl(URL.createObjectURL(file))}
       />
-      <button type="button" className="share__button room-entry" onClick={() => inputRef.current?.click()}>
+      <button
+        type="button"
+        className="button button--block room-entry"
+        onClick={() => inputRef.current?.click()}
+      >
         <ImagePlus size={16} aria-hidden="true" />
         <span className="room-entry__long">Ver na foto da minha sala</span>
         <span className="room-entry__short">Na foto da sala</span>

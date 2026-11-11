@@ -77,6 +77,16 @@ Tamanho-alvo: até ~400 linhas alteradas, sem contar lockfile. Acima disso, divi
 | Classes CSS                        | BEM                      | `.door-check__badge--fits`       |
 
 Identificadores em **inglês**; texto de interface, comentários e commits em **português**.
+Também em inglês: nomes de teste, rotas de `api/` e variáveis de ambiente. A exceção é o
+que a pessoa vê no link compartilhado (`?movel=fogao&l=60&porta=80`), que fica em português.
+
+### Pastas
+
+- `components/<função>/`: uma pasta por função da interface (`photo-model`, `room`,
+  `door-check`…). Peça genérica, sem regra de negócio, vai em `components/ui/`.
+- `hooks/`: estado e fluxos dos componentes.
+- `services/`: tudo que fala com a rede (rotas de `api/`, anti-robô, Analytics).
+- `utils/`: funções sem rede, de preferência puras e com teste.
 
 ### Unidades (a regra que mais causa bug)
 
@@ -107,8 +117,12 @@ Identificadores em **inglês**; texto de interface, comentários e commits em **
 
 ### Interface
 
-- Cores, raios e fontes vêm dos tokens em `:root` (`src/index.css`). Nada de cor
+- Cores, raios e fontes vêm dos tokens em `:root` (`src/styles/base.css`). Nada de cor
   fixa em componente.
+- Estilo: um arquivo por área da interface em `src/styles/`, importado em
+  `src/index.css` na ordem da cascata (`tool-mobile.css` por último).
+- Componente não usa classe de outro componente. O que é comum vira classe genérica:
+  `.button` (e `--primary`, `--quiet`, `--large`…), `.panel-section`, `.file-input`, `.slider`.
 - A identidade é a "estúdio" descrita no CLAUDE.md: branco sobre grafite, a única
   cor é a luz quente (`--color-light`); verde, âmbar e vermelho só no veredito.
   Sem azul e sem fundo claro. Números com `tabular-nums`.
@@ -118,9 +132,9 @@ Identificadores em **inglês**; texto de interface, comentários e commits em **
 ## Testes
 
 - Lógica pura (unidades, validação, URL, porta, layout de móvel) tem teste em
-  `__tests__/` ao lado do código.
-- Estrutura Arrange / Act / Assert e nome que descreve o comportamento:
-  `test('rejeita largura acima do limite', ...)`.
+  `__tests__/` ao lado do código, em `src/` e em `api/_lib/`.
+- Estrutura Arrange / Act / Assert e nome em inglês que descreve o comportamento:
+  `test('rejects a width above the limit', ...)`.
 - Bug corrigido ganha um teste que falhava antes da correção.
 - Antes de abrir o PR:
 
@@ -140,6 +154,8 @@ repositório público. A configuração está em [`.coderabbit.yaml`](./.coderab
 
 ## Segurança
 
-- Nenhum segredo no repositório. O site é estático e não tem backend; se um dia
-  precisar de chave, ela vai em variável de ambiente e o nome entra no `.env.example`.
+- Nenhum segredo no repositório. O site é estático; as chaves pagas ficam só nas
+  funções de `api/`, em variáveis de ambiente cujo nome entra no `.env.example`.
+- Renomear rota ou variável de ambiente exige trocar o nome na Vercel antes do
+  deploy: sem isso, a função passa a usar o padrão ou responde "indisponível".
 - Dependência nova só quando poucas linhas não resolvem; registre o motivo no PR.

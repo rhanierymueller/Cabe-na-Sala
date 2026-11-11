@@ -1,0 +1,196 @@
+/* Seções do painel: foto do anúncio, anúncio colado, porta e compartilhar. */
+
+.panel-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.panel-section__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.panel-section__title svg {
+  color: var(--color-text-muted);
+}
+
+.panel-section__hint,
+.panel-section__status {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.panel-section__status {
+  color: var(--color-text);
+}
+
+.panel-section__error {
+  margin: 0;
+  color: var(--color-error);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.panel-section__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ---------- Foto do anúncio → modelo 3D ---------- */
+
+/* Em destaque, entre o título e as medidas. */
+.photo-model {
+  margin-bottom: 18px;
+  padding: 16px;
+  background: var(--color-surface-raised);
+  border: 1px solid rgba(255, 233, 207, 0.22);
+  border-radius: var(--radius-md);
+}
+
+.photo-model .panel-section__title svg {
+  color: var(--color-light);
+}
+
+.photo-model__active {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.photo-model__stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--color-light);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.photo-model__stamp::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: currentColor;
+  border-radius: 50%;
+  box-shadow: 0 0 12px currentColor;
+}
+
+/* ---------- Medidas pelo anúncio ---------- */
+
+.ad-measures__text {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--color-surface-raised);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.4;
+  resize: vertical;
+}
+
+.ad-measures__text:focus {
+  outline: none;
+  border-color: var(--color-text);
+}
+
+.ad-measures__text::placeholder {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.ad-measures__progress {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+/* Um feixe de luz varrendo a barra enquanto o anúncio é lido. */
+.ad-measures__tape {
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--color-light), transparent) 0 0 / 40% 100%
+    no-repeat rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-pill);
+  animation: light-sweep 1.4s ease-in-out infinite;
+}
+
+@keyframes light-sweep {
+  from {
+    background-position: -70% 0;
+  }
+  to {
+    background-position: 170% 0;
+  }
+}
+
+/* ---------- Passa na porta? ---------- */
+
+.door-check__input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 16px;
+  background: var(--color-surface-raised);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+  transition: border-color 0.2s ease;
+}
+
+.door-check__input::placeholder {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.door-check__input:focus {
+  outline: none;
+  border-color: var(--color-text);
+}
+
+.door-check__badge {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 9px 14px;
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  border-radius: var(--radius-pill);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.door-check__badge--fits {
+  color: var(--color-ok);
+}
+
+.door-check__badge--tight {
+  color: var(--color-warn);
+}
+
+.door-check__badge--blocked {
+  color: var(--color-error);
+}
+
+.door-check__explain {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}

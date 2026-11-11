@@ -94,7 +94,7 @@ export function ScrollStory({ onStart }: ScrollStoryProps) {
           </motion.p>
           <motion.button
             type="button"
-            className="cta-button"
+            className="button button--primary button--large"
             onClick={onStart}
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}

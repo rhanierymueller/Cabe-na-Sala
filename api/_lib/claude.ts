@@ -15,7 +15,7 @@ const SMALL_MODEL_PREFIX = 'claude-haiku'
 /** O raciocínio dos modelos maiores conta no teto de saída: sem folga, a resposta sai cortada. */
 const THINKING_HEADROOM_TOKENS = 2000
 
-export interface ClaudeJsonRequest {
+interface ClaudeJsonRequest {
   readonly system: string
   readonly text: string
   /** Imagem como data URL já validada (JPG, PNG ou WebP). */
@@ -49,7 +49,7 @@ function buildContent(request: ClaudeJsonRequest): Anthropic.ContentBlockParam[]
  */
 export async function askClaudeForJson(request: ClaudeJsonRequest): Promise<unknown | null> {
   const client = new Anthropic({ timeout: REQUEST_TIMEOUT_MS, maxRetries: 1 })
-  const model = request.model ?? (process.env.CLAUDE_MODELO || DEFAULT_MODEL)
+  const model = request.model ?? (process.env.CLAUDE_MODEL || DEFAULT_MODEL)
   const isSmallModel = model.startsWith(SMALL_MODEL_PREFIX)
   const response = await client.messages.create({
     model,
