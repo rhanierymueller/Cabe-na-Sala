@@ -102,9 +102,37 @@
     padding: 16px 20px max(22px, env(safe-area-inset-bottom));
   }
 
-  .room-entry {
+  /* Dois atalhos lado a lado sob o botão principal. */
+  .tool__shortcuts {
+    grid-template-columns: 1fr 1fr;
     margin-top: 12px;
+  }
+
+  .tool__shortcuts .share__button {
     min-height: 50px;
+    padding: 0 10px;
+    white-space: nowrap;
+  }
+
+  .tool__photo-shortcut {
+    display: inline-flex;
+  }
+
+  /* Com a folha aberta o cartão da foto já está à vista: o atalho sairia repetido. */
+  .tool__panel--open .tool__shortcuts {
+    grid-template-columns: 1fr;
+  }
+
+  .tool__panel--open .tool__photo-shortcut {
+    display: none;
+  }
+
+  .room-entry__long {
+    display: none;
+  }
+
+  .room-entry__short {
+    display: inline;
   }
 
   /* Recolhida: só as três medidas lado a lado e o botão principal. */
@@ -112,6 +140,14 @@
     overflow: hidden;
   }
 
+  /* O cartão da foto some por dentro, mas fica na página: o atalho abre o campo de arquivo dele. */
+  .tool__panel:not(.tool__panel--open) .photo-model--featured {
+    margin: 0;
+    padding: 0;
+    border: none;
+  }
+
+  .tool__panel:not(.tool__panel--open) .photo-model--featured > :not(input),
   .tool__panel:not(.tool__panel--open) .tool__more,
   .tool__panel:not(.tool__panel--open) .dimensions-form__title,
   .tool__panel:not(.tool__panel--open) .dimensions-form__subtitle,
@@ -146,7 +182,8 @@
     flex: 1;
     width: 100%;
     min-width: 0;
-    font-size: 1.85rem;
+    /* Três dígitos precisam caber ao lado do "cm" em telas de 360 px. */
+    font-size: 1.6rem;
     text-align: left;
   }
 

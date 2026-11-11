@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { ArrowLeft, ChevronUp } from 'lucide-react'
+import { ArrowLeft, Camera, ChevronUp } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { ArButton } from '../components/ar/ArButton'
 import { DimensionsForm } from '../components/form/DimensionsForm'
@@ -10,7 +10,7 @@ import { RoomPhotoEntry } from '../components/room/RoomPhotoEntry'
 import { AdMeasures } from '../components/tool/AdMeasures'
 import { DoorCheck } from '../components/tool/DoorCheck'
 import { FurniturePicker } from '../components/tool/FurniturePicker'
-import { PhotoModel } from '../components/tool/PhotoModel'
+import { PHOTO_MODEL_INPUT_ID, PhotoModel } from '../components/tool/PhotoModel'
 import { FurnitureViewer } from '../components/viewer/FurnitureViewer'
 import { useBottomSheet } from '../hooks/useBottomSheet'
 import { useDimensionsForm } from '../hooks/useDimensionsForm'
@@ -128,7 +128,12 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
 
       <header className="tool__top">
         <h1 className="app__brand">
-          <button type="button" className="app__back" onClick={onBackToLanding} title="Voltar ao início">
+          <button
+            type="button"
+            className="app__back"
+            onClick={onBackToLanding}
+            title="Voltar ao início"
+          >
             <ArrowLeft size={18} aria-hidden="true" />
             Cabe na Sala
           </button>
@@ -148,15 +153,11 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
           {...sheet.handleProps}
         >
           <ChevronUp size={14} aria-hidden="true" />
-          {sheet.isExpanded ? 'Fechar' : 'Anúncio, foto e porta'}
+          {sheet.isExpanded ? 'Fechar' : 'Anúncio, porta e ajustes'}
         </button>
 
         <div className="tool__scroll">
-          <DimensionsForm form={form} furnitureLabel={definition.label} />
-
-          <div className="tool__more">
-            <AdMeasures onRead={handleAdRead} />
-
+          <DimensionsForm form={form} furnitureLabel={definition.label}>
             <PhotoModel
               // Trocar de móvel à mão remonta o componente e cancela a geração em andamento.
               key={photoSession}
@@ -165,6 +166,10 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
               onModelChange={handleScannedModelChange}
               onKindDetected={handlePhotoKind}
             />
+          </DimensionsForm>
+
+          <div className="tool__more">
+            <AdMeasures onRead={handleAdRead} />
 
             <DoorCheck
               dimensionsCm={form.dimensionsCm}
@@ -190,7 +195,17 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
             handoffUrl={shareUrl}
             scannedModel={scannedModel}
           />
-          <RoomPhotoEntry kind={kind} dimensions={dimensionsMeters} scannedModel={scannedModel} />
+          <div className="tool__shortcuts">
+            {/* Só no celular: com a folha recolhida, o cartão da foto do anúncio não aparece. */}
+            <button
+              type="button"
+              className="share__button tool__photo-shortcut"
+              onClick={() => document.getElementById(PHOTO_MODEL_INPUT_ID)?.click()}
+            >
+              <Camera size={16} aria-hidden="true" /> 3D pela foto
+            </button>
+            <RoomPhotoEntry kind={kind} dimensions={dimensionsMeters} scannedModel={scannedModel} />
+          </div>
         </div>
       </aside>
     </motion.div>

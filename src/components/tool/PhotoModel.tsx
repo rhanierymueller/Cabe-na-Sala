@@ -16,6 +16,8 @@ interface PhotoModelProps {
 }
 
 const ICON_SIZE = 15
+/** O atalho da folha recolhida do celular abre este mesmo campo de arquivo. */
+export const PHOTO_MODEL_INPUT_ID = 'photo-model-file'
 
 const BUSY_LABEL: Partial<Record<PhotoModelPhase, string>> = {
   preparing: 'Preparando a foto…',
@@ -45,13 +47,14 @@ export function PhotoModel({ dimensions, model, onModelChange, onKindDetected }:
   const busyLabel = BUSY_LABEL[photoModel.phase]
 
   return (
-    <section className="photo-model" aria-label="Usar a foto do anúncio">
+    <section className="photo-model photo-model--featured" aria-label="Usar a foto do anúncio">
       <h2 className="photo-model__title">
         <Camera size={ICON_SIZE} aria-hidden="true" /> Tem a foto do anúncio?
       </h2>
 
       <input
         ref={inputRef}
+        id={PHOTO_MODEL_INPUT_ID}
         className="photo-model__input"
         type="file"
         accept={PHOTO_MODEL_ACCEPT}
@@ -73,8 +76,7 @@ export function PhotoModel({ dimensions, model, onModelChange, onKindDetected }:
       {model === null && !photoModel.isBusy && (
         <>
           <p className="photo-model__hint">
-            Use a foto e veja o móvel de verdade no lugar do genérico. As medidas continuam as que
-            você digitou. Funciona melhor com o móvel inteiro, sozinho e bem iluminado.
+            Envie a foto e veja este móvel de verdade em 3D, no tamanho das suas medidas.
           </p>
           <div className="photo-model__actions">
             {hasCamera && (

@@ -43,7 +43,8 @@ export function ClosingSection({ onStart }: ClosingSectionProps) {
           Meça. Veja. <span className="text-accent">Compre certo.</span>
         </motion.h2>
         <motion.p className="closing__subtitle" variants={riseInVariants}>
-          Oito categorias prontas para testar — e vem mais por aí.
+          Digite as medidas, cole o anúncio ou envie a foto: o móvel aparece em 3D, no tamanho
+          real.
         </motion.p>
 
         <motion.ul className="closing__categories" variants={riseInVariants}>

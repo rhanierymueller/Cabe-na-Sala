@@ -45,7 +45,9 @@ export function RoomPhotoEntry({ kind, dimensions, scannedModel }: RoomPhotoEntr
         tabIndex={-1}
       />
       <button type="button" className="share__button room-entry" onClick={() => inputRef.current?.click()}>
-        <ImagePlus size={16} aria-hidden="true" /> Ver na foto da minha sala
+        <ImagePlus size={16} aria-hidden="true" />
+        <span className="room-entry__long">Ver na foto da minha sala</span>
+        <span className="room-entry__short">Na foto da sala</span>
       </button>
       {photoUrl !== null &&
         // No body: o cartão que contém o botão usa backdrop-filter, que

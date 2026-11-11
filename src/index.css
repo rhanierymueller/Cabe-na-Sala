@@ -737,6 +737,31 @@ input {
   cursor: not-allowed;
 }
 
+/* A foto do anúncio em destaque, entre o título e as medidas. */
+.photo-model--featured {
+  margin-bottom: 18px;
+  padding: 16px;
+  background: var(--color-surface-raised);
+  border: 1px solid rgba(255, 233, 207, 0.22);
+  border-radius: var(--radius-md);
+}
+
+.photo-model--featured .photo-model__title svg {
+  color: var(--color-light);
+}
+
+/* Atalhos sob o botão principal. No computador só existe o da foto da sala. */
+.tool__shortcuts {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.tool__photo-shortcut,
+.room-entry__short {
+  display: none;
+}
+
 /* Desafio anti-robô: quase sempre invisível; aparece aqui se pedir interação. */
 .challenge-host {
   position: fixed;
