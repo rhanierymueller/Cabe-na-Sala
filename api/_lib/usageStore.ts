@@ -9,9 +9,8 @@
 export interface UsageStore {
   /** Soma 1 ao contador da janela atual e devolve o total. */
   readonly increment: (key: string, windowSeconds: number) => Promise<number>
-  /** Marca uma chave como conhecida por um tempo. */
-  readonly remember: (key: string, ttlSeconds: number) => Promise<void>
-  readonly has: (key: string) => Promise<boolean>
+  readonly get: (key: string) => Promise<string | null>
+  readonly set: (key: string, value: string, ttlSeconds: number) => Promise<void>
 }
 
 interface ResolvedStore {
@@ -32,30 +31,30 @@ export function windowKey(key: string, windowSeconds: number, nowMs: number): st
 }
 
 export function createMemoryStore(now: () => number = Date.now): UsageStore {
-  const counters = new Map<string, number>()
-  const expirations = new Map<string, number>()
+  const entries = new Map<string, { value: string; expiresAtMs: number }>()
 
-  const isAlive = (key: string): boolean => {
-    const expiresAtMs = expirations.get(key)
-    if (expiresAtMs !== undefined && expiresAtMs > now()) return true
-    expirations.delete(key)
-    counters.delete(key)
-    return false
+  const get = (key: string): string | null => {
+    const entry = entries.get(key)
+    if (entry && entry.expiresAtMs > now()) return entry.value
+    entries.delete(key)
+    return null
+  }
+  const set = (key: string, value: string, ttlSeconds: number): void => {
+    entries.set(key, { value, expiresAtMs: now() + ttlSeconds * MS_PER_SECOND })
   }
 
   return {
     async increment(key, windowSeconds) {
       const bucket = windowKey(key, windowSeconds, now())
-      const total = (isAlive(bucket) ? (counters.get(bucket) ?? 0) : 0) + 1
-      counters.set(bucket, total)
-      expirations.set(bucket, now() + windowSeconds * MS_PER_SECOND)
+      const total = Number(get(bucket) ?? 0) + 1
+      set(bucket, String(total), windowSeconds)
       return total
     },
-    async remember(key, ttlSeconds) {
-      expirations.set(key, now() + ttlSeconds * MS_PER_SECOND)
+    async get(key) {
+      return get(key)
     },
-    async has(key) {
-      return isAlive(key)
+    async set(key, value, ttlSeconds) {
+      set(key, value, ttlSeconds)
     },
   }
 }
@@ -92,12 +91,14 @@ export function createRedisStore(
       if (typeof total !== 'number') throw new Error('Redis: contador inválido')
       return total
     },
-    async remember(key, ttlSeconds) {
-      await run([['SET', key, '1', 'EX', ttlSeconds]])
+    async get(key) {
+      const [value] = await run([['GET', key]])
+      if (value !== null && typeof value !== 'string') throw new Error('Redis: valor inválido')
+      return value
     },
-    async has(key) {
-      const [exists] = await run([['EXISTS', key]])
-      return exists === 1
+    async set(key, value, ttlSeconds) {
+      const [result] = await run([['SET', key, value, 'EX', ttlSeconds]])
+      if (result !== 'OK') throw new Error('Redis: falha ao gravar valor')
     },
   }
 }

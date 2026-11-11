@@ -34,12 +34,12 @@ describe('createMemoryStore', () => {
   test('remembers a key only until it expires', async () => {
     let nowMs = 0
     const store = createMemoryStore(() => nowMs)
-    await store.remember('job:1', 60)
+    await store.set('job:1', 'request-id', 60)
 
-    expect(await store.has('job:1')).toBe(true)
-    expect(await store.has('job:2')).toBe(false)
+    expect(await store.get('job:1')).toBe('request-id')
+    expect(await store.get('job:2')).toBeNull()
     nowMs = 61_000
-    expect(await store.has('job:1')).toBe(false)
+    expect(await store.get('job:1')).toBeNull()
   })
 })
 
@@ -63,10 +63,23 @@ describe('createRedisStore', () => {
     ])
   })
 
-  test('has() reflects EXISTS', async () => {
-    const store = createRedisStore('https://kv.example', 't', respondWith([{ result: 1 }]))
+  test('reads a stored value and distinguishes an expired key', async () => {
+    const fetchImpl = respondWith([{ result: 'request-id' }])
+    fetchImpl.mockResolvedValueOnce(Response.json([{ result: null }]))
+    const store = createRedisStore('https://kv.example', 't', fetchImpl)
 
-    expect(await store.has('job:abc')).toBe(true)
+    expect(await store.get('job:expired')).toBeNull()
+    expect(await store.get('job:abc')).toBe('request-id')
+  })
+
+  test('stores a value with an expiry', async () => {
+    const fetchImpl = respondWith([{ result: 'OK' }])
+    const store = createRedisStore('https://kv.example', 't', fetchImpl)
+
+    await store.set('job:abc', 'request-id', 60)
+
+    const [, init] = fetchImpl.mock.calls[0] as unknown as [string, RequestInit]
+    expect(JSON.parse(init.body as string)).toEqual([['SET', 'job:abc', 'request-id', 'EX', 60]])
   })
 
   test('throws when Redis is down, so the caller can refuse the request', async () => {

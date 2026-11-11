@@ -42,7 +42,7 @@ function parseInput(payload: Record<string, unknown>): AdInput | null {
   return { text: hasText ? text : null, image: hasImage ? image : null }
 }
 
-export async function POST(request: Request): Promise<Response> {
+export async function POST(request: Request, localDevelopment: true | undefined = undefined): Promise<Response> {
   const admission = await admitClaudeRequest(request, {
     routeName: 'de medidas',
     usageKey: 'ad',
@@ -53,7 +53,7 @@ export async function POST(request: Request): Promise<Response> {
     invalidMessage: 'Cole o texto do anúncio ou envie um print em JPG, PNG ou WebP.',
     limitMessage: 'Muitas leituras. Digite as medidas ou tente de novo mais tarde.',
     parseInput,
-  })
+  }, localDevelopment)
   if (admission instanceof Response) return admission
   const { text, image } = admission.input
 

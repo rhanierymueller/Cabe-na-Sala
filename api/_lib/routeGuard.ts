@@ -27,15 +27,14 @@ export interface RouteGuard {
 }
 
 /**
- * Devolve null quando a rota não pode rodar com segurança: em qualquer
- * deploy na Vercel, sem armazenamento compartilhado ou sem anti-robô.
- * Seguro por padrão.
+ * As rotas públicas exigem armazenamento compartilhado e anti-robô.
+ * Só o adaptador local do Vite pode liberar o uso em loopback.
  */
-export function resolveRouteGuard(routeName: string): RouteGuard | null {
+export function resolveRouteGuard(routeName: string, localDevelopment?: true): RouteGuard | null {
   const { store, isShared } = resolveStore(process.env)
   const challengeSecret = process.env.TURNSTILE_SECRET_KEY || null
 
-  if (process.env.VERCEL && (!isShared || !challengeSecret)) {
+  if (localDevelopment !== true && (!isShared || !challengeSecret)) {
     console.error(
       `Rota ${routeName} recusada: em deploy é obrigatório configurar KV_REST_API_URL/` +
         'KV_REST_API_TOKEN (limite de uso) e TURNSTILE_SECRET_KEY (anti-robô).',
