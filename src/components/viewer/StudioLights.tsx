@@ -4,7 +4,7 @@ const SCENE_CENTER: [number, number, number] = [0, 0.6, 0]
 
 /**
  * Luz de estúdio gerada em código (sem baixar HDR): um painel grande no
- * alto, um quente de um lado, um frio do outro e um de frente. Dá reflexo ao aço e
+ * alto, um quente de um lado, um neutro do outro e um de frente. Dá reflexo ao aço e
  * volume ao tecido sem custar rede.
  */
 export function StudioLights() {
@@ -23,7 +23,7 @@ export function StudioLights() {
       <Environment resolution={256}>
         <Lightformer form="rect" intensity={2.4} position={[0, 5, 1]} scale={[8, 4, 1]} target={SCENE_CENTER} />
         <Lightformer form="rect" intensity={1.4} color="#ffe2b8" position={[-5, 2, 2]} scale={[4, 4, 1]} target={SCENE_CENTER} />
-        <Lightformer form="rect" intensity={0.9} color="#cdd9ff" position={[5, 1.5, -3]} scale={[4, 4, 1]} target={SCENE_CENTER} />
+        <Lightformer form="rect" intensity={0.9} position={[5, 1.5, -3]} scale={[4, 4, 1]} target={SCENE_CENTER} />
         <Lightformer form="rect" intensity={1.1} position={[2, 2, 6]} scale={[6, 4, 1]} target={SCENE_CENTER} />
       </Environment>
     </>

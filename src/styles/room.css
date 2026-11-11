@@ -80,6 +80,13 @@
   cursor: grab;
 }
 
+.room__handle-hit:focus-visible {
+  outline: none;
+  stroke: #ffffff;
+  stroke-width: 2px;
+  vector-effect: non-scaling-stroke;
+}
+
 .room__bar {
   display: flex;
   flex-direction: column;

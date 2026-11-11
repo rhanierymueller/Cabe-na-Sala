@@ -112,6 +112,11 @@ export function usePhotoModel(
       abortRef.current = controller
       setErrorMessage(null)
 
+      // Só a execução ativa mexe na tela: uma cancelada ou substituída fica muda.
+      const showPhase = (nextPhase: PhotoModelPhase): void => {
+        if (abortRef.current === controller) setPhase(nextPhase)
+      }
+
       const run = async (): Promise<void> => {
         const source: ScannedModelSource = isGlbFile(file) ? 'file' : 'photo'
         let localUrl: string | null = null
@@ -121,19 +126,20 @@ export function usePhotoModel(
             localUrl = URL.createObjectURL(file)
             modelUrl = localUrl
           } else {
-            setPhase('preparing')
+            showPhase('preparing')
             const imageDataUrl = await resizeImageToDataUrl(file)
+            controller.signal.throwIfAborted()
             const challengeToken = await requestChallengeToken(controller.signal)
-            setPhase('checking')
+            showPhase('checking')
             modelUrl = await generateModelFromPhoto({
               imageDataUrl,
               challengeToken,
               signal: controller.signal,
-              onAccepted: () => setPhase('generating'),
+              onAccepted: () => showPhase('generating'),
             })
           }
 
-          setPhase('loading')
+          showPhase('loading')
           const scene = await loadGlbModel(modelUrl)
           if (controller.signal.aborted) return
 
@@ -141,10 +147,11 @@ export function usePhotoModel(
           const quarterTurns = suggestQuarterTurns(baseSize, dimensionsRef.current)
           trackEvent('photo_model_ready', { source })
           onModelReady({ scene, source, quarterTurns })
-          setPhase('idle')
+          showPhase('idle')
         } catch (error: unknown) {
           if (isAbort(error) || controller.signal.aborted) return
           console.error('Falha ao transformar o arquivo em modelo 3D', error)
+          if (abortRef.current !== controller) return
           setPhase('error')
           setErrorMessage(describeError(error))
         } finally {

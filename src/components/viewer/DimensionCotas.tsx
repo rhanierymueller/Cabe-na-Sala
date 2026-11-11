@@ -1,5 +1,4 @@
 import { Html, Line } from '@react-three/drei'
-import { useAnimatedDimensions } from '../../hooks/useAnimatedDimensions'
 import type { DimensionsMeters } from '../../types/furniture'
 import { metersToCentimeters } from '../../utils/units'
 
@@ -41,13 +40,12 @@ function midpoint(from: Point, to: Point): [number, number, number] {
 
 /**
  * Cotas de desenho técnico em volta do móvel: largura e profundidade no
- * chão, altura em pé na quina. As linhas acompanham a animação do modelo;
- * o número mostra sempre a medida digitada.
+ * chão, altura em pé na quina. Mostram direto a medida digitada: o modelo
+ * anima até elas, e as linhas não são recriadas a cada quadro da animação.
  */
 export function DimensionCotas({ dimensions }: DimensionCotasProps) {
-  const animated = useAnimatedDimensions(dimensions)
-  const halfWidth = animated.widthM / 2
-  const halfDepth = animated.depthM / 2
+  const halfWidth = dimensions.widthM / 2
+  const halfDepth = dimensions.depthM / 2
   const frontZ = halfDepth + OFFSET_M
   const sideX = halfWidth + OFFSET_M
 
@@ -69,7 +67,7 @@ export function DimensionCotas({ dimensions }: DimensionCotasProps) {
     {
       key: 'height',
       from: [-sideX, 0, halfDepth],
-      to: [-sideX, animated.heightM, halfDepth],
+      to: [-sideX, dimensions.heightM, halfDepth],
       tick: [1, 0, 0],
       valueM: dimensions.heightM,
     },
@@ -88,7 +86,13 @@ export function DimensionCotas({ dimensions }: DimensionCotasProps) {
               lineWidth={COTA_LINE_WIDTH}
             />
           ))}
-          <Html position={midpoint(cota.from, cota.to)} center zIndexRange={[5, 0]}>
+          <Html
+            position={midpoint(cota.from, cota.to)}
+            center
+            zIndexRange={[5, 0]}
+            // O contêiner do drei recebe o gesto antes do canvas; sem isto a órbita não começa sobre o número.
+            style={{ pointerEvents: 'none' }}
+          >
             <span className="cota">{Math.round(metersToCentimeters(cota.valueM))}</span>
           </Html>
         </group>

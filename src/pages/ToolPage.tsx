@@ -64,6 +64,8 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
   }, [])
 
   const handleSelectKind = (nextKind: FurnitureKind): void => {
+    // Tocar no móvel já ativo não pode apagar um modelo que custou uma geração.
+    if (nextKind === kind) return
     // O modelo da foto pertence ao produto anterior.
     handleScannedModelChange(null)
     setKind(nextKind)
@@ -114,6 +116,8 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
             <AdMeasures dimensionsCm={form.dimensionsCm} onApply={form.reset} />
 
             <PhotoModel
+              // Trocar de móvel remonta o componente e cancela a geração em andamento.
+              key={kind}
               dimensions={dimensionsMeters}
               model={scannedModel}
               onModelChange={handleScannedModelChange}

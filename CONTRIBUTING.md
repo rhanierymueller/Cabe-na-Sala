@@ -109,8 +109,9 @@ Identificadores em **inglês**; texto de interface, comentários e commits em **
 
 - Cores, raios e fontes vêm dos tokens em `:root` (`src/index.css`). Nada de cor
   fixa em componente.
-- A identidade é a "trena" descrita no CLAUDE.md: sem azul, degradê, brilho ou
-  `backdrop-filter`; números em `--font-mono`.
+- A identidade é a "estúdio" descrita no CLAUDE.md: branco sobre grafite, a única
+  cor é a luz quente (`--color-light`); verde, âmbar e vermelho só no veredito.
+  Sem azul e sem fundo claro. Números com `tabular-nums`.
 - Toda tela nova funciona em 375 px de largura, sem rolagem horizontal.
 - Elemento interativo é `<button>` ou `<a>`, com rótulo acessível e foco visível.
 

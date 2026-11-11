@@ -55,8 +55,11 @@ function loadScript(): Promise<void> {
  * Devolve null quando o desafio não está configurado neste ambiente.
  */
 export async function requestChallengeToken(signal: AbortSignal): Promise<string | null> {
+  // O listener de abort não dispara para um sinal que já chegou abortado.
+  signal.throwIfAborted()
   if (!SITE_KEY) return null
   await loadScript()
+  signal.throwIfAborted()
   const turnstile = window.turnstile
   if (!turnstile) throw new ChallengeError()
 

@@ -72,6 +72,7 @@ async function checkJob(id: string, signal: AbortSignal): Promise<JobState> {
 }
 
 function wait(durationMs: number, signal: AbortSignal): Promise<void> {
+  signal.throwIfAborted()
   return new Promise((resolve, reject) => {
     const timer = window.setTimeout(resolve, durationMs)
     signal.addEventListener(

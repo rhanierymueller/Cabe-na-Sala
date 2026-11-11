@@ -1,4 +1,4 @@
-import type { PointerEvent } from 'react'
+import type { KeyboardEvent, PointerEvent } from 'react'
 import { useRef } from 'react'
 import type { PhotoPoint, PhotoSize } from '../../utils/roomPhoto'
 
@@ -21,6 +21,14 @@ const HANDLES: readonly Handle[] = ['bottom', 'top']
 const HANDLE_RADIUS_RATIO = 0.016
 const HIT_RADIUS_RATIO = 0.06
 const STROKE_RATIO = 0.004
+/** Passo das setas do teclado, como fração do lado maior. */
+const KEY_STEP_RATIO = 0.01
+const KEY_DIRECTIONS: Readonly<Record<string, readonly [number, number]>> = {
+  ArrowLeft: [-1, 0],
+  ArrowRight: [1, 0],
+  ArrowUp: [0, -1],
+  ArrowDown: [0, 1],
+}
 
 function clamp(value: number, max: number): number {
   return Math.min(Math.max(value, 0), max)
@@ -44,6 +52,22 @@ export function RoomCalibrator({ size, line, label, onChange }: RoomCalibratorPr
       y: clamp(((event.clientY - rect.top) / rect.height) * size.heightPx, size.heightPx),
     }
     onChange({ ...line, [handle]: point })
+  }
+
+  const handleKeyDown = (handle: Handle, event: KeyboardEvent<SVGCircleElement>): void => {
+    const direction = KEY_DIRECTIONS[event.key]
+    if (!direction) return
+    event.preventDefault()
+
+    const stepPx = longSide * KEY_STEP_RATIO
+    const current = line[handle]
+    onChange({
+      ...line,
+      [handle]: {
+        x: clamp(current.x + direction[0] * stepPx, size.widthPx),
+        y: clamp(current.y + direction[1] * stepPx, size.heightPx),
+      },
+    })
   }
 
   return (
@@ -93,8 +117,17 @@ export function RoomCalibrator({ size, line, label, onChange }: RoomCalibratorPr
             cy={line[handle].y}
             r={longSide * HIT_RADIUS_RATIO}
             role="slider"
-            aria-label={handle === 'bottom' ? 'Ponta no chão' : 'Ponta no topo'}
+            tabIndex={0}
+            aria-label={
+              handle === 'bottom'
+                ? 'Ponta no chão. Use as setas para mover.'
+                : 'Ponta no topo. Use as setas para mover.'
+            }
+            aria-orientation="vertical"
+            aria-valuemin={0}
+            aria-valuemax={Math.round(size.heightPx)}
             aria-valuenow={Math.round(line[handle].y)}
+            onKeyDown={(event) => handleKeyDown(handle, event)}
             onPointerDown={(event) => event.currentTarget.setPointerCapture(event.pointerId)}
             onPointerMove={(event) => handleMove(handle, event)}
           />
