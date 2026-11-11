@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { normalizeModel, suggestQuarterTurns } from '../components/furniture/scanned/fitModel'
-import { EmptyModelError, loadGlbModel } from '../components/furniture/scanned/loadModel'
+import {
+  EmptyModelError,
+  loadGlbModel,
+  softenPhotoMaterials,
+} from '../components/furniture/scanned/loadModel'
 import type {
   DimensionsMeters,
   FurnitureKind,
@@ -152,6 +156,7 @@ export function usePhotoModel(
           showPhase('loading')
           const scene = await loadGlbModel(modelUrl)
           if (controller.signal.aborted) return
+          if (source === 'photo') softenPhotoMaterials(scene)
 
           const { baseSize } = normalizeModel(scene, 0)
           const quarterTurns = suggestQuarterTurns(baseSize, dimensionsRef.current)

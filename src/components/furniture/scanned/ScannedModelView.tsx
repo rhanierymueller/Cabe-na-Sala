@@ -3,6 +3,8 @@ import { useAnimatedDimensions } from '../../../hooks/useAnimatedDimensions'
 import type { DimensionsMeters, ScannedModel } from '../../../types/furniture'
 import { computeFitScale, normalizeModel } from './fitModel'
 
+const SCANNED_FILL_LIGHT = 0.9
+
 interface ScannedModelViewProps {
   readonly model: ScannedModel
   readonly dimensions: DimensionsMeters
@@ -21,8 +23,12 @@ export function ScannedModelView({ model, dimensions }: ScannedModelViewProps) {
   const [scaleX, scaleY, scaleZ] = computeFitScale(normalized.baseSize, animatedDimensions)
 
   return (
-    <group scale={[scaleX, scaleY, scaleZ]}>
-      <primitive object={normalized.root} />
-    </group>
+    <>
+      {/* Luz de preenchimento só para modelo de foto ou arquivo: a textura deles já traz sombra pintada. */}
+      <ambientLight intensity={SCANNED_FILL_LIGHT} />
+      <group scale={[scaleX, scaleY, scaleZ]}>
+        <primitive object={normalized.root} />
+      </group>
+    </>
   )
 }

@@ -1,5 +1,5 @@
-import type { Material, Object3D } from 'three'
-import { Mesh } from 'three'
+import type { Material, Mesh, Object3D } from 'three'
+import { MeshStandardMaterial } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { hasRenderableGeometry } from './fitModel'
 
@@ -12,6 +12,35 @@ export class EmptyModelError extends Error {
 
 function isMesh(object: Object3D): object is Mesh {
   return (object as Mesh).isMesh === true
+}
+
+/** Abaixo disto o tecido vira espelho do estúdio escuro. */
+const MIN_PHOTO_ROUGHNESS = 0.75
+/** Reforço do reflexo do ambiente: a textura gerada já vem com sombra pintada. */
+const PHOTO_ENV_INTENSITY = 1.6
+
+function materialsOf(mesh: Mesh): Material[] {
+  return Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+}
+
+/**
+ * O gerador entrega o material como metal (o padrão do formato quando o
+ * campo falta), e metal num estúdio escuro reflete o escuro: o móvel sai
+ * quase preto. Móvel de foto é tratado como superfície fosca, que mostra a
+ * cor da textura. Não se aplica a um .glb enviado pela pessoa.
+ */
+export function softenPhotoMaterials(scene: Object3D): void {
+  scene.traverse((child) => {
+    if (!isMesh(child)) return
+    materialsOf(child).forEach((material) => {
+      if (!(material instanceof MeshStandardMaterial)) return
+      material.metalness = 0
+      material.metalnessMap = null
+      material.roughness = Math.max(material.roughness, MIN_PHOTO_ROUGHNESS)
+      material.envMapIntensity = PHOTO_ENV_INTENSITY
+      material.needsUpdate = true
+    })
+  })
 }
 
 /** Carrega um GLB (URL remota ou blob local) e valida que há geometria de verdade. */
@@ -40,7 +69,6 @@ export function disposeModel(object: Object3D): void {
   object.traverse((child) => {
     if (!isMesh(child)) return
     child.geometry.dispose()
-    const materials = Array.isArray(child.material) ? child.material : [child.material]
-    materials.forEach(disposeMaterial)
+    materialsOf(child).forEach(disposeMaterial)
   })
 }
