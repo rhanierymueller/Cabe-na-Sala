@@ -5,85 +5,66 @@ import {
   isValidAdText,
   parseAdMeasures,
 } from './_lib/adMeasures.js'
-import { isPlausibleChallengeToken, verifyChallenge } from './_lib/challenge.js'
-import { askClaudeForJson, isClaudeConfigured } from './_lib/claude.js'
+import { askClaudeForJson } from './_lib/claude.js'
+import { admitClaudeRequest } from './_lib/claudeRoute.js'
 import {
   MAX_IMAGE_DATA_URL_LENGTH,
-  clientIpFrom,
   imageContentMatchesType,
-  isSameOrigin,
   isValidImageDataUrl,
 } from './_lib/modelRequest.js'
-import { isOverLimit, readJsonBody, resolveRouteGuard, respond } from './_lib/routeGuard.js'
+import { respond } from './_lib/routeGuard.js'
 
 /**
  * Anúncio → medidas. Recebe o texto colado ou um print do anúncio e devolve
- * largura, altura e profundidade em centímetros.
+ * largura, altura e profundidade em centímetros, mais o tipo de móvel.
  *
- *   POST /api/medidas  { text?, image?, challengeToken? }  → { widthCm, heightCm, depthCm }
+ *   POST /api/medidas  { text?, image?, challengeToken? }  → { widthCm, heightCm, depthCm, kind }
  *
- * Rota pública e paga (pouco): mesma origem → recusa em deploy sem Redis e
- * Turnstile → validação da entrada → anti-robô → limites por pessoa e global.
+ * As proteções da rota ficam em admitClaudeRequest.
  */
 
-const HOUR_S = 60 * 60
-const DAY_S = 24 * HOUR_S
-const MAX_READS_PER_IP_PER_HOUR = 15
-const MAX_READS_PER_DAY = 1000
 const MAX_OUTPUT_TOKENS = 200
 /** Folga sobre a imagem para o texto do anúncio e o restante do JSON. */
 const MAX_BODY_LENGTH = MAX_IMAGE_DATA_URL_LENGTH + 16_384
 
-const UNAVAILABLE_MESSAGE = 'A leitura do anúncio está indisponível no momento.'
+interface AdInput {
+  readonly text: string | null
+  readonly image: string | null
+}
 
-export async function POST(request: Request): Promise<Response> {
-  if (!isSameOrigin(request.headers.get('origin'), request.headers.get('host'))) {
-    return respond(403, null, 'Origem não permitida.')
-  }
-  const guard = isClaudeConfigured() ? resolveRouteGuard('de medidas') : null
-  if (!guard) return respond(503, null, UNAVAILABLE_MESSAGE)
-
-  const payload = (await readJsonBody(request, MAX_BODY_LENGTH)) as {
-    text?: unknown
-    image?: unknown
-    challengeToken?: unknown
-  } | null
-  const text = payload?.text
-  const image = payload?.image
+/** Aceita texto, print ou os dois; qualquer campo presente tem de ser válido. */
+function parseInput(payload: Record<string, unknown>): AdInput | null {
+  const { text, image } = payload
   const hasText = isValidAdText(text)
   const hasImage = isValidImageDataUrl(image) && imageContentMatchesType(image)
-  if ((text !== undefined && !hasText) || (image !== undefined && !hasImage) || (!hasText && !hasImage)) {
-    return respond(400, null, 'Cole o texto do anúncio ou envie um print em JPG, PNG ou WebP.')
-  }
+  if ((text !== undefined && !hasText) || (image !== undefined && !hasImage)) return null
+  if (!hasText && !hasImage) return null
+  return { text: hasText ? text : null, image: hasImage ? image : null }
+}
 
-  const clientIp = clientIpFrom(request.headers)
-  if (guard.challengeSecret) {
-    const token = payload?.challengeToken
-    const passed =
-      isPlausibleChallengeToken(token) &&
-      (await verifyChallenge(token, guard.challengeSecret, clientIp))
-    if (!passed) return respond(403, null, 'Não foi possível confirmar que você não é um robô.')
-  }
-
-  try {
-    if (
-      (await isOverLimit(guard.store, `ad:ip:hour:${clientIp}`, HOUR_S, MAX_READS_PER_IP_PER_HOUR)) ||
-      (await isOverLimit(guard.store, 'ad:global:day', DAY_S, MAX_READS_PER_DAY))
-    ) {
-      return respond(429, null, 'Muitas leituras. Digite as medidas ou tente de novo mais tarde.')
-    }
-  } catch (error: unknown) {
-    // Sem conseguir contar, não gastamos: falha fechada.
-    console.error('Falha no controle de uso da rota de medidas', error)
-    return respond(503, null, UNAVAILABLE_MESSAGE)
-  }
+export async function POST(request: Request): Promise<Response> {
+  const admission = await admitClaudeRequest(request, {
+    routeName: 'de medidas',
+    usageKey: 'ad',
+    maxPerIpPerHour: 15,
+    maxPerDay: 1000,
+    maxBodyLength: MAX_BODY_LENGTH,
+    unavailableMessage: 'A leitura do anúncio está indisponível no momento.',
+    invalidMessage: 'Cole o texto do anúncio ou envie um print em JPG, PNG ou WebP.',
+    limitMessage: 'Muitas leituras. Digite as medidas ou tente de novo mais tarde.',
+    parseInput,
+  })
+  if (admission instanceof Response) return admission
+  const { text, image } = admission.input
 
   try {
     const measures = parseAdMeasures(
       await askClaudeForJson({
         system: AD_MEASURES_SYSTEM_PROMPT,
-        text: hasText ? `${AD_MEASURES_PROMPT}\n\n<anuncio>\n${text}\n</anuncio>` : AD_MEASURES_PROMPT,
-        imageDataUrl: hasImage ? image : undefined,
+        text: text
+          ? `${AD_MEASURES_PROMPT}\n\n<anuncio>\n${text}\n</anuncio>`
+          : AD_MEASURES_PROMPT,
+        imageDataUrl: image ?? undefined,
         schema: AD_MEASURES_SCHEMA,
         maxTokens: MAX_OUTPUT_TOKENS,
       }),

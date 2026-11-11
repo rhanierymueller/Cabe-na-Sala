@@ -48,6 +48,18 @@ describe('estimateCameraPose', () => {
     expect(pose?.pitchRad).toBeCloseTo(truth.pitchRad, 3)
   })
 
+  test('acha outra altura de câmera quando a padrão não fecha (bancada vista de cima)', () => {
+    // Arrange: bancada de 90 cm marcada numa foto tirada de cima, bem inclinada.
+    const reference = { bottom: { x: 2280, y: 3540 }, top: { x: 2280, y: 1920 }, heightM: 0.9 }
+
+    // Act
+    const pose = estimateCameraPose(reference, SIZE)
+
+    // Assert
+    expect(pose).not.toBeNull()
+    expect(pose?.heightM).toBeLessThan(ASSUMED_CAMERA_HEIGHT_M)
+  })
+
   test('devolve null quando o topo está abaixo da base', () => {
     const reference = { bottom: { x: 1500, y: 1000 }, top: { x: 1500, y: 3000 }, heightM: 2.1 }
 

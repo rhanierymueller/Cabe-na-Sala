@@ -104,6 +104,10 @@
   line-height: 1.45;
 }
 
+.room__hint--found {
+  color: var(--color-light);
+}
+
 .room__row {
   display: flex;
   flex-wrap: wrap;

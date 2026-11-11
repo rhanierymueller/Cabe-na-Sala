@@ -3,12 +3,17 @@ import { splitImageDataUrl } from './modelRequest.js'
 
 /**
  * Acesso ao Claude para as tarefas de "entender" (conferir foto, ler medidas).
- * Modelo pequeno, sem raciocínio e com resposta em JSON de formato fixo:
- * são classificações e extrações curtas em rota pública.
+ * Por padrão, modelo pequeno e sem raciocínio, com resposta em JSON de formato
+ * fixo: são classificações e extrações curtas em rota pública. Uma chamada
+ * pode pedir um modelo maior quando a tarefa exige (apontar lugares na foto).
  */
 
 const DEFAULT_MODEL = 'claude-haiku-5-5'
 const REQUEST_TIMEOUT_MS = 20_000
+/** Só o modelo pequeno aceita desligar o raciocínio; nos maiores ele é obrigatório. */
+const SMALL_MODEL_PREFIX = 'claude-haiku'
+/** O raciocínio dos modelos maiores conta no teto de saída: sem folga, a resposta sai cortada. */
+const THINKING_HEADROOM_TOKENS = 2000
 
 export interface ClaudeJsonRequest {
   readonly system: string
@@ -18,6 +23,8 @@ export interface ClaudeJsonRequest {
   /** JSON Schema da resposta. */
   readonly schema: Record<string, unknown>
   readonly maxTokens: number
+  /** Modelo desta chamada; sem ele vale o padrão (pequeno). */
+  readonly model?: string
 }
 
 export function isClaudeConfigured(): boolean {
@@ -42,10 +49,12 @@ function buildContent(request: ClaudeJsonRequest): Anthropic.ContentBlockParam[]
  */
 export async function askClaudeForJson(request: ClaudeJsonRequest): Promise<unknown | null> {
   const client = new Anthropic({ timeout: REQUEST_TIMEOUT_MS, maxRetries: 1 })
+  const model = request.model ?? (process.env.CLAUDE_MODELO || DEFAULT_MODEL)
+  const isSmallModel = model.startsWith(SMALL_MODEL_PREFIX)
   const response = await client.messages.create({
-    model: process.env.CLAUDE_MODELO || DEFAULT_MODEL,
-    max_tokens: request.maxTokens,
-    thinking: { type: 'disabled' },
+    model,
+    max_tokens: isSmallModel ? request.maxTokens : request.maxTokens + THINKING_HEADROOM_TOKENS,
+    ...(isSmallModel ? { thinking: { type: 'disabled' as const } } : {}),
     output_config: { effort: 'low', format: { type: 'json_schema', schema: request.schema } },
     system: request.system,
     messages: [{ role: 'user', content: buildContent(request) }],

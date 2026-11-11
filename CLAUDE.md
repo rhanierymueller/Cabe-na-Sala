@@ -58,6 +58,12 @@ Diferencial vs. IKEA Place / Amazon "ver no quarto": **agnóstico de loja**
   móvel 3D por cima. A foto nunca sai do aparelho (blob local). **É estimativa,
   não medição**: assume a câmera principal do celular e 1,45 m de altura; a
   interface diz "aproximado" e a medida exata continua sendo a digitada.
+  Ao abrir a foto, `api/referencia.ts` pede ao Claude (modelo maior, porque
+  apontar lugar na foto exige mais visão) uma referência de altura conhecida:
+  porta (210 cm), bancada (90 cm) ou pé-direito. A linha já aparece marcada e
+  a pessoa só confirma; se nada for achado, marca à mão como antes. Se a
+  marcação não fecha com a altura de câmera padrão, o cálculo tenta alturas
+  vizinhas. O comum às rotas do Claude fica em `api/_lib/claudeRoute.ts`.
 - **O site identifica o móvel.** As duas rotas pagas devolvem `kind` (um dos
   tipos do catálogo ou null) junto com a resposta: o anúncio colado e a foto
   enviada trocam o móvel selecionado sozinhos. A lista de tipos do servidor

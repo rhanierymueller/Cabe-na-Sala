@@ -35,11 +35,26 @@ export interface GroundPoint {
 const FOCAL_TO_LONG_SIDE = 26 / 36
 
 /**
- * ponytail: altura fixa de quem fotografa em pé com o celular no peito. O
- * tamanho no ponto da referência não depende dela; só a variação com a
- * distância. Vira um controle se a estimativa incomodar.
+ * ponytail: altura de quem fotografa em pé com o celular no peito. O tamanho
+ * no ponto da referência não depende dela; só a variação com a distância.
+ * Vira um controle se a estimativa incomodar.
  */
 export const ASSUMED_CAMERA_HEIGHT_M = 1.45
+/**
+ * Quando a marcação não fecha com a altura acima (foto tirada sentado, de
+ * cima, ou recortada), tentam-se as vizinhas, da mais próxima à mais distante.
+ */
+const CAMERA_HEIGHT_CANDIDATES_M = [
+  ASSUMED_CAMERA_HEIGHT_M,
+  1.35,
+  1.55,
+  1.25,
+  1.65,
+  1.15,
+  1.75,
+  1.05,
+  0.95,
+] as const
 
 const MIN_PITCH_RAD = -Math.PI / 4
 const MAX_PITCH_RAD = (Math.PI * 80) / 180
@@ -108,19 +123,13 @@ function referenceHeightError(
   return topHeightM - reference.heightM
 }
 
-/**
- * Estima a câmera a partir de uma referência vertical de altura conhecida
- * (a porta, o pé-direito). Devolve null quando a marcação não fecha com
- * nenhuma inclinação plausível.
- */
-export function estimateCameraPose(
+/** Inclinação que faz a referência ter a altura certa, para uma altura de câmera dada. */
+function solvePitch(
   reference: Reference,
   size: PhotoSize,
-  cameraHeightM: number = ASSUMED_CAMERA_HEIGHT_M,
-): CameraPose | null {
-  if (reference.heightM <= 0 || reference.top.y >= reference.bottom.y) return null
-
-  const focalPx = focalLengthPx(size)
+  focalPx: number,
+  cameraHeightM: number,
+): number | null {
   const errorAt = (pitchRad: number): number | null =>
     referenceHeightError(reference, size, focalPx, cameraHeightM, pitchRad)
   const stepRad = (MAX_PITCH_RAD - MIN_PITCH_RAD) / PITCH_SCAN_STEPS
@@ -139,8 +148,23 @@ export function estimateCameraPose(
       if (middleError * lowError > 0) low = middle
       else high = middle
     }
-    return { focalPx, pitchRad: (low + high) / 2, heightM: cameraHeightM }
+    return (low + high) / 2
   }
+  return null
+}
 
+/**
+ * Estima a câmera a partir de uma referência vertical de altura conhecida
+ * (a porta, o pé-direito). Devolve null quando a marcação não fecha com
+ * nenhuma inclinação e altura de câmera plausíveis.
+ */
+export function estimateCameraPose(reference: Reference, size: PhotoSize): CameraPose | null {
+  if (reference.heightM <= 0 || reference.top.y >= reference.bottom.y) return null
+
+  const focalPx = focalLengthPx(size)
+  for (const heightM of CAMERA_HEIGHT_CANDIDATES_M) {
+    const pitchRad = solvePitch(reference, size, focalPx, heightM)
+    if (pitchRad !== null) return { focalPx, pitchRad, heightM }
+  }
   return null
 }
