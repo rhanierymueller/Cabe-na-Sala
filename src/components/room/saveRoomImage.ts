@@ -1,3 +1,5 @@
+import { isAbortError } from '../../utils/abort'
+
 const MAX_OUTPUT_SIDE_PX = 1600
 const OUTPUT_QUALITY = 0.9
 const FILE_NAME = 'cabe-na-sala.jpg'
@@ -33,8 +35,7 @@ export async function saveRoomImage(photo: HTMLImageElement, furniture: HTMLCanv
     try {
       await navigator.share({ files: [file], title: 'Cabe na Sala' })
     } catch (error: unknown) {
-      // Fechar o menu de compartilhar não é erro.
-      if (!(error instanceof DOMException && error.name === 'AbortError')) throw error
+      if (!isAbortError(error)) throw error
     }
     return
   }

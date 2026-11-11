@@ -10,7 +10,7 @@ import { KIND_GUIDANCE, KIND_SCHEMA, parseKind } from './furnitureKinds.js'
 
 /** Motivos de recusa — o texto ao usuário vem daqui, nunca do modelo. */
 export const REJECTION_REASONS = ['no_object', 'person', 'many_objects', 'unclear', 'inappropriate'] as const
-export type RejectionReason = (typeof REJECTION_REASONS)[number]
+type RejectionReason = (typeof REJECTION_REASONS)[number]
 
 export type PhotoVerdict =
   | { readonly ok: true; readonly kind: DetectedKind | null }

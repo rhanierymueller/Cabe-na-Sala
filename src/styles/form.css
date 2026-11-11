@@ -1,0 +1,90 @@
+/* Formulário de medidas: título do móvel e os três campos com régua. */
+
+.dimensions-form__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.dimensions-form__subtitle {
+  margin: 6px 0 20px;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.dimensions-form__fields {
+  display: flex;
+  flex-direction: column;
+}
+
+.dimension-field {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  column-gap: 12px;
+  padding: 14px 0 10px;
+  border-top: 1px solid var(--color-border);
+}
+
+.dimension-field__label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.dimension-field__hint {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+.dimension-field__control {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.dimension-field__control:focus-within {
+  border-color: var(--color-text);
+}
+
+.dimension-field__control--error {
+  border-color: var(--color-error);
+}
+
+.dimension-field__input {
+  width: 4.2ch;
+  padding: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--color-text);
+  font-size: 2rem;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.dimension-field__unit {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+/* A régua ocupa a linha inteira, sob o rótulo e o número. */
+.dimension-field__slider {
+  grid-column: 1 / -1;
+}
+
+.dimension-field__error {
+  grid-column: 1 / -1;
+  margin: 4px 0 0;
+  color: var(--color-error);
+  font-size: 0.8rem;
+}

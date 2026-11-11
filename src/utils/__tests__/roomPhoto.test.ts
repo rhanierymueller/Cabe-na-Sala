@@ -5,6 +5,7 @@ import {
   estimateCameraPose,
   focalLengthPx,
   groundPointFromPixel,
+  photoPointFromClient,
   verticalFovDeg,
 } from '../roomPhoto'
 
@@ -31,7 +32,7 @@ function poseWith(pitchDeg: number): CameraPose {
 }
 
 describe('estimateCameraPose', () => {
-  test.each([0, 8, 20, 35])('recupera a inclinação de %i graus por uma porta de 2,10 m', (pitchDeg) => {
+  test.each([0, 8, 20, 35])('recovers a %i degree tilt from a 2.10 m door', (pitchDeg) => {
     // Arrange
     const truth = poseWith(pitchDeg)
     const reference = {
@@ -48,7 +49,7 @@ describe('estimateCameraPose', () => {
     expect(pose?.pitchRad).toBeCloseTo(truth.pitchRad, 3)
   })
 
-  test('acha outra altura de câmera quando a padrão não fecha (bancada vista de cima)', () => {
+  test('finds another camera height when the default one does not fit (counter seen from above)', () => {
     // Arrange: bancada de 90 cm marcada numa foto tirada de cima, bem inclinada.
     const reference = { bottom: { x: 2280, y: 3540 }, top: { x: 2280, y: 1920 }, heightM: 0.9 }
 
@@ -60,13 +61,13 @@ describe('estimateCameraPose', () => {
     expect(pose?.heightM).toBeLessThan(ASSUMED_CAMERA_HEIGHT_M)
   })
 
-  test('devolve null quando o topo está abaixo da base', () => {
+  test('returns null when the top is below the bottom', () => {
     const reference = { bottom: { x: 1500, y: 1000 }, top: { x: 1500, y: 3000 }, heightM: 2.1 }
 
     expect(estimateCameraPose(reference, SIZE)).toBeNull()
   })
 
-  test('devolve null para altura zero', () => {
+  test('returns null for a zero height', () => {
     const reference = { bottom: { x: 1500, y: 3000 }, top: { x: 1500, y: 1000 }, heightM: 0 }
 
     expect(estimateCameraPose(reference, SIZE)).toBeNull()
@@ -74,7 +75,7 @@ describe('estimateCameraPose', () => {
 })
 
 describe('groundPointFromPixel', () => {
-  test('devolve o ponto do chão que foi projetado na foto', () => {
+  test('returns the floor point that was projected onto the photo', () => {
     const pose = poseWith(15)
     const pixel = project([-0.8, 0, -2.5], pose)
 
@@ -84,13 +85,37 @@ describe('groundPointFromPixel', () => {
     expect(ground?.z).toBeCloseTo(-2.5, 4)
   })
 
-  test('devolve null para um toque acima do horizonte', () => {
+  test('returns null for a touch above the horizon', () => {
     expect(groundPointFromPixel({ x: 1500, y: 100 }, SIZE, poseWith(0))).toBeNull()
   })
 })
 
 describe('verticalFovDeg', () => {
-  test('foto em pé da câmera principal tem cerca de 69 graus na vertical', () => {
+  test('a portrait photo from the main camera spans about 69 degrees vertically', () => {
     expect(verticalFovDeg(SIZE)).toBeCloseTo(69.4, 0)
+  })
+})
+
+describe('photoPointFromClient', () => {
+  const RECT = { left: 100, top: 50, width: 300, height: 400 }
+
+  test('maps a touch on the screen to the same spot on the original photo', () => {
+    // Act
+    const point = photoPointFromClient(250, 250, RECT, SIZE)
+
+    // Assert
+    expect(point).toEqual({ x: 1500, y: 2000 })
+  })
+
+  test('keeps a drag that leaves the photo pinned to its edge', () => {
+    // Act
+    const point = photoPointFromClient(20, 900, RECT, SIZE)
+
+    // Assert
+    expect(point).toEqual({ x: 0, y: SIZE.heightPx })
+  })
+
+  test('returns null while the photo has no size on screen', () => {
+    expect(photoPointFromClient(10, 10, { ...RECT, width: 0 }, SIZE)).toBeNull()
   })
 })

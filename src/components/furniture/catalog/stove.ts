@@ -11,6 +11,8 @@ export const DEFAULT_STOVE_DIMENSIONS_CM: DimensionsCm = {
 
 const FEET_HEIGHT_RATIO = 0.05
 const PLINTH_RECESS_RATIO = 0.04
+const PLINTH_WIDTH_RATIO = 0.94
+const BODY_EDGE_RATIO = 0.03
 const COOKTOP_THICKNESS_RATIO = 0.03
 const CONTROL_PANEL_HEIGHT_RATIO = 0.12
 const BURNER_RADIUS_RATIO = 0.16
@@ -25,43 +27,70 @@ const GRATE_LENGTH_RATIO = 0.82
 const GRATE_SPREAD_RATIO = 0.07
 const DOOR_WIDTH_RATIO = 0.92
 const DOOR_THICKNESS_RATIO = 0.03
+const DOOR_EDGE_RATIO = 0.15
 /** A porta é quase toda de vidro preto, com uma moldura fina de inox. */
 const WINDOW_WIDTH_RATIO = 0.9
 const WINDOW_HEIGHT_RATIO = 0.8
+/** O visor fica um pouco abaixo do centro da porta, abrindo espaço para o puxador. */
+const WINDOW_DROP_RATIO = 0.04
+const WINDOW_THICKNESS_RATIO = 0.4
 const HANDLE_LENGTH_RATIO = 0.8
 const HANDLE_RADIUS_RATIO = 0.018
 const HANDLE_STANDOFF_RATIO = 0.06
+const HANDLE_DROP_RATIO = 0.055
 const KNOB_COUNT = 4
 const KNOB_RADIUS_RATIO = 0.045
 const KNOB_LENGTH_RATIO = 0.03
+/** Os botões ocupam o miolo do painel, longe das quinas. */
+const KNOBS_SPAN_RATIO = 0.7
 
-export function computeStoveLayout(dimensions: DimensionsMeters): FurnitureLayout {
-  const { widthM, heightM, depthM } = dimensions
+/** Medidas derivadas que as três partes do fogão usam. */
+interface StoveFrame extends DimensionsMeters {
+  readonly feetHeight: number
+  readonly cooktopThickness: number
+  readonly panelHeight: number
+  readonly frontZ: number
+  readonly doorThickness: number
+}
 
-  const feetHeight = heightM * FEET_HEIGHT_RATIO
-  const cooktopThickness = heightM * COOKTOP_THICKNESS_RATIO
-  const panelHeight = heightM * CONTROL_PANEL_HEIGHT_RATIO
+function measureStove(dimensions: DimensionsMeters): StoveFrame {
+  return {
+    ...dimensions,
+    feetHeight: dimensions.heightM * FEET_HEIGHT_RATIO,
+    cooktopThickness: dimensions.heightM * COOKTOP_THICKNESS_RATIO,
+    panelHeight: dimensions.heightM * CONTROL_PANEL_HEIGHT_RATIO,
+    frontZ: dimensions.depthM / 2,
+    doorThickness: dimensions.widthM * DOOR_THICKNESS_RATIO,
+  }
+}
+
+/** Rodapé preto recuado no lugar dos pezinhos, corpo de inox e tampo. */
+function stoveBody({ widthM, heightM, depthM, feetHeight, cooktopThickness }: StoveFrame): FurniturePart[] {
   const bodyHeight = heightM - feetHeight - cooktopThickness
-  const frontZ = depthM / 2
-  const doorThickness = widthM * DOOR_THICKNESS_RATIO
+  return [
+    box(
+      [0, feetHeight / 2, -depthM * PLINTH_RECESS_RATIO],
+      [widthM * PLINTH_WIDTH_RATIO, feetHeight, depthM * (1 - PLINTH_RECESS_RATIO * 2)],
+      MATERIALS.blackSteel,
+    ),
+    roundedBox(
+      [0, feetHeight + bodyHeight / 2, 0],
+      [widthM, bodyHeight, depthM],
+      MATERIALS.inox,
+      BODY_EDGE_RATIO,
+    ),
+    roundedBox([0, heightM - cooktopThickness / 2, 0], [widthM, cooktopThickness, depthM], MATERIALS.cooktop),
+  ]
+}
 
-  // Rodapé preto recuado no lugar dos pezinhos.
-  const plinth = box(
-    [0, feetHeight / 2, -depthM * PLINTH_RECESS_RATIO],
-    [widthM * 0.94, feetHeight, depthM * (1 - PLINTH_RECESS_RATIO * 2)],
-    MATERIALS.blackSteel,
-  )
-
+/** Quatro bocas com tampinha e as grades de ferro por cima. */
+function stoveCooktop({ widthM, heightM, depthM }: StoveFrame): FurniturePart[] {
   const burnerRadius = Math.min(widthM, depthM) * BURNER_RADIUS_RATIO
   const burnerThickness = heightM * BURNER_THICKNESS_RATIO
   const burners = [-1, 1].flatMap((signX) =>
     [-1, 1].map((signZ) =>
       cylinder(
-        [
-          signX * widthM * BURNER_OFFSET_RATIO,
-          heightM + burnerThickness / 2,
-          signZ * depthM * BURNER_OFFSET_RATIO,
-        ],
+        [signX * widthM * BURNER_OFFSET_RATIO, heightM + burnerThickness / 2, signZ * depthM * BURNER_OFFSET_RATIO],
         burnerRadius,
         burnerThickness,
         MATERIALS.burner,
@@ -90,18 +119,21 @@ export function computeStoveLayout(dimensions: DimensionsMeters): FurnitureLayou
     ),
   )
 
+  return [...burners, ...burnerCaps, ...grates]
+}
+
+/** Painel de vidro com os botões, porta de inox com visor preto e puxador. */
+function stoveFront(frame: StoveFrame): FurniturePart[] {
+  const { widthM, heightM, feetHeight, cooktopThickness, panelHeight, frontZ, doorThickness } = frame
+
   const knobY = heightM - cooktopThickness - panelHeight / 2
   const knobRadius = widthM * KNOB_RADIUS_RATIO
   const knobLength = widthM * KNOB_LENGTH_RATIO
-  const knobsUsableWidth = widthM * 0.7
+  const knobsUsableWidth = widthM * KNOBS_SPAN_RATIO
   const knobSpacing = knobsUsableWidth / (KNOB_COUNT - 1)
   const knobs = Array.from({ length: KNOB_COUNT }, (_, index): FurniturePart =>
     cylinder(
-      [
-        -knobsUsableWidth / 2 + index * knobSpacing,
-        knobY,
-        frontZ + doorThickness + knobLength / 2,
-      ],
+      [-knobsUsableWidth / 2 + index * knobSpacing, knobY, frontZ + doorThickness + knobLength / 2],
       knobRadius,
       knobLength,
       MATERIALS.chrome,
@@ -109,50 +141,35 @@ export function computeStoveLayout(dimensions: DimensionsMeters): FurnitureLayou
     ),
   )
 
-  const doorBottom = feetHeight
   const doorTop = heightM - cooktopThickness - panelHeight
-  const doorHeight = doorTop - doorBottom
-  const doorCenterY = doorBottom + doorHeight / 2
+  const doorHeight = doorTop - feetHeight
+  const doorCenterY = feetHeight + doorHeight / 2
 
   return [
-    plinth,
-    roundedBox(
-      [0, feetHeight + bodyHeight / 2, 0],
-      [widthM, bodyHeight, depthM],
-      MATERIALS.inox,
-      0.03,
-    ),
-    roundedBox(
-      [0, heightM - cooktopThickness / 2, 0],
-      [widthM, cooktopThickness, depthM],
-      MATERIALS.cooktop,
-    ),
-    ...burners,
-    ...burnerCaps,
-    ...grates,
-    box(
-      [0, heightM - cooktopThickness - panelHeight / 2, frontZ + doorThickness / 2],
-      [widthM, panelHeight, doorThickness],
-      MATERIALS.blackGlass,
-    ),
+    box([0, knobY, frontZ + doorThickness / 2], [widthM, panelHeight, doorThickness], MATERIALS.blackGlass),
     ...knobs,
     roundedBox(
       [0, doorCenterY, frontZ + doorThickness / 2],
       [widthM * DOOR_WIDTH_RATIO, doorHeight, doorThickness],
       MATERIALS.inox,
-      0.15,
+      DOOR_EDGE_RATIO,
     ),
     box(
-      [0, doorCenterY - doorHeight * 0.04, frontZ + doorThickness],
-      [widthM * WINDOW_WIDTH_RATIO, doorHeight * WINDOW_HEIGHT_RATIO, doorThickness * 0.4],
+      [0, doorCenterY - doorHeight * WINDOW_DROP_RATIO, frontZ + doorThickness],
+      [widthM * WINDOW_WIDTH_RATIO, doorHeight * WINDOW_HEIGHT_RATIO, doorThickness * WINDOW_THICKNESS_RATIO],
       MATERIALS.blackGlass,
     ),
     cylinder(
-      [0, doorTop - doorHeight * 0.055, frontZ + doorThickness + widthM * HANDLE_STANDOFF_RATIO],
+      [0, doorTop - doorHeight * HANDLE_DROP_RATIO, frontZ + doorThickness + widthM * HANDLE_STANDOFF_RATIO],
       widthM * HANDLE_RADIUS_RATIO,
       widthM * HANDLE_LENGTH_RATIO,
       MATERIALS.chrome,
       LYING_SIDEWAYS,
     ),
   ]
+}
+
+export function computeStoveLayout(dimensions: DimensionsMeters): FurnitureLayout {
+  const frame = measureStove(dimensions)
+  return [...stoveBody(frame), ...stoveCooktop(frame), ...stoveFront(frame)]
 }

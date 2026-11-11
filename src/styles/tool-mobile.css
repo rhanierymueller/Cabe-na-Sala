@@ -1,4 +1,4 @@
-/* Ferramenta em telas estreitas e preferências de movimento. Carrega depois de index.css. */
+/* Ferramenta em telas estreitas e preferências de movimento. Vem por último: sobrescreve as outras. */
 
 /* ---------- Celular: 3D em tela cheia + folha que sobe de baixo ---------- */
 
@@ -19,7 +19,7 @@
     padding: 0;
   }
 
-  .app__back {
+  .tool__back {
     font-size: 0.95rem;
   }
 
@@ -108,7 +108,7 @@
     margin-top: 12px;
   }
 
-  .tool__shortcuts .share__button {
+  .tool__shortcuts .button {
     min-height: 50px;
     padding: 0 10px;
     white-space: nowrap;
@@ -141,13 +141,13 @@
   }
 
   /* O cartão da foto some por dentro, mas fica na página: o atalho abre o campo de arquivo dele. */
-  .tool__panel:not(.tool__panel--open) .photo-model--featured {
+  .tool__panel:not(.tool__panel--open) .photo-model {
     margin: 0;
     padding: 0;
     border: none;
   }
 
-  .tool__panel:not(.tool__panel--open) .photo-model--featured > :not(input),
+  .tool__panel:not(.tool__panel--open) .photo-model > :not(input),
   .tool__panel:not(.tool__panel--open) .tool__more,
   .tool__panel:not(.tool__panel--open) .dimensions-form__title,
   .tool__panel:not(.tool__panel--open) .dimensions-form__subtitle,
@@ -198,7 +198,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .photo-model__tape {
+  .ad-measures__tape {
     animation: none;
   }
 

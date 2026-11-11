@@ -1,4 +1,5 @@
 import { MAX_DIMENSION_CM, MIN_DIMENSION_CM } from '../constants/dimensions'
+import type { DimensionsCm } from '../types/furniture'
 
 /**
  * Converte o texto digitado pelo usuário em número de centímetros.
@@ -21,4 +22,19 @@ export function isWithinDimensionLimits(valueCm: number): boolean {
 
 export function clampDimensionCm(valueCm: number): number {
   return Math.min(MAX_DIMENSION_CM, Math.max(MIN_DIMENSION_CM, valueCm))
+}
+
+/**
+ * Medidas lidas (do anúncio) por cima das atuais: o que veio null fica como
+ * estava, e tudo cai dentro dos limites da ferramenta.
+ */
+export function fillMissingMeasures(
+  found: Readonly<Record<keyof DimensionsCm, number | null>>,
+  base: DimensionsCm,
+): DimensionsCm {
+  return {
+    widthCm: clampDimensionCm(found.widthCm ?? base.widthCm),
+    heightCm: clampDimensionCm(found.heightCm ?? base.heightCm),
+    depthCm: clampDimensionCm(found.depthCm ?? base.depthCm),
+  }
 }

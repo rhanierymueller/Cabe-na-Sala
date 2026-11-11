@@ -38,7 +38,7 @@ describe('buildSafariDeepLink', () => {
     )
   })
 
-  test('normalizes dev urls (http, ip e porta) para a origem canônica', () => {
+  test('normalizes dev urls (http, ip and port) to the canonical origin', () => {
     expect(buildSafariDeepLink('http://192.168.1.4:5173/?movel=sofa')).toBe(
       'x-safari-https://cabenasala.com/?movel=sofa',
     )

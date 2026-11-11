@@ -25,7 +25,7 @@ import { DEFAULT_STOVE_DIMENSIONS_CM, computeStoveLayout } from './stove'
 import { DEFAULT_TABLE_DIMENSIONS_CM, computeTableLayout } from './table'
 import { DEFAULT_WARDROBE_DIMENSIONS_CM, computeWardrobeLayout } from './wardrobe'
 
-export interface FurnitureDefinition {
+interface FurnitureDefinition {
   readonly kind: FurnitureKind
   readonly label: string
   readonly icon: LucideIcon
@@ -111,5 +111,3 @@ export const FURNITURE_KINDS: readonly FurnitureKind[] = [
 export function toFurnitureKind(value: unknown): FurnitureKind | null {
   return FURNITURE_KINDS.includes(value as FurnitureKind) ? (value as FurnitureKind) : null
 }
-
-export { DEFAULT_STOVE_DIMENSIONS_CM }

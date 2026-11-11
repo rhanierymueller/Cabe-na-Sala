@@ -3,7 +3,6 @@ import { Sofa } from 'lucide-react'
 import { ClosingSection } from '../components/landing/ClosingSection'
 import { ProofSection } from '../components/landing/ProofSection'
 import { ScrollStory } from '../components/landing/ScrollStory'
-import '../styles/landing.css'
 
 interface LandingPageProps {
   readonly onStart: () => void

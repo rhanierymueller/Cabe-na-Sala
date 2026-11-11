@@ -18,7 +18,7 @@ export function isValidImageDataUrl(value: unknown): value is string {
   )
 }
 
-export type ImageMediaType = 'image/jpeg' | 'image/png' | 'image/webp'
+type ImageMediaType = 'image/jpeg' | 'image/png' | 'image/webp'
 
 /** Separa tipo e conteúdo de um data URL já validado por isValidImageDataUrl. */
 export function splitImageDataUrl(

@@ -1,0 +1,68 @@
+/*
+ * Identidade "estúdio": o móvel é fotografado como produto. Fundo grafite
+ * neutro, uma poça de luz quente no chão, tudo em branco sobre escuro.
+ * A única cor da interface é a luz; verde/âmbar/vermelho só no veredito.
+ */
+:root {
+  --color-background: #0d0e10;
+  --color-surface: rgba(24, 25, 28, 0.72);
+  --color-surface-raised: rgba(255, 255, 255, 0.07);
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-text: #f5f5f7;
+  --color-text-muted: #94969d;
+  --color-accent: #f5f5f7;
+  --color-accent-ink: #0d0e10;
+  --color-light: #ffe9cf;
+  --color-error: #ff7a6b;
+  --color-ok: #6fdc9a;
+  --color-warn: #ffc26b;
+  --radius-lg: 28px;
+  --radius-md: 16px;
+  --radius-pill: 999px;
+  /* Fonte do sistema nos aparelhos Apple (SF Pro); Inter no resto. */
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Largura do painel no computador; o palco 3D começa depois dele. */
+  --panel-width: 356px;
+  --panel-gap: 16px;
+  /* Altura da folha recolhida no celular; o palco 3D termina acima dela. */
+  --sheet-peek: 330px;
+
+  color-scheme: dark;
+  font-family: var(--font-display);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-background);
+  color: var(--color-text);
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+button,
+input {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-text);
+  outline-offset: 3px;
+}
+
+/* Desafio anti-robô: quase sempre invisível; aparece aqui se pedir interação. */
+.challenge-host {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 50;
+}

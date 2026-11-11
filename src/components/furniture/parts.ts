@@ -25,7 +25,7 @@ export interface FurniturePart {
 
 export type FurnitureLayout = readonly FurniturePart[]
 
-export const NO_ROTATION: Vec3 = [0, 0, 0]
+const NO_ROTATION: Vec3 = [0, 0, 0]
 export const FACING_FRONT: Vec3 = [Math.PI / 2, 0, 0]
 export const LYING_SIDEWAYS: Vec3 = [0, 0, Math.PI / 2]
 
@@ -34,7 +34,7 @@ export function box(position: Vec3, size: Vec3, material: MaterialSpec): Furnitu
 }
 
 /** Quinas levemente quebradas — madeira, aço, portas. */
-export const EDGE_SOFT = 0.08
+const EDGE_SOFT = 0.08
 /** Quinas bem redondas — almofadas, colchão, travesseiros. */
 export const EDGE_PLUSH = 0.38
 const MAX_RADIUS_RATIO = 0.5
@@ -65,7 +65,6 @@ export function cylinder(
 
 /** Paleta compartilhada — o viewer e o AR mostram exatamente o mesmo material. */
 export const MATERIALS = {
-  steel: { color: '#d4d7da', roughness: 0.42, metalness: 0.25 },
   /** Aço escovado dos eletrodomésticos atuais. */
   inox: { color: '#aeb2b6', roughness: 0.34, metalness: 0.6 },
   blackGlass: { color: '#0b0c0e', roughness: 0.06, metalness: 0.35 },
@@ -79,11 +78,9 @@ export const MATERIALS = {
   graphite: { color: '#8f9499', roughness: 0.5, metalness: 0.2 },
   cooktop: { color: '#24272b', roughness: 0.2, metalness: 0.55 },
   burner: { color: '#121416', roughness: 0.7, metalness: 0.5 },
-  glass: { color: '#0d1013', roughness: 0.08, metalness: 0.3 },
   chrome: { color: '#f2f3f4', roughness: 0.2, metalness: 0.6 },
   fabricDark: { color: '#a89c8a', roughness: 0.95, metalness: 0 },
   fabricSeat: { color: '#c9bfae', roughness: 0.95, metalness: 0 },
-  wood: { color: '#b98a5a', roughness: 0.62, metalness: 0.02 },
   woodDark: { color: '#6e4b31', roughness: 0.66, metalness: 0.02 },
   mattress: { color: '#eceae4', roughness: 0.9, metalness: 0 },
   pillow: { color: '#f7f5f0', roughness: 0.92, metalness: 0 },

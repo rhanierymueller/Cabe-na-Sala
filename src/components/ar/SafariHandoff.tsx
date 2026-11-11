@@ -66,7 +66,7 @@ export function SafariHandoff({ url }: SafariHandoffProps) {
         usa o <strong>Safari</strong>.
       </p>
 
-      <button type="button" className="ar-button ar-hint__safari" onClick={handleOpenSafari}>
+      <button type="button" className="button button--primary button--large button--block ar-hint__safari" onClick={handleOpenSafari}>
         <ExternalLink size={17} aria-hidden="true" /> Abrir no Safari
       </button>
 

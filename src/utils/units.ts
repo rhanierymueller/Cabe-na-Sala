@@ -1,6 +1,6 @@
 import type { DimensionsCm, DimensionsMeters } from '../types/furniture'
 
-export const CENTIMETERS_PER_METER = 100
+const CENTIMETERS_PER_METER = 100
 
 export function centimetersToMeters(valueCm: number): number {
   return valueCm / CENTIMETERS_PER_METER

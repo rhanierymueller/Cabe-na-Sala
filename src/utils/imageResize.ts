@@ -1,11 +1,11 @@
 /** Lado máximo enviado ao gerador — acima disso só encarece e demora. */
-export const MAX_UPLOAD_SIDE_PX = 1024
+const MAX_UPLOAD_SIDE_PX = 1024
 const JPEG_QUALITY = 0.88
 const OUTPUT_MIME_TYPE = 'image/jpeg'
 /** Fundo branco para PNG/WebP transparente — o gerador recorta melhor assim. */
 const BACKGROUND_COLOR = '#ffffff'
 
-export interface PixelSize {
+interface PixelSize {
   readonly widthPx: number
   readonly heightPx: number
 }

@@ -20,7 +20,7 @@ function measure(group: Group): { size: Vector3; box: Box3 } {
 }
 
 describe('buildScannedGroup', () => {
-  test('fits any model exactly into the typed dimensions (escala real é sagrada)', () => {
+  test('fits any model exactly into the typed dimensions (real scale is sacred)', () => {
     const fitted = buildScannedGroup(createRawModel(0.4, 0.3, 0.2), TARGET, 0)
 
     const { size } = measure(fitted)

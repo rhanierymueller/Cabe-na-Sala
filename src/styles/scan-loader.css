@@ -169,17 +169,8 @@
 }
 
 .scan__cancel {
-  min-height: 44px;
   margin-top: 14px;
   padding: 0 22px;
-  background: var(--color-surface-raised);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
-  color: var(--color-text);
-  font: inherit;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
 }
 
 @media (prefers-reduced-motion: reduce) {

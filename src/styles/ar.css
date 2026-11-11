@@ -1,0 +1,56 @@
+/* "Ver na minha casa": o botão do AR e as saídas de quem não tem AR (Safari, aviso, QR). */
+
+.ar-launcher {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ar-launcher__error {
+  margin: 0;
+  color: var(--color-error);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.ar-hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.ar-hint svg {
+  vertical-align: -2px;
+  margin-right: 4px;
+}
+
+.ar-hint strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.ar-hint__text {
+  margin: 0;
+}
+
+.ar-hint__caption {
+  margin: 10px 0 0;
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.ar-hint__caption--copied,
+.ar-hint__caption--copied strong {
+  color: var(--color-ok);
+}
+
+.ar-hint__safari {
+  margin-top: 12px;
+}
+
+.ar-qr {
+  display: block;
+  margin: 14px auto 0;
+  border-radius: 12px;
+}

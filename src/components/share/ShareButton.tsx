@@ -1,8 +1,9 @@
 import { Check, Share2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import type { DimensionsCm } from '../../types/furniture'
-import { trackEvent } from '../../utils/analytics'
-import { computeDoorFit } from '../../utils/doorFit'
+import { trackEvent } from '../../services/analytics'
+import { isAbortError } from '../../utils/abort'
+import { computeDoorFit, formatFitCm } from '../../utils/doorFit'
 
 interface ShareButtonProps {
   readonly furnitureLabel: string
@@ -29,7 +30,7 @@ function buildShareText(
   }
 
   const fit = computeDoorFit(dimensionsCm, doorWidthCm)
-  const gapText = String(Math.round(Math.abs(fit.gapCm) * 10) / 10).replace('.', ',')
+  const gapText = formatFitCm(fit.gapCm)
 
   if (fit.status === 'blocked') {
     return `${base}: NÃO passa na porta de ${doorWidthCm} cm — faltam ${gapText} cm. Confere aí:`
@@ -71,9 +72,7 @@ export function ShareButton({ furnitureLabel, dimensionsCm, doorWidthCm, shareUr
         try {
           await navigator.share({ title: 'Cabe na Sala', text, url: shareUrl })
         } catch (error: unknown) {
-          // Usuário fechou o menu de compartilhar — não é erro.
-          if (error instanceof DOMException && error.name === 'AbortError') return
-          console.error('Falha no compartilhamento nativo', error)
+          if (!isAbortError(error)) console.error('Falha no compartilhamento nativo', error)
         }
         return
       }
@@ -91,8 +90,8 @@ export function ShareButton({ furnitureLabel, dimensionsCm, doorWidthCm, shareUr
   }
 
   return (
-    <div className="share">
-      <button type="button" className="share__button" onClick={handleShare}>
+    <div className="panel-section">
+      <button type="button" className="button" onClick={handleShare}>
         {status === 'copied' ? (
           <>
             <Check size={16} aria-hidden="true" /> Link copiado!
@@ -104,7 +103,7 @@ export function ShareButton({ furnitureLabel, dimensionsCm, doorWidthCm, shareUr
         )}
       </button>
       {status === 'error' && (
-        <p className="share__error">Não foi possível copiar — o link está na barra de endereço.</p>
+        <p className="panel-section__hint">Não foi possível copiar — o link está na barra de endereço.</p>
       )}
     </div>
   )

@@ -58,7 +58,7 @@ export function ArButton({ kind, dimensions, handoffUrl, scannedModel = null }: 
     <div className="ar-launcher">
       <motion.button
         type="button"
-        className="ar-button"
+        className="button button--primary button--large button--block"
         onClick={launchAr}
         disabled={isGenerating}
         whileTap={{ scale: 0.97 }}

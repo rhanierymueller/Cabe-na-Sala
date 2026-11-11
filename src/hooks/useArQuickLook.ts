@@ -3,13 +3,13 @@ import { buildFurnitureGroup } from '../components/furniture/buildFurnitureGroup
 import { FURNITURE_CATALOG } from '../components/furniture/catalog'
 import { buildScannedGroup } from '../components/furniture/scanned/fitModel'
 import type { DimensionsMeters, FurnitureKind, ScannedModel } from '../types/furniture'
-import { trackEvent } from '../utils/analytics'
+import { trackEvent } from '../services/analytics'
 import type { UsdzExportResult } from '../utils/usdzExport'
 import { exportObjectToUsdz, isArQuickLookSupported, openArQuickLook } from '../utils/usdzExport'
 
-export type ArLaunchStatus = 'idle' | 'generating' | 'error'
+type ArLaunchStatus = 'idle' | 'generating' | 'error'
 
-export interface ArQuickLook {
+interface ArQuickLook {
   readonly isSupported: boolean
   readonly status: ArLaunchStatus
   readonly launchAr: () => void

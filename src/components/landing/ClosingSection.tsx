@@ -65,7 +65,7 @@ export function ClosingSection({ onStart }: ClosingSectionProps) {
         <motion.div variants={riseInVariants}>
           <motion.button
             type="button"
-            className="cta-button cta-button--large"
+            className="button button--primary button--xlarge"
             onClick={onStart}
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.97 }}
