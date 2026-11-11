@@ -85,6 +85,35 @@ export function imageContentMatchesType(dataUrl: string): boolean {
   return IMAGE_SIGNATURES[type]?.(header) ?? false
 }
 
+interface SegmenterResult {
+  readonly model_glb?: { readonly url?: unknown }
+  readonly individual_glbs?: readonly { readonly url?: unknown }[]
+  readonly metadata?: readonly { readonly object_index?: unknown; readonly scale?: unknown }[]
+}
+
+/** Maior fator de escala do objeto ([[sx, sy, sz]]); 0 quando o formato não é esse. */
+function largestScale(scale: unknown): number {
+  const factors = [scale].flat(2).filter((value): value is number => typeof value === 'number' && Number.isFinite(value))
+  return factors.length > 0 ? Math.max(...factors.map(Math.abs)) : 0
+}
+
+/**
+ * URL do modelo a mostrar. Quando acha vários objetos, o SAM 3D devolve em
+ * `model_glb` a cena combinada; o site precisa de um só, então fica o maior,
+ * que num anúncio costuma ser o produto.
+ */
+export function pickModelUrl(data: unknown): unknown {
+  const result = (data ?? {}) as SegmenterResult
+  const objects = result.individual_glbs ?? []
+  if (objects.length < 2) return result.model_glb?.url
+
+  const sizes = objects.map((_, index) => {
+    const entry = result.metadata?.find((item) => item?.object_index === index) ?? result.metadata?.[index]
+    return largestScale(entry?.scale)
+  })
+  return objects[sizes.indexOf(Math.max(...sizes))]?.url
+}
+
 /** Sec-Fetch-Site vem do navegador e não pode ser forjado por script de página. */
 export function isCrossSiteFetch(secFetchSite: string | null): boolean {
   return secFetchSite !== null && secFetchSite !== 'same-origin'
