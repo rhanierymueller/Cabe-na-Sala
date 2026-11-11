@@ -102,37 +102,16 @@
     padding: 16px 20px max(22px, env(safe-area-inset-bottom));
   }
 
-  /* Dois atalhos lado a lado sob o botão principal. */
-  .tool__shortcuts {
-    grid-template-columns: 1fr 1fr;
+  /* Atalho da foto do anúncio sob o botão principal. */
+  .tool__photo-shortcut {
+    display: inline-flex;
+    min-height: 50px;
     margin-top: 12px;
   }
 
-  .tool__shortcuts .button {
-    min-height: 50px;
-    padding: 0 10px;
-    white-space: nowrap;
-  }
-
-  .tool__photo-shortcut {
-    display: inline-flex;
-  }
-
   /* Com a folha aberta o cartão da foto já está à vista: o atalho sairia repetido. */
-  .tool__panel--open .tool__shortcuts {
-    grid-template-columns: 1fr;
-  }
-
   .tool__panel--open .tool__photo-shortcut {
     display: none;
-  }
-
-  .room-entry__long {
-    display: none;
-  }
-
-  .room-entry__short {
-    display: inline;
   }
 
   /* Recolhida: só as três medidas lado a lado e o botão principal. */

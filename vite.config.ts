@@ -9,7 +9,7 @@ import vercelConfig from './vercel.json' with { type: 'json' }
 // para testar no iPhone o deep link x-safari-https, que só existe em https.
 const shouldUseDevSsl = process.env.DEV_SSL === '1'
 
-const API_ROUTES = ['/api/model3d', '/api/measures', '/api/reference'] as const
+const API_ROUTES = ['/api/model3d', '/api/measures'] as const
 /** Variáveis lidas só pelo servidor (nunca expostas ao navegador). */
 const SERVER_ENV_NAMES = [
   'FAL_KEY',
@@ -21,7 +21,6 @@ const SERVER_ENV_NAMES = [
   'MODEL3D_DAILY_LIMIT',
   'ANTHROPIC_API_KEY',
   'CLAUDE_MODEL',
-  'CLAUDE_REFERENCE_MODEL',
 ] as const
 type RouteHandler = (request: Request) => Promise<Response>
 
