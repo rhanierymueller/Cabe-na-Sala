@@ -12,6 +12,7 @@ import { DoorCheck } from '../components/tool/DoorCheck'
 import { FurniturePicker } from '../components/tool/FurniturePicker'
 import { PhotoModel } from '../components/tool/PhotoModel'
 import { FurnitureViewer } from '../components/viewer/FurnitureViewer'
+import { useBottomSheet } from '../hooks/useBottomSheet'
 import { useDimensionsForm } from '../hooks/useDimensionsForm'
 import type { DimensionsCm, FurnitureKind, ScannedModel } from '../types/furniture'
 import { trackEvent } from '../utils/analytics'
@@ -38,8 +39,8 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
   const [kind, setKind] = useState<FurnitureKind>(initialState?.kind ?? FALLBACK_KIND)
   const [doorWidthCm, setDoorWidthCm] = useState<number | null>(initialState?.doorWidthCm ?? null)
   const [scannedModel, setScannedModel] = useState<ScannedModel | null>(null)
-  // Só importa no celular: a folha de baixo recolhida ou aberta.
-  const [isSheetOpen, setIsSheetOpen] = useState(false)
+  // Só importa no celular: a folha de baixo, que abre por toque ou arrasto.
+  const sheet = useBottomSheet()
   // Muda só quando a pessoa troca de móvel: remonta a foto do anúncio e cancela a geração.
   const [photoSession, setPhotoSession] = useState(0)
   const definition = FURNITURE_CATALOG[kind]
@@ -136,15 +137,18 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
 
       <FurniturePicker selectedKind={kind} onSelect={handleSelectKind} />
 
-      <aside className={`tool__panel${isSheetOpen ? ' tool__panel--open' : ''}`}>
+      <aside
+        className={`tool__panel${sheet.isExpanded ? ' tool__panel--open' : ''}`}
+        style={sheet.panelStyle}
+      >
         <button
           type="button"
           className="tool__handle"
-          onClick={() => setIsSheetOpen((isOpen) => !isOpen)}
-          aria-expanded={isSheetOpen}
+          aria-expanded={sheet.isOpen}
+          {...sheet.handleProps}
         >
           <ChevronUp size={14} aria-hidden="true" />
-          {isSheetOpen ? 'Fechar' : 'Anúncio, foto e porta'}
+          {sheet.isExpanded ? 'Fechar' : 'Anúncio, foto e porta'}
         </button>
 
         <div className="tool__scroll">

@@ -1,0 +1,194 @@
+/* Espera da geração por foto: fosco escuro em tela cheia e a caixa do móvel sendo varrida. */
+
+.scan {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px;
+  background: rgba(5, 6, 7, 0.62);
+  -webkit-backdrop-filter: blur(22px) saturate(0.8);
+  backdrop-filter: blur(22px) saturate(0.8);
+  text-align: center;
+  animation: scan-in 0.3s ease-out;
+}
+
+@keyframes scan-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.scan__stage {
+  display: grid;
+  place-items: center;
+  width: min(300px, 80vw);
+  height: 260px;
+  perspective: 700px;
+  cursor: grab;
+  touch-action: none;
+}
+
+.scan__stage:active {
+  cursor: grabbing;
+}
+
+.scan__drag,
+.scan__box {
+  position: relative;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+}
+
+/* O giro automático fica dentro; o do dedo, fora. Os dois se somam. */
+.scan__box {
+  animation: scan-spin 14s linear infinite;
+}
+
+@keyframes scan-spin {
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
+.scan__face,
+.scan__plane {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.scan__face {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1.5px solid rgba(245, 245, 247, 0.85);
+  border-radius: 3px;
+}
+
+.scan__face--front,
+.scan__face--back {
+  width: var(--scan-w);
+  height: var(--scan-h);
+}
+
+.scan__face--front {
+  transform: translate(-50%, -50%) translateZ(calc(var(--scan-d) / 2));
+}
+
+.scan__face--back {
+  transform: translate(-50%, -50%) translateZ(calc(var(--scan-d) / -2));
+}
+
+.scan__face--left,
+.scan__face--right {
+  width: var(--scan-d);
+  height: var(--scan-h);
+}
+
+.scan__face--left {
+  transform: translate(-50%, -50%) rotateY(-90deg) translateZ(calc(var(--scan-w) / 2));
+}
+
+.scan__face--right {
+  transform: translate(-50%, -50%) rotateY(90deg) translateZ(calc(var(--scan-w) / 2));
+}
+
+.scan__face--top,
+.scan__face--bottom {
+  width: var(--scan-w);
+  height: var(--scan-d);
+}
+
+.scan__face--top {
+  transform: translate(-50%, -50%) rotateX(90deg) translateZ(calc(var(--scan-h) / 2));
+}
+
+.scan__face--bottom {
+  transform: translate(-50%, -50%) rotateX(-90deg) translateZ(calc(var(--scan-h) / 2));
+  background: rgba(255, 233, 207, 0.1);
+}
+
+/* Plano de luz quente que sobe e desce por dentro da caixa. */
+.scan__plane {
+  width: var(--scan-w);
+  height: var(--scan-d);
+  background: rgba(255, 233, 207, 0.28);
+  border: 1.5px solid var(--color-light);
+  box-shadow: 0 0 26px rgba(255, 233, 207, 0.55);
+  animation: scan-sweep 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes scan-sweep {
+  from {
+    transform: translate(-50%, -50%) translateY(calc(var(--scan-h) / 2)) rotateX(90deg);
+  }
+  to {
+    transform: translate(-50%, -50%) translateY(calc(var(--scan-h) / -2)) rotateX(90deg);
+  }
+}
+
+.scan__size {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.scan__label {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.scan__label--error {
+  max-width: 30ch;
+  color: var(--color-error);
+  line-height: 1.45;
+}
+
+.scan--failed .scan__box,
+.scan--failed .scan__plane {
+  animation-play-state: paused;
+}
+
+.scan--failed .scan__plane {
+  opacity: 0.25;
+}
+
+.scan__hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.scan__cancel {
+  min-height: 44px;
+  margin-top: 14px;
+  padding: 0 22px;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scan,
+  .scan__box {
+    animation: none;
+  }
+
+  .scan__plane {
+    animation-duration: 6s;
+  }
+}

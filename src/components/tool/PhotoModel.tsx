@@ -6,6 +6,7 @@ import { CAMERA_ACCEPT, PHOTO_MODEL_ACCEPT, usePhotoModel } from '../../hooks/us
 import type { DimensionsMeters, FurnitureKind, ScannedModel } from '../../types/furniture'
 import { detectPlatform } from '../../utils/platform'
 import { nextQuarterTurn } from '../furniture/scanned/fitModel'
+import { ScanLoader } from './ScanLoader'
 
 interface PhotoModelProps {
   readonly dimensions: DimensionsMeters
@@ -96,14 +97,14 @@ export function PhotoModel({ dimensions, model, onModelChange, onKindDetected }:
         </>
       )}
 
-      {photoModel.isBusy && (
-        <div className="photo-model__progress" role="status">
-          <span className="photo-model__tape" aria-hidden="true" />
-          <p className="photo-model__status">{busyLabel}</p>
-          <button type="button" className="photo-model__link" onClick={photoModel.cancel}>
-            Cancelar
-          </button>
-        </div>
+      {(photoModel.isBusy || photoModel.phase === 'error') && (
+        // No celular o painel fica recolhido: o erro aparece aqui, não escondido na folha.
+        <ScanLoader
+          dimensions={dimensions}
+          label={busyLabel ?? ''}
+          errorMessage={photoModel.phase === 'error' ? photoModel.errorMessage : null}
+          onCancel={photoModel.cancel}
+        />
       )}
 
       {model !== null && !photoModel.isBusy && (
@@ -135,11 +136,6 @@ export function PhotoModel({ dimensions, model, onModelChange, onKindDetected }:
         </div>
       )}
 
-      {photoModel.phase === 'error' && photoModel.errorMessage && (
-        <p className="photo-model__error" role="alert">
-          {photoModel.errorMessage}
-        </p>
-      )}
     </section>
   )
 }

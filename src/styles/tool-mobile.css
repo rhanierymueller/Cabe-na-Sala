@@ -64,22 +64,24 @@
     justify-content: center;
     gap: 6px;
     width: 100%;
-    min-height: 34px;
-    padding: 10px 0 2px;
+    /* Área de toque e de arrasto generosa. */
+    min-height: 52px;
+    padding: 18px 0 6px;
+    touch-action: none;
     background: none;
     border: none;
     color: var(--color-text-muted);
-    font-size: 0.78rem;
+    font-size: 0.85rem;
     font-weight: 600;
-    cursor: pointer;
+    cursor: grab;
   }
 
   .tool__handle::before {
     content: '';
     position: absolute;
-    top: 7px;
-    width: 36px;
-    height: 4px;
+    top: 9px;
+    width: 40px;
+    height: 5px;
     background: rgba(255, 255, 255, 0.28);
     border-radius: var(--radius-pill);
   }
@@ -93,11 +95,16 @@
   }
 
   .tool__scroll {
-    padding: 4px 20px 0;
+    padding: 6px 20px 4px;
   }
 
   .tool__cta {
-    padding: 10px 20px max(16px, env(safe-area-inset-bottom));
+    padding: 16px 20px max(22px, env(safe-area-inset-bottom));
+  }
+
+  .room-entry {
+    margin-top: 12px;
+    min-height: 50px;
   }
 
   /* Recolhida: só as três medidas lado a lado e o botão principal. */
@@ -117,14 +124,14 @@
 
   .tool__panel:not(.tool__panel--open) .dimensions-form__fields {
     flex-direction: row;
-    gap: 10px;
+    gap: 12px;
   }
 
   .tool__panel:not(.tool__panel--open) .dimension-field {
     flex: 1;
     grid-template-columns: 1fr;
-    row-gap: 2px;
-    padding: 8px 12px;
+    row-gap: 6px;
+    padding: 14px 14px 12px;
     background: var(--color-surface-raised);
     border: none;
     border-radius: var(--radius-md);
@@ -132,14 +139,14 @@
 
   .tool__panel:not(.tool__panel--open) .dimension-field__label {
     color: var(--color-text-muted);
-    font-size: 0.75rem;
+    font-size: 0.8rem;
   }
 
   .tool__panel:not(.tool__panel--open) .dimension-field__input {
     flex: 1;
     width: 100%;
     min-width: 0;
-    font-size: 1.6rem;
+    font-size: 1.85rem;
     text-align: left;
   }
 
