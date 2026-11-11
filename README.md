@@ -1,8 +1,8 @@
 # Cabe na Sala 🛋️
 
 Digite as medidas de um móvel (ou cole o anúncio, ou envie a foto) e veja se ele
-cabe na sua casa: em 3D no tamanho real e em AR no iPhone. Sem app e sem
-login.
+cabe na sua casa: em 3D com as medidas certas e, no iPhone, em AR no tamanho
+real. Sem app e sem login.
 
 No ar em [cabenasala.com](https://cabenasala.com).
 
