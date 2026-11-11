@@ -26,7 +26,8 @@ reviews:
         (Cm ou M), sem número mágico, funções curtas, erros nunca engolidos.
     - path: "src/**/*.css"
       instructions: >-
-        Use os tokens de :root. A identidade "trena" proíbe azul, degradê,
-        brilho e backdrop-filter. Classes em BEM.
+        Use os tokens de :root. A identidade "estúdio" é branco sobre grafite:
+        a única cor é a luz quente (--color-light); verde, âmbar e vermelho só
+        no veredito. Nada de azul nem de fundo claro. Classes em BEM.
 chat:
   auto_reply: true
