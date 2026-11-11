@@ -6,6 +6,7 @@ import { DimensionsForm } from '../components/form/DimensionsForm'
 import { FURNITURE_CATALOG } from '../components/furniture/catalog'
 import { disposeModel } from '../components/furniture/scanned/loadModel'
 import { ShareButton } from '../components/share/ShareButton'
+import { RoomPhotoEntry } from '../components/room/RoomPhotoEntry'
 import { DoorCheck } from '../components/tool/DoorCheck'
 import { FurniturePicker } from '../components/tool/FurniturePicker'
 import { PhotoModel } from '../components/tool/PhotoModel'
@@ -139,6 +140,7 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
             handoffUrl={shareUrl}
             scannedModel={scannedModel}
           />
+          <RoomPhotoEntry kind={kind} dimensions={dimensionsMeters} scannedModel={scannedModel} />
         </div>
       </aside>
     </motion.div>

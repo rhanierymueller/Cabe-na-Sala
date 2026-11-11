@@ -26,7 +26,7 @@
   --panel-width: 356px;
   --panel-gap: 16px;
   /* Altura da folha recolhida no celular; o palco 3D termina acima dela. */
-  --sheet-peek: 212px;
+  --sheet-peek: 268px;
 
   color-scheme: dark;
   font-family: var(--font-display);

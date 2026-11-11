@@ -33,9 +33,8 @@ export function ArButton({ kind, dimensions, handoffUrl, scannedModel = null }: 
   if (!isSupported && platform === 'android') {
     return (
       <p className="ar-hint">
-        <Smartphone size={15} aria-hidden="true" /> A visualização pela câmera chega em breve no
-        Android. Por aqui você já vê o móvel em 3D, testa a porta e envia para alguém com iPhone —
-        lá o AR abre no <strong>Safari</strong>.
+        <Smartphone size={15} aria-hidden="true" /> No Android a câmera ao vivo ainda não abre. Use
+        a foto da sua sala, logo abaixo.
       </p>
     )
   }

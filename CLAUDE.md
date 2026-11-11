@@ -44,6 +44,12 @@ Diferencial vs. IKEA Place / Amazon "ver no quarto": **agnóstico de loja**
   - O modelo da foto é **esticado até a caixa das medidas digitadas**
     (`scanned/fitModel.ts`): a forma vem da foto, o tamanho vem de quem mediu.
     Também aceita `.glb` enviado direto, sem passar pelo servidor.
+- **"Ver na foto da minha sala"** (`components/room/`, `utils/roomPhoto.ts`):
+  alternativa ao AR que funciona em qualquer aparelho. A pessoa marca na foto
+  uma altura conhecida (porta de 210 cm), o código estima a câmera e desenha o
+  móvel 3D por cima. A foto nunca sai do aparelho (blob local). **É estimativa,
+  não medição**: assume a câmera principal do celular e 1,45 m de altura; a
+  interface diz "aproximado" e a medida exata continua sendo a digitada.
 - Modelos 3D **gerados por código** (caixas estilizadas com encosto/pés etc.),
   para esticar limpo em qualquer medida. Assets low-poly CC0 (Kenney, Quaternius,
   Poly Haven) só como polimento futuro — modelo artístico deforma ao esticar.
