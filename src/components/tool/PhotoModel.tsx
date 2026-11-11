@@ -1,9 +1,10 @@
-import { Camera, RotateCw, X } from 'lucide-react'
+import { Camera, ImageUp, RotateCw, X } from 'lucide-react'
 import type { ChangeEvent } from 'react'
-import { useRef } from 'react'
+import { useMemo, useRef } from 'react'
 import type { PhotoModelPhase } from '../../hooks/usePhotoModel'
-import { PHOTO_MODEL_ACCEPT, usePhotoModel } from '../../hooks/usePhotoModel'
+import { CAMERA_ACCEPT, PHOTO_MODEL_ACCEPT, usePhotoModel } from '../../hooks/usePhotoModel'
 import type { DimensionsMeters, ScannedModel } from '../../types/furniture'
+import { detectPlatform } from '../../utils/platform'
 import { nextQuarterTurn } from '../furniture/scanned/fitModel'
 
 interface PhotoModelProps {
@@ -16,7 +17,8 @@ const ICON_SIZE = 15
 
 const BUSY_LABEL: Partial<Record<PhotoModelPhase, string>> = {
   preparing: 'Preparando a foto…',
-  generating: 'Modelando em 3D… leva cerca de 1 minuto',
+  checking: 'Conferindo se a foto serve…',
+  generating: 'Modelando em 3D… leva até 1 minuto',
   loading: 'Carregando o modelo…',
 }
 
@@ -26,6 +28,9 @@ const BUSY_LABEL: Partial<Record<PhotoModelPhase, string>> = {
  */
 export function PhotoModel({ dimensions, model, onModelChange }: PhotoModelProps) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const cameraRef = useRef<HTMLInputElement>(null)
+  // No computador o atributo capture é ignorado e o botão só confundiria.
+  const hasCamera = useMemo(() => detectPlatform() !== 'desktop', [])
   const photoModel = usePhotoModel(dimensions, onModelChange)
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
@@ -52,20 +57,41 @@ export function PhotoModel({ dimensions, model, onModelChange }: PhotoModelProps
         aria-label="Escolher foto do móvel"
         tabIndex={-1}
       />
+      <input
+        ref={cameraRef}
+        className="photo-model__input"
+        type="file"
+        accept={CAMERA_ACCEPT}
+        capture="environment"
+        onChange={handleInputChange}
+        aria-label="Tirar foto do móvel"
+        tabIndex={-1}
+      />
 
       {model === null && !photoModel.isBusy && (
         <>
           <p className="photo-model__hint">
-            Envie a foto e veja o móvel de verdade no lugar do genérico. As medidas continuam as
-            que você digitou.
+            Use a foto e veja o móvel de verdade no lugar do genérico. As medidas continuam as que
+            você digitou. Funciona melhor com o móvel inteiro, sozinho e bem iluminado.
           </p>
-          <button
-            type="button"
-            className="photo-model__button"
-            onClick={() => inputRef.current?.click()}
-          >
-            Enviar foto
-          </button>
+          <div className="photo-model__actions">
+            {hasCamera && (
+              <button
+                type="button"
+                className="photo-model__button"
+                onClick={() => cameraRef.current?.click()}
+              >
+                <Camera size={ICON_SIZE} aria-hidden="true" /> Tirar foto
+              </button>
+            )}
+            <button
+              type="button"
+              className="photo-model__button"
+              onClick={() => inputRef.current?.click()}
+            >
+              <ImageUp size={ICON_SIZE} aria-hidden="true" /> Enviar foto
+            </button>
+          </div>
         </>
       )}
 

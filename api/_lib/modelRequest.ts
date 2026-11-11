@@ -49,31 +49,35 @@ export function isSameOrigin(originHeader: string | null, hostHeader: string | n
   }
 }
 
-export interface RateLimiter {
-  /** Registra uma tentativa; devolve false quando o limite foi atingido. */
-  readonly tryConsume: (key: string, nowMs: number) => boolean
+/** Bytes iniciais de cada formato aceito — o que o arquivo é de verdade. */
+const IMAGE_SIGNATURES: Readonly<Record<string, (bytes: Uint8Array) => boolean>> = {
+  jpeg: (bytes) => bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff,
+  png: (bytes) => [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a].every((b, i) => bytes[i] === b),
+  webp: (bytes) =>
+    asciiAt(bytes, 0, 'RIFF') && asciiAt(bytes, 8, 'WEBP'),
+}
+/** Caracteres base64 suficientes para decodificar o cabeçalho do arquivo. */
+const SIGNATURE_BASE64_CHARS = 24
+
+function asciiAt(bytes: Uint8Array, offset: number, text: string): boolean {
+  return [...text].every((char, index) => bytes[offset + index] === char.charCodeAt(0))
 }
 
 /**
- * Limitador de janela fixa em memória.
- * ponytail: vale por instância da função — instâncias novas zeram a conta.
- * Segura abuso casual; para valer de verdade, trocar por Vercel KV/Upstash
- * e ligar o limite de gasto no painel do provedor.
+ * O tipo declarado no data URL tem de bater com o conteúdo: impede mandar
+ * outro tipo de arquivo ao provedor dizendo que é uma foto.
  */
-export function createRateLimiter(maxPerWindow: number, windowMs: number): RateLimiter {
-  const hitsByKey = new Map<string, readonly number[]>()
+export function imageContentMatchesType(dataUrl: string): boolean {
+  const match = /^data:image\/(jpeg|png|webp);base64,(.*)$/s.exec(dataUrl)
+  if (!match) return false
+  const [, type, payload] = match
+  const header = Uint8Array.from(Buffer.from(payload.slice(0, SIGNATURE_BASE64_CHARS), 'base64'))
+  return IMAGE_SIGNATURES[type]?.(header) ?? false
+}
 
-  return {
-    tryConsume(key, nowMs) {
-      const recentHits = (hitsByKey.get(key) ?? []).filter((hitMs) => nowMs - hitMs < windowMs)
-      if (recentHits.length >= maxPerWindow) {
-        hitsByKey.set(key, recentHits)
-        return false
-      }
-      hitsByKey.set(key, [...recentHits, nowMs])
-      return true
-    },
-  }
+/** Sec-Fetch-Site vem do navegador e não pode ser forjado por script de página. */
+export function isCrossSiteFetch(secFetchSite: string | null): boolean {
+  return secFetchSite !== null && secFetchSite !== 'same-origin'
 }
 
 const UNKNOWN_CLIENT = 'desconhecido'

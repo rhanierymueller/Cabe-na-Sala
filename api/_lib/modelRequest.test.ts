@@ -2,7 +2,8 @@ import { describe, expect, test } from 'vitest'
 import {
   MAX_IMAGE_DATA_URL_LENGTH,
   clientIpFrom,
-  createRateLimiter,
+  imageContentMatchesType,
+  isCrossSiteFetch,
   isSameOrigin,
   isTrustedModelUrl,
   isValidImageDataUrl,
@@ -75,29 +76,39 @@ describe('isSameOrigin', () => {
   })
 })
 
-describe('createRateLimiter', () => {
-  const WINDOW_MS = 1000
+describe('imageContentMatchesType', () => {
+  const toDataUrl = (type: string, bytes: number[]): string =>
+    `data:image/${type};base64,${Buffer.from([...bytes, ...new Array(24).fill(0)]).toString('base64')}`
+  const PNG = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]
+  const JPEG = [0xff, 0xd8, 0xff, 0xe0]
+  const WEBP = [0x52, 0x49, 0x46, 0x46, 0, 0, 0, 0, 0x57, 0x45, 0x42, 0x50]
 
-  test('allows up to the limit and blocks the next attempt', () => {
-    const limiter = createRateLimiter(2, WINDOW_MS)
-
-    expect(limiter.tryConsume('ip', 0)).toBe(true)
-    expect(limiter.tryConsume('ip', 10)).toBe(true)
-    expect(limiter.tryConsume('ip', 20)).toBe(false)
+  test.each([
+    ['png', PNG],
+    ['jpeg', JPEG],
+    ['webp', WEBP],
+  ])('accepts a real %s file', (type, bytes) => {
+    expect(imageContentMatchesType(toDataUrl(type, bytes))).toBe(true)
   })
 
-  test('frees up again once the window has passed', () => {
-    const limiter = createRateLimiter(1, WINDOW_MS)
-    limiter.tryConsume('ip', 0)
-
-    expect(limiter.tryConsume('ip', WINDOW_MS + 1)).toBe(true)
+  test('rejects a file whose content is not what the type says', () => {
+    expect(imageContentMatchesType(toDataUrl('png', JPEG))).toBe(false)
+    expect(imageContentMatchesType(toDataUrl('jpeg', [0x4d, 0x5a, 0x90]))).toBe(false)
   })
 
-  test('counts each key separately', () => {
-    const limiter = createRateLimiter(1, WINDOW_MS)
-    limiter.tryConsume('a', 0)
+  test('rejects something that is not an image data URL', () => {
+    expect(imageContentMatchesType('data:text/html;base64,AAAA')).toBe(false)
+  })
+})
 
-    expect(limiter.tryConsume('b', 0)).toBe(true)
+describe('isCrossSiteFetch', () => {
+  test('lets same-origin and header-less requests through', () => {
+    expect(isCrossSiteFetch('same-origin')).toBe(false)
+    expect(isCrossSiteFetch(null)).toBe(false)
+  })
+
+  test.each(['cross-site', 'same-site', 'none'])('flags %s', (value) => {
+    expect(isCrossSiteFetch(value)).toBe(true)
   })
 })
 

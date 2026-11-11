@@ -3,10 +3,17 @@ import { normalizeModel, suggestQuarterTurns } from '../components/furniture/sca
 import { EmptyModelError, loadGlbModel } from '../components/furniture/scanned/loadModel'
 import type { DimensionsMeters, ScannedModel, ScannedModelSource } from '../types/furniture'
 import { trackEvent } from '../utils/analytics'
+import { ChallengeError, requestChallengeToken } from '../utils/challenge'
 import { resizeImageToDataUrl } from '../utils/imageResize'
 import { ModelApiError, generateModelFromPhoto } from '../utils/modelApi'
 
-export type PhotoModelPhase = 'idle' | 'preparing' | 'generating' | 'loading' | 'error'
+export type PhotoModelPhase =
+  | 'idle'
+  | 'preparing'
+  | 'checking'
+  | 'generating'
+  | 'loading'
+  | 'error'
 
 export interface PhotoModel {
   readonly phase: PhotoModelPhase
@@ -23,6 +30,10 @@ const BYTES_PER_MB = 1024 * 1024
 const MAX_IMAGE_SIZE_MB = 15
 const MAX_MODEL_SIZE_MB = 40
 const GENERIC_ERROR_MESSAGE = 'Não deu certo com este arquivo. Tente outro.'
+const BUSY_PHASES: readonly PhotoModelPhase[] = ['preparing', 'checking', 'generating', 'loading']
+
+/** Para o botão da câmera: só imagem. */
+export const CAMERA_ACCEPT = 'image/*'
 
 /** Entrada do seletor de arquivo: fotos e, para quem já tem, modelo .glb. */
 export const PHOTO_MODEL_ACCEPT = [...ACCEPTED_IMAGE_TYPES, GLB_EXTENSION].join(',')
@@ -38,13 +49,22 @@ function validateFile(file: File): string | null {
       ? `O modelo passa de ${MAX_MODEL_SIZE_MB} MB.`
       : null
   }
-  if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) return 'Use uma foto JPG, PNG ou WebP.'
+  // O navegador reconverte para JPEG antes do envio; basta ser uma imagem que ele abra.
+  if (!file.type.startsWith('image/') || file.type === 'image/svg+xml') {
+    return 'Use uma foto JPG, PNG ou WebP.'
+  }
   if (file.size > MAX_IMAGE_SIZE_MB * BYTES_PER_MB) return `A foto passa de ${MAX_IMAGE_SIZE_MB} MB.`
   return null
 }
 
 function describeError(error: unknown): string {
-  if (error instanceof ModelApiError || error instanceof EmptyModelError) return error.message
+  if (
+    error instanceof ModelApiError ||
+    error instanceof EmptyModelError ||
+    error instanceof ChallengeError
+  ) {
+    return error.message
+  }
   return GENERIC_ERROR_MESSAGE
 }
 
@@ -103,8 +123,14 @@ export function usePhotoModel(
           } else {
             setPhase('preparing')
             const imageDataUrl = await resizeImageToDataUrl(file)
-            setPhase('generating')
-            modelUrl = await generateModelFromPhoto(imageDataUrl, controller.signal)
+            const challengeToken = await requestChallengeToken(controller.signal)
+            setPhase('checking')
+            modelUrl = await generateModelFromPhoto({
+              imageDataUrl,
+              challengeToken,
+              signal: controller.signal,
+              onAccepted: () => setPhase('generating'),
+            })
           }
 
           setPhase('loading')
@@ -134,7 +160,7 @@ export function usePhotoModel(
   return {
     phase,
     errorMessage,
-    isBusy: phase === 'preparing' || phase === 'generating' || phase === 'loading',
+    isBusy: BUSY_PHASES.includes(phase),
     handleFile,
     cancel,
   }

@@ -28,9 +28,19 @@ Diferencial vs. IKEA Place / Amazon "ver no quarto": **agnóstico de loja**
   - **Única exceção (nov/2026): `api/modelo3d.ts`**, função de servidor na Vercel
     que transforma a foto do anúncio em modelo 3D via fal.ai (`fal-ai/trellis`).
     Existe só para guardar `FAL_KEY` fora do navegador. Sem a chave, responde
-    "indisponível" e o resto do site segue estático. Cada geração custa dinheiro:
-    há limite por IP e por instância em memória (fraco); ligar limite de gasto no
-    painel da fal antes de divulgar. Sem banco, sem login.
+    "indisponível" e o resto do site segue estático. Sem banco de dados próprio, sem login.
+  - **A rota é pública e cada geração custa dinheiro.** Camadas de proteção
+    (todas no código; variáveis no `.env.example`):
+    mesma origem → anti-robô Turnstile conferido no servidor → validação de
+    tamanho/formato/assinatura da imagem → conferência "a foto faz sentido?" por
+    modelo de visão barato (mesma chave da fal) → limites por IP (hora/dia) e
+    teto diário global em Redis compartilhado (Vercel KV/Upstash) → só consulta
+    pedido criado por nós. **Seguro por padrão:** em qualquer deploy na Vercel a
+    rota se recusa a rodar sem o Redis e sem o Turnstile configurados. O teto
+    final é saldo pré-pago na fal, sem recarga automática.
+  - Cabeçalhos de segurança (CSP etc.) em `vercel.json`; `npm run preview` serve
+    o build com os mesmos cabeçalhos para testar. Domínio externo novo
+    (script, fonte, API) precisa entrar na CSP.
   - O modelo da foto é **esticado até a caixa das medidas digitadas**
     (`scanned/fitModel.ts`): a forma vem da foto, o tamanho vem de quem mediu.
     Também aceita `.glb` enviado direto, sem passar pelo servidor.

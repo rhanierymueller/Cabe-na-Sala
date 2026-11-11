@@ -67,6 +67,10 @@ input {
 .tool__canvas {
   position: absolute;
   inset: 0;
+  /* Foco de estúdio atrás da cena: móvel escuro não some no fundo escuro. */
+  background:
+    radial-gradient(ellipse 58% 62% at 58% 56%, #4a453d 0%, #2a2723 38%, transparent 72%),
+    var(--color-background);
 }
 
 .tool__panel {
@@ -681,6 +685,14 @@ input {
   margin: 0;
   color: var(--color-error);
   font-size: 0.8rem;
+}
+
+/* Desafio anti-robô: quase sempre invisível; aparece aqui se pedir interação. */
+.challenge-host {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 50;
 }
 
 /* ---------- Compartilhar ---------- */

@@ -44,11 +44,15 @@ function unwrap(response: Response, envelope: ApiEnvelope): Record<string, unkno
   return envelope.data as Record<string, unknown>
 }
 
-async function startJob(imageDataUrl: string, signal: AbortSignal): Promise<string> {
+async function startJob(
+  imageDataUrl: string,
+  challengeToken: string | null,
+  signal: AbortSignal,
+): Promise<string> {
   const response = await fetch(ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ image: imageDataUrl }),
+    body: JSON.stringify({ image: imageDataUrl, challengeToken }),
     signal,
   })
   const data = unwrap(response, await readEnvelope(response))
@@ -81,15 +85,27 @@ function wait(durationMs: number, signal: AbortSignal): Promise<void> {
   })
 }
 
+export interface GenerationRequest {
+  readonly imageDataUrl: string
+  /** Token do desafio anti-robô; null quando o ambiente não usa desafio. */
+  readonly challengeToken: string | null
+  readonly signal: AbortSignal
+  /** Chamado quando o servidor aceitou a foto e a geração entrou na fila. */
+  readonly onAccepted?: () => void
+}
+
 /**
- * Envia a foto, acompanha a fila e devolve a URL do GLB pronto.
- * Lança ModelApiError com mensagem amigável; respeita o AbortSignal.
+ * Envia a foto (o servidor confere se ela serve), acompanha a fila e devolve
+ * a URL do GLB pronto. Lança ModelApiError com mensagem amigável.
  */
-export async function generateModelFromPhoto(
-  imageDataUrl: string,
-  signal: AbortSignal,
-): Promise<string> {
-  const id = await startJob(imageDataUrl, signal)
+export async function generateModelFromPhoto({
+  imageDataUrl,
+  challengeToken,
+  signal,
+  onAccepted,
+}: GenerationRequest): Promise<string> {
+  const id = await startJob(imageDataUrl, challengeToken, signal)
+  onAccepted?.()
   const deadlineMs = Date.now() + GENERATION_TIMEOUT_MS
 
   while (Date.now() < deadlineMs) {
