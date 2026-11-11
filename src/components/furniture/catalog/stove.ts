@@ -16,10 +16,17 @@ const CONTROL_PANEL_HEIGHT_RATIO = 0.12
 const BURNER_RADIUS_RATIO = 0.16
 const BURNER_OFFSET_RATIO = 0.22
 const BURNER_THICKNESS_RATIO = 0.012
+/** Tampinha no centro de cada boca. */
+const BURNER_CAP_RADIUS_RATIO = 0.45
+const BURNER_CAP_HEIGHT_RATIO = 1.6
+/** Grades de ferro: duas barras por lado, de frente a fundo, acima das bocas. */
+const GRATE_BAR_THICKNESS_RATIO = 0.014
+const GRATE_LENGTH_RATIO = 0.82
+const GRATE_SPREAD_RATIO = 0.07
 const DOOR_WIDTH_RATIO = 0.92
 const DOOR_THICKNESS_RATIO = 0.03
-const WINDOW_WIDTH_RATIO = 0.7
-const WINDOW_HEIGHT_RATIO = 0.45
+const WINDOW_WIDTH_RATIO = 0.8
+const WINDOW_HEIGHT_RATIO = 0.58
 const HANDLE_LENGTH_RATIO = 0.8
 const HANDLE_RADIUS_RATIO = 0.018
 const HANDLE_STANDOFF_RATIO = 0.06
@@ -69,6 +76,27 @@ export function computeStoveLayout(dimensions: DimensionsMeters): FurnitureLayou
     ),
   )
 
+  const burnerCaps = burners.map((burner) =>
+    cylinder(
+      [burner.position[0], heightM + burnerThickness * (1 + BURNER_CAP_HEIGHT_RATIO / 2), burner.position[2]],
+      burnerRadius * BURNER_CAP_RADIUS_RATIO,
+      burnerThickness * BURNER_CAP_HEIGHT_RATIO,
+      MATERIALS.darkSteel,
+    ),
+  )
+
+  const grateBar = widthM * GRATE_BAR_THICKNESS_RATIO
+  const grateY = heightM + burnerThickness * (1 + BURNER_CAP_HEIGHT_RATIO) + grateBar / 2
+  const grates = [-1, 1].flatMap((signX) =>
+    [-1, 1].map((offset) =>
+      box(
+        [signX * widthM * BURNER_OFFSET_RATIO + offset * widthM * GRATE_SPREAD_RATIO, grateY, 0],
+        [grateBar, grateBar, depthM * GRATE_LENGTH_RATIO],
+        MATERIALS.burner,
+      ),
+    ),
+  )
+
   const knobY = heightM - cooktopThickness - panelHeight / 2
   const knobRadius = widthM * KNOB_RADIUS_RATIO
   const knobLength = widthM * KNOB_LENGTH_RATIO
@@ -83,7 +111,7 @@ export function computeStoveLayout(dimensions: DimensionsMeters): FurnitureLayou
       ],
       knobRadius,
       knobLength,
-      MATERIALS.darkSteel,
+      MATERIALS.chrome,
       FACING_FRONT,
     ),
   )
@@ -107,6 +135,8 @@ export function computeStoveLayout(dimensions: DimensionsMeters): FurnitureLayou
       MATERIALS.cooktop,
     ),
     ...burners,
+    ...burnerCaps,
+    ...grates,
     box(
       [0, heightM - cooktopThickness - panelHeight / 2, frontZ + doorThickness / 2],
       [widthM, panelHeight, doorThickness],

@@ -56,11 +56,12 @@ describe.each(FURNITURE_KINDS.map((kind) => [kind] as const))('%s', (kind) => {
 })
 
 describe('stove specifics', () => {
-  test('keeps the classic 18-part silhouette', () => {
+  test('keeps the 26-part silhouette', () => {
     const dimensions = dimensionsCmToMeters(FURNITURE_CATALOG.stove.defaultDimensionsCm)
     const layout = FURNITURE_CATALOG.stove.computeLayout(dimensions)
 
-    // 4 pés + corpo + tampo + 4 bocas + painel + 4 botões + porta + visor + puxador
-    expect(layout).toHaveLength(18)
+    // 4 pés + corpo + tampo + 4 bocas + 4 tampinhas + 4 barras de grade + painel
+    // + 4 botões + porta + visor + puxador
+    expect(layout).toHaveLength(26)
   })
 })

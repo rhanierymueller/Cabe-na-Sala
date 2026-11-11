@@ -7,6 +7,7 @@ import { dimensionsCmToMeters } from '../../utils/units'
 import { DEFAULT_STOVE_DIMENSIONS_CM } from '../furniture/catalog'
 import { FurnitureModel } from '../furniture/FurnitureModel'
 import { DimensionLabels } from './DimensionLabels'
+import { StudioLights } from '../viewer/StudioLights'
 import { KitchenSet } from './KitchenSet'
 import { computePortraitCompensation, sampleStoryFrame } from './storyTimeline'
 
@@ -69,9 +70,7 @@ export function StoryScene({ progress }: StorySceneProps) {
 
   return (
     <>
-      <ambientLight intensity={0.65} />
-      <directionalLight position={[3, 5, 2]} intensity={1.6} castShadow />
-      <directionalLight position={[-3, 2, -2]} intensity={0.45} />
+      <StudioLights />
 
       <group ref={stoveGroupRef}>
         <FurnitureModel kind="stove" dimensions={STORY_DIMENSIONS} />
@@ -89,12 +88,12 @@ export function StoryScene({ progress }: StorySceneProps) {
         infiniteGrid
         cellSize={0.1}
         sectionSize={1}
-        cellColor="#24211d"
-        sectionColor="#3d3830"
+        cellColor="#2c2e33"
+        sectionColor="#4a4d55"
         fadeDistance={10}
         fadeStrength={2.5}
       />
-      <ContactShadows opacity={0.4} scale={7} blur={2.4} far={2.4} />
+      <ContactShadows opacity={0.55} scale={7} blur={2.2} far={2.4} />
     </>
   )
 }
