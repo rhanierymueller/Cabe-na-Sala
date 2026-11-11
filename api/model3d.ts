@@ -1,7 +1,6 @@
 import { fal } from '@fal-ai/client'
 import { isPlausibleChallengeToken, verifyChallenge } from './_lib/challenge.js'
 import { askClaudeForJson, isClaudeConfigured } from './_lib/claude.js'
-import { segmentPrompt } from './_lib/furnitureKinds.js'
 import {
   MAX_IMAGE_DATA_URL_LENGTH,
   clientIpFrom,
@@ -11,6 +10,7 @@ import {
   isTrustedModelUrl,
   isValidImageDataUrl,
   isValidRequestId,
+  pickModelUrl,
 } from './_lib/modelRequest.js'
 import type { PhotoVerdict } from './_lib/photoCheck.js'
 import {
@@ -46,6 +46,8 @@ import { isOverLimit, readJsonBody, resolveRouteGuard, respond } from './_lib/ro
 
 /** SAM 3D (Meta): recorta o móvel da foto pelo nome e reconstrói só ele, sem o fundo. */
 const MODEL_ENDPOINT = 'fal-ai/sam-3/3d-objects'
+/** Sem o nome que a conferência do Claude dá, o recorte procura qualquer móvel. */
+const FALLBACK_SEGMENT_PROMPT = 'furniture'
 
 const HOUR_S = 60 * 60
 const DAY_S = 24 * HOUR_S
@@ -96,7 +98,7 @@ function resolveProtections(): Protections | null {
  * limitada.
  */
 async function checkPhoto(image: string): Promise<PhotoVerdict> {
-  if (!isClaudeConfigured()) return { ok: true, kind: null }
+  if (!isClaudeConfigured()) return { ok: true, kind: null, object: null }
   try {
     const verdict = parseVerdict(
       await askClaudeForJson({
@@ -112,7 +114,7 @@ async function checkPhoto(image: string): Promise<PhotoVerdict> {
   } catch (error: unknown) {
     console.error('Conferência da foto indisponível; seguindo sem ela', error)
   }
-  return { ok: true, kind: null }
+  return { ok: true, kind: null, object: null }
 }
 
 export async function POST(request: Request): Promise<Response> {
@@ -171,7 +173,7 @@ export async function POST(request: Request): Promise<Response> {
 
   try {
     const job = await fal.queue.submit(MODEL_ENDPOINT, {
-      input: { image_url: image, prompt: segmentPrompt(verdict.kind), export_textured_glb: true },
+      input: { image_url: image, prompt: verdict.object ?? FALLBACK_SEGMENT_PROMPT, export_textured_glb: true },
     })
     await store.remember(`job:id:${job.request_id}`, JOB_TTL_S)
     return respond(202, { id: job.request_id, kind: verdict.kind })
@@ -211,7 +213,7 @@ export async function GET(request: Request): Promise<Response> {
     }
 
     const result = await fal.queue.result(MODEL_ENDPOINT, { requestId: id })
-    const modelUrl = (result.data as { model_glb?: { url?: unknown } } | null)?.model_glb?.url
+    const modelUrl = pickModelUrl(result.data)
     if (!isTrustedModelUrl(modelUrl)) {
       console.error('Resultado do provedor sem URL de modelo confiável', { id })
       return respond<{ status: JobStatus }>(200, { status: 'failed' })

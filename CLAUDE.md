@@ -27,9 +27,10 @@ Diferencial vs. IKEA Place / Amazon "ver no quarto": **agnóstico de loja**
 - **Sem backend.** Site 100% estático. Custo de operação ~R$0.
   - **Exceção 1 (nov/2026): `api/model3d.ts`**, função de servidor na Vercel
     que transforma a foto do anúncio em modelo 3D via fal.ai, com o SAM 3D
-    (`fal-ai/sam-3/3d-objects`): ele recorta o móvel da foto pelo nome em inglês do
-    tipo reconhecido (`segmentPrompt` em `api/_lib/furnitureKinds.ts`) e deixa o
-    fundo do anúncio de fora. Trocou o `fal-ai/trellis` em nov/2026, que errava em
+    (`fal-ai/sam-3/3d-objects`): ele recorta o móvel da foto pelo nome em inglês que
+    o Claude dá ao objeto na conferência da foto ("furniture" quando ela não roda)
+    e deixa o fundo do anúncio de fora; se achar vários objetos, fica o maior
+    (`pickModelUrl` em `api/_lib/modelRequest.ts`). Trocou o `fal-ai/trellis` em nov/2026, que errava em
     foto com ambiente (comparativo de 5 geradores: mesmo preço e mesmo peso, muito
     mais fiel). Existe só para guardar `FAL_KEY` fora do navegador. Sem a chave,
     responde "indisponível" e o resto do site segue estático. Sem banco de dados

@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import {
+  pickModelUrl,
   MAX_IMAGE_DATA_URL_LENGTH,
   clientIpFrom,
   imageContentMatchesType,
@@ -130,5 +131,39 @@ describe('clientIpFrom', () => {
 
   test('falls back to one shared key when there is no address', () => {
     expect(clientIpFrom(new Headers())).toBe('desconhecido')
+  })
+})
+
+describe('pickModelUrl', () => {
+  const glb = (name: string) => ({ url: `https://v3b.fal.media/files/${name}.glb` })
+
+  test('uses the single model when only one object was found', () => {
+    expect(pickModelUrl({ model_glb: glb('one'), metadata: [{ object_index: 0, scale: [[0.5, 0.5, 0.5]] }] })).toBe(
+      glb('one').url,
+    )
+  })
+
+  test('picks the largest object instead of the combined scene', () => {
+    const data = {
+      model_glb: glb('scene'),
+      individual_glbs: [glb('lamp'), glb('wardrobe'), glb('chair')],
+      metadata: [
+        { object_index: 0, scale: [[0.2, 0.2, 0.2]] },
+        { object_index: 1, scale: [[1.1, 1.1, 1.1]] },
+        { object_index: 2, scale: [[0.4, 0.4, 0.4]] },
+      ],
+    }
+
+    expect(pickModelUrl(data)).toBe(glb('wardrobe').url)
+  })
+
+  test('falls back to the first object when the sizes are unreadable', () => {
+    const data = { model_glb: glb('scene'), individual_glbs: [glb('a'), glb('b')], metadata: [{}, { scale: 'big' }] }
+
+    expect(pickModelUrl(data)).toBe(glb('a').url)
+  })
+
+  test('returns nothing for an answer without a model', () => {
+    expect(pickModelUrl(null)).toBeUndefined()
   })
 })

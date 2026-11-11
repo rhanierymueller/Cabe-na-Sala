@@ -31,24 +31,3 @@ export const KIND_SCHEMA = {
 export function parseKind(value: unknown): DetectedKind | null {
   return FURNITURE_KIND_VALUES.includes(value as DetectedKind) ? (value as DetectedKind) : null
 }
-
-/**
- * Nome em inglês com que o SAM 3D recorta o móvel da foto do anúncio, deixando
- * a sala, a planta e o resto do fundo de fora.
- */
-const SEGMENT_PROMPTS: Readonly<Record<DetectedKind, string>> = {
-  stove: 'stove',
-  sofa: 'sofa',
-  fridge: 'refrigerator',
-  wardrobe: 'wardrobe',
-  bed: 'bed',
-  table: 'table',
-  cabinet: 'cabinet',
-  frame: 'picture frame',
-}
-/** Sem tipo reconhecido (ou sem a conferência do Claude), o recorte procura qualquer móvel. */
-const GENERIC_SEGMENT_PROMPT = 'furniture'
-
-export function segmentPrompt(kind: DetectedKind | null): string {
-  return kind ? SEGMENT_PROMPTS[kind] : GENERIC_SEGMENT_PROMPT
-}
