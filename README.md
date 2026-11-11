@@ -4,6 +4,8 @@ Digite as medidas de um móvel e veja se ele cabe na sua casa — em tamanho rea
 via AR, antes de comprar. Sem app, sem login, sem backend.
 
 > Visão completa, regras de produto e milestones: [CLAUDE.md](./CLAUDE.md)
+>
+> Regras de código, branches, commits e PRs: [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ## Status
 
