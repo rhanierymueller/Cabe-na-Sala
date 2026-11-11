@@ -1,6 +1,6 @@
 import type { DimensionsCm, DimensionsMeters } from '../../../types/furniture'
 import type { FurnitureLayout } from '../parts'
-import { MATERIALS, box, cylinder } from '../parts'
+import { MATERIALS, box, cylinder, roundedBox } from '../parts'
 
 /** Geladeira duplex — medidas típicas de mercado. */
 export const DEFAULT_FRIDGE_DIMENSIONS_CM: DimensionsCm = {
@@ -10,13 +10,14 @@ export const DEFAULT_FRIDGE_DIMENSIONS_CM: DimensionsCm = {
 }
 
 const FEET_HEIGHT_RATIO = 0.02
-const DOOR_THICKNESS_RATIO = 0.06
+const DOOR_THICKNESS_RATIO = 0.08
 const FREEZER_HEIGHT_RATIO = 0.28
 const DOOR_GAP_RATIO = 0.008
-const DOOR_WIDTH_RATIO = 0.97
+const DOOR_WIDTH_RATIO = 1
 const HANDLE_RADIUS_RATIO = 0.018
 const HANDLE_STANDOFF_RATIO = 0.05
 const HANDLE_INSET_RATIO = 0.12
+const DOOR_EDGE = 0.45
 
 export function computeFridgeLayout(dimensions: DimensionsMeters): FurnitureLayout {
   const { widthM, heightM, depthM } = dimensions
@@ -48,22 +49,25 @@ export function computeFridgeLayout(dimensions: DimensionsMeters): FurnitureLayo
   return [
     ...feet,
     // Corpo (atrás das portas)
-    box(
+    roundedBox(
       [0, feetHeight + bodyHeight / 2, -doorThickness / 2],
       [widthM, bodyHeight, bodyDepth],
       MATERIALS.graphite,
+      0.05,
     ),
     // Porta do freezer (superior)
-    box(
+    roundedBox(
       [0, freezerCenterY, frontZ],
       [widthM * DOOR_WIDTH_RATIO, freezerHeight, doorThickness],
       MATERIALS.steel,
+      DOOR_EDGE,
     ),
     // Porta principal (inferior)
-    box(
+    roundedBox(
       [0, mainDoorCenterY, frontZ],
       [widthM * DOOR_WIDTH_RATIO, mainDoorHeight, doorThickness],
       MATERIALS.steel,
+      DOOR_EDGE,
     ),
     // Puxadores verticais
     cylinder(

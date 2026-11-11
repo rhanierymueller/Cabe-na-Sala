@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { ArrowLeft, Sofa } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { ArButton } from '../components/ar/ArButton'
 import { DimensionsForm } from '../components/form/DimensionsForm'
@@ -77,9 +77,7 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
           <button type="button" className="app__back" onClick={onBackToLanding}>
             <ArrowLeft size={14} aria-hidden="true" /> Início
           </button>
-          <h1 className="app__brand">
-            <Sofa size={22} aria-hidden="true" /> Cabe na Sala
-          </h1>
+          <h1 className="app__brand">Cabe na Sala</h1>
         </header>
 
         <DimensionsForm form={form} furnitureLabel={definition.label} />
@@ -100,7 +98,7 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
         />
 
         <footer className="tool__footer">
-          <p>Grade do chão: cada quadrado = 10 cm.</p>
+          <p>Grade do chão: 1 quadrado = 10 cm · cotas em cm</p>
         </footer>
       </motion.aside>
     </motion.div>

@@ -1,6 +1,8 @@
+import { useEffect, useMemo } from 'react'
 import { useAnimatedDimensions } from '../../hooks/useAnimatedDimensions'
 import type { DimensionsMeters, FurnitureKind } from '../../types/furniture'
 import { FURNITURE_CATALOG } from './catalog'
+import { createPartGeometry } from './partGeometry'
 import type { FurniturePart } from './parts'
 
 interface FurnitureModelProps {
@@ -8,22 +10,25 @@ interface FurnitureModelProps {
   readonly dimensions: DimensionsMeters
 }
 
-const CYLINDER_SEGMENTS = 32
-
 export function PartMesh({ part }: { readonly part: FurniturePart }) {
+  const [sizeX, sizeY, sizeZ] = part.size
+  const geometry = useMemo(
+    () => createPartGeometry(part),
+    // A geometria só depende da forma e do tamanho — não da posição.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [part.shape, sizeX, sizeY, sizeZ, part.radius],
+  )
+
+  useEffect(() => () => geometry.dispose(), [geometry])
+
   return (
     <mesh
       position={part.position}
       rotation={part.rotation}
-      scale={part.size}
+      geometry={geometry}
       castShadow
       receiveShadow
     >
-      {part.shape === 'box' ? (
-        <boxGeometry />
-      ) : (
-        <cylinderGeometry args={[1, 1, 1, CYLINDER_SEGMENTS]} />
-      )}
       <meshStandardMaterial
         color={part.material.color}
         roughness={part.material.roughness}

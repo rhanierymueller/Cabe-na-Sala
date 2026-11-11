@@ -89,8 +89,8 @@ export function StoryScene({ progress }: StorySceneProps) {
         infiniteGrid
         cellSize={0.1}
         sectionSize={1}
-        cellColor="#1a1f26"
-        sectionColor="#262d37"
+        cellColor="#24211d"
+        sectionColor="#3d3830"
         fadeDistance={10}
         fadeStrength={2.5}
       />

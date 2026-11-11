@@ -1,6 +1,6 @@
 import type { DimensionsCm, DimensionsMeters } from '../../../types/furniture'
 import type { FurnitureLayout, FurniturePart } from '../parts'
-import { FACING_FRONT, LYING_SIDEWAYS, MATERIALS, box, cylinder } from '../parts'
+import { FACING_FRONT, LYING_SIDEWAYS, MATERIALS, box, cylinder, roundedBox } from '../parts'
 
 /** Fogão 4 bocas de piso — caso de teste oficial do projeto. */
 export const DEFAULT_STOVE_DIMENSIONS_CM: DimensionsCm = {
@@ -95,8 +95,13 @@ export function computeStoveLayout(dimensions: DimensionsMeters): FurnitureLayou
 
   return [
     ...feet,
-    box([0, feetHeight + bodyHeight / 2, 0], [widthM, bodyHeight, depthM], MATERIALS.steel),
-    box(
+    roundedBox(
+      [0, feetHeight + bodyHeight / 2, 0],
+      [widthM, bodyHeight, depthM],
+      MATERIALS.steel,
+      0.04,
+    ),
+    roundedBox(
       [0, heightM - cooktopThickness / 2, 0],
       [widthM, cooktopThickness, depthM],
       MATERIALS.cooktop,
@@ -108,10 +113,11 @@ export function computeStoveLayout(dimensions: DimensionsMeters): FurnitureLayou
       MATERIALS.steel,
     ),
     ...knobs,
-    box(
+    roundedBox(
       [0, doorCenterY, frontZ + doorThickness / 2],
       [widthM * DOOR_WIDTH_RATIO, doorHeight, doorThickness],
       MATERIALS.steel,
+      0.4,
     ),
     box(
       [0, doorCenterY, frontZ + doorThickness],

@@ -45,7 +45,7 @@ export function computeFrameLayout(dimensions: DimensionsMeters): FurnitureLayou
     box(
       [0, heightM / 2, canvasZ + canvasDepth / 2],
       [innerWidth * ART_WIDTH_RATIO, innerHeight * ART_HEIGHT_RATIO, canvasDepth * 0.2],
-      MATERIALS.fabricSeat,
+      MATERIALS.art,
     ),
   ]
 }

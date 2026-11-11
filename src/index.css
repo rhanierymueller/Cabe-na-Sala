@@ -1,20 +1,32 @@
+/*
+ * Identidade "trena": grafite quente, amarelo de fita métrica com tinta
+ * preta, números em fonte de desenho técnico, cantos retos, linhas duras.
+ * Sem vidro fosco, sem degradê, sem brilho.
+ */
 :root {
-  --color-background: #0e1014;
-  --color-surface: #161a21;
-  --color-surface-raised: #1d232c;
-  --color-border: #2a313c;
-  --color-text: #eef1f5;
-  --color-text-muted: #8b95a3;
-  --color-accent: #4f8cff;
-  --color-error: #ff6b6b;
-  --radius-lg: 20px;
-  --radius-md: 12px;
-  --radius-sm: 8px;
-  --glass-background: rgba(20, 24, 31, 0.78);
-  --glass-border: rgba(79, 140, 255, 0.14);
+  --color-background: #12110f;
+  --color-surface: #1a1816;
+  --color-surface-raised: #23201c;
+  --color-border: #3a352e;
+  --color-text: #f4efe6;
+  --color-text-muted: #a0978a;
+  --color-accent: #ffd60a;
+  --color-accent-ink: #14120f;
+  --color-error: #ff6b4a;
+  --color-ok: #7ddc8f;
+  --color-warn: #ffb347;
+  --radius-lg: 6px;
+  --radius-md: 4px;
+  --radius-sm: 3px;
+  --font-display: 'Bricolage Grotesque', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  /* Marcações de régua: um traço a cada 8px, um maior a cada 40px. */
+  --ruler-ticks:
+    repeating-linear-gradient(90deg, var(--color-accent-ink) 0 1px, transparent 1px 40px),
+    repeating-linear-gradient(90deg, rgba(20, 18, 15, 0.55) 0 1px, transparent 1px 8px);
 
   color-scheme: dark;
-  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-display);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -34,7 +46,17 @@ body {
   min-height: 100dvh;
 }
 
-/* ---------- Ferramenta: canvas em tela cheia + painéis flutuantes ---------- */
+button,
+input {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Ferramenta: canvas em tela cheia + painel de bancada ---------- */
 
 .tool {
   position: relative;
@@ -49,81 +71,108 @@ body {
 
 .tool__panel {
   position: absolute;
-  top: 20px;
-  left: 20px;
-  bottom: 20px;
+  top: 0;
+  left: 0;
+  bottom: 0;
   display: flex;
   flex-direction: column;
   gap: 22px;
-  width: 330px;
-  padding: 24px 22px;
-  background: var(--glass-background);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  width: 348px;
+  padding: 30px 24px 24px;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
   overflow-y: auto;
+}
+
+/* Fita de trena no topo do painel. */
+.tool__panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: var(--ruler-ticks), var(--color-accent);
+  background-size:
+    40px 100%,
+    8px 45%,
+    auto;
+  background-repeat: repeat-x;
+  background-position: 0 100%;
 }
 
 .tool__footer {
   margin-top: auto;
   color: var(--color-text-muted);
-  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
 }
 
 .tool__footer p {
   margin: 0;
 }
 
+.tool__header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 .app__back {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
   padding: 0;
   background: none;
   border: none;
   color: var(--color-text-muted);
-  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   cursor: pointer;
   transition: color 0.15s ease;
 }
 
 .app__back:hover {
-  color: var(--color-text);
-}
-
-.app__brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0;
-  font-size: 1.35rem;
-  letter-spacing: -0.02em;
-}
-
-.app__brand svg {
   color: var(--color-accent);
 }
 
-/* ---------- Dock de móveis ---------- */
+/* Marca: o nome com uma cota por baixo, medindo a própria palavra. */
+.app__brand {
+  display: inline-block;
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.045em;
+  text-transform: lowercase;
+}
+
+.app__brand::after {
+  content: '';
+  display: block;
+  height: 9px;
+  margin-top: 7px;
+  border-left: 2px solid var(--color-accent);
+  border-right: 2px solid var(--color-accent);
+  background: linear-gradient(var(--color-accent), var(--color-accent)) center / 100% 2px no-repeat;
+}
+
+/* ---------- Abas de móveis ---------- */
 
 .furniture-dock {
   position: absolute;
   top: 20px;
-  left: calc(50% + 175px);
+  left: calc(50% + 174px);
   translate: -50% 0;
   display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px;
-  background: var(--glass-background);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid var(--glass-border);
-  border-radius: 999px;
-  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.4);
+  align-items: stretch;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
 }
 
 .furniture-dock__item {
@@ -131,24 +180,29 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 12px;
+  padding: 11px 13px;
   background: none;
   border: none;
-  border-radius: 999px;
+  border-right: 1px solid var(--color-border);
   color: var(--color-text-muted);
-  font-size: 0.85rem;
-  font-weight: 600;
-  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: color 0.15s ease;
+}
+
+.furniture-dock__item:last-child {
+  border-right: none;
 }
 
 .furniture-dock__item:hover {
   color: var(--color-text);
 }
 
-.furniture-dock__item--selected {
-  color: #fff;
+.furniture-dock__item--selected,
+.furniture-dock__item--selected:hover {
+  color: var(--color-accent-ink);
 }
 
 .furniture-dock__item svg,
@@ -161,39 +215,39 @@ body {
   position: absolute;
   inset: 0;
   background: var(--color-accent);
-  border-radius: 999px;
-  box-shadow: 0 6px 22px rgba(79, 140, 255, 0.45);
 }
 
 /* ---------- Formulário de medidas ---------- */
 
 .dimensions-form__title {
   margin: 0;
-  font-size: 1.02rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .dimensions-form__subtitle {
-  margin: 6px 0 16px;
+  margin: 6px 0 18px;
   color: var(--color-text-muted);
-  font-size: 0.84rem;
+  font-size: 0.86rem;
   line-height: 1.45;
 }
 
 .dimensions-form__fields {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
 .dimensions-form__summary {
-  margin: 16px 0 0;
-  padding: 10px 14px;
-  background: var(--color-surface-raised);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  margin: 20px 0 0;
+  padding: 12px 0 0;
+  border-top: 1px dashed var(--color-border);
+  font-family: var(--font-mono);
+  font-size: 1.22rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
-  font-size: 0.95rem;
-  text-align: center;
 }
 
 .dimension-field__label {
@@ -201,22 +255,22 @@ body {
   align-items: baseline;
   justify-content: space-between;
   margin-bottom: 6px;
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.86rem;
+  font-weight: 700;
 }
 
 .dimension-field__hint {
   color: var(--color-text-muted);
-  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
   font-weight: 400;
+  letter-spacing: 0.02em;
 }
 
 .dimension-field__control {
   display: flex;
-  align-items: center;
-  background: var(--color-surface-raised);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  align-items: baseline;
+  border-bottom: 2px solid var(--color-border);
   transition: border-color 0.15s ease;
 }
 
@@ -231,26 +285,77 @@ body {
 .dimension-field__input {
   flex: 1;
   min-width: 0;
-  padding: 9px 12px;
+  padding: 2px 0 4px;
   background: transparent;
   border: none;
   outline: none;
   color: var(--color-text);
-  font-size: 1rem;
+  font-family: var(--font-mono);
+  font-size: 1.6rem;
+  font-weight: 500;
+  letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
 }
 
 .dimension-field__unit {
-  padding-right: 12px;
   color: var(--color-text-muted);
-  font-size: 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
 }
 
+/* O controle deslizante é uma fita de trena; o cursor é a ponta da fita. */
 .dimension-field__slider {
+  appearance: none;
+  -webkit-appearance: none;
+  display: block;
   width: 100%;
+  height: 22px;
   margin: 8px 0 0;
-  accent-color: var(--color-accent);
-  cursor: pointer;
+  background: transparent;
+  cursor: ew-resize;
+}
+
+.dimension-field__slider::-webkit-slider-runnable-track {
+  height: 14px;
+  background: var(--ruler-ticks), var(--color-accent);
+  background-size:
+    40px 100%,
+    8px 50%,
+    auto;
+  background-repeat: repeat-x;
+  background-position: 0 100%;
+  border-radius: 1px;
+}
+
+.dimension-field__slider::-moz-range-track {
+  height: 14px;
+  background: var(--ruler-ticks), var(--color-accent);
+  background-size:
+    40px 100%,
+    8px 50%,
+    auto;
+  background-repeat: repeat-x;
+  background-position: 0 100%;
+  border-radius: 1px;
+}
+
+.dimension-field__slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 8px;
+  height: 22px;
+  margin-top: -4px;
+  background: var(--color-text);
+  border: 2px solid var(--color-accent-ink);
+  border-radius: 1px;
+}
+
+.dimension-field__slider::-moz-range-thumb {
+  width: 6px;
+  height: 20px;
+  background: var(--color-text);
+  border: 2px solid var(--color-accent-ink);
+  border-radius: 1px;
 }
 
 .dimension-field__error {
@@ -273,19 +378,24 @@ body {
   justify-content: center;
   gap: 8px;
   width: 100%;
-  padding: 13px 16px;
+  padding: 15px 16px;
   background: var(--color-accent);
   border: none;
   border-radius: var(--radius-sm);
-  color: #fff;
-  font-size: 0.95rem;
-  font-weight: 600;
+  color: var(--color-accent-ink);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
   cursor: pointer;
-  transition: filter 0.15s ease;
+  box-shadow: 4px 4px 0 var(--color-accent-ink), 4px 4px 0 1px var(--color-border);
+  transition:
+    translate 0.1s ease,
+    box-shadow 0.1s ease;
 }
 
 .ar-button:hover:not(:disabled) {
-  filter: brightness(1.1);
+  translate: 2px 2px;
+  box-shadow: 2px 2px 0 var(--color-accent-ink), 2px 2px 0 1px var(--color-border);
 }
 
 .ar-button:disabled {
@@ -301,12 +411,11 @@ body {
 
 .ar-hint {
   margin: 0;
-  padding: 12px 14px;
-  background: var(--color-surface-raised);
+  padding: 14px;
   border: 1px dashed var(--color-border);
   border-radius: var(--radius-sm);
   color: var(--color-text-muted);
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   line-height: 1.5;
 }
 
@@ -326,13 +435,14 @@ body {
 .ar-qr {
   display: block;
   margin: 12px auto 0;
-  border-radius: 8px;
+  border-radius: 2px;
 }
 
 .ar-hint__caption {
   margin: 8px 0 0;
   text-align: center;
-  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
 }
 
 .ar-hint__safari {
@@ -341,7 +451,7 @@ body {
 }
 
 .ar-hint__caption--copied {
-  color: #4fd695;
+  color: var(--color-ok);
 }
 
 .ar-hint__caption--copied strong {
@@ -353,11 +463,9 @@ body {
 .door-check {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 12px 14px;
-  background: var(--color-surface-raised);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  gap: 10px;
+  padding-top: 18px;
+  border-top: 1px dashed var(--color-border);
 }
 
 .door-check__label {
@@ -365,18 +473,24 @@ body {
   align-items: center;
   gap: 6px;
   color: var(--color-text);
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.92rem;
+  font-weight: 700;
 }
 
 .door-check__input {
   width: 100%;
-  padding: 10px 12px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  padding: 10px 0 8px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid var(--color-border);
   color: var(--color-text);
-  font-size: 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+}
+
+.door-check__input::placeholder {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
 }
 
 .door-check__input:focus {
@@ -384,36 +498,41 @@ body {
   border-color: var(--color-accent);
 }
 
+/* Veredito como carimbo. */
 .door-check__badge {
   display: inline-flex;
   align-items: center;
+  align-self: flex-start;
   gap: 7px;
   margin: 0;
-  padding: 9px 12px;
+  padding: 7px 12px;
+  border: 2px solid currentColor;
   border-radius: var(--radius-sm);
-  font-size: 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
   font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  rotate: -1.2deg;
 }
 
 .door-check__badge--fits {
-  background: rgba(52, 199, 123, 0.14);
-  color: #4fd695;
+  color: var(--color-ok);
 }
 
 .door-check__badge--tight {
-  background: rgba(255, 184, 77, 0.14);
-  color: #ffc266;
+  color: var(--color-warn);
 }
 
 .door-check__badge--blocked {
-  background: rgba(255, 99, 99, 0.14);
-  color: #ff8080;
+  color: var(--color-error);
 }
 
 .door-check__explain {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.75rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
 }
 
 /* ---------- Compartilhar ---------- */
@@ -430,22 +549,22 @@ body {
   justify-content: center;
   gap: 8px;
   width: 100%;
-  padding: 12px 16px;
+  padding: 13px 16px;
   background: transparent;
-  border: 1px solid var(--color-border);
+  border: 2px solid var(--color-text);
   border-radius: var(--radius-sm);
   color: var(--color-text);
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 0.92rem;
+  font-weight: 700;
   cursor: pointer;
   transition:
-    border-color 0.15s ease,
-    background 0.15s ease;
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .share__button:hover {
-  border-color: var(--color-accent);
-  background: var(--color-surface-raised);
+  background: var(--color-text);
+  color: var(--color-accent-ink);
 }
 
 .share__error {
@@ -454,21 +573,37 @@ body {
   font-size: 0.78rem;
 }
 
+/* ---------- Cotas no 3D ---------- */
+
+.cota {
+  display: inline-block;
+  padding: 2px 6px;
+  background: var(--color-accent);
+  border-radius: 1px;
+  color: var(--color-accent-ink);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
 /* ---------- Responsivo ---------- */
 
 @media (max-width: 900px) {
   .tool {
     display: flex;
     flex-direction: column;
-    height: 100dvh;
-    overflow: hidden;
   }
 
   .furniture-dock {
     position: static;
     translate: none;
     order: 1;
-    margin: 12px 12px 0;
+    border-width: 0 0 1px;
+    border-radius: 0;
     overflow-x: auto;
     scrollbar-width: none;
   }
@@ -477,19 +612,15 @@ body {
     position: relative;
     order: 2;
     flex: 1;
-    min-height: 38dvh;
-    margin: 12px;
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    border: 1px solid var(--color-border);
+    min-height: 40dvh;
   }
 
   .tool__panel {
-    position: static;
+    position: relative;
     order: 3;
     width: auto;
-    max-height: 42dvh;
-    margin: 0 12px 12px;
-    border-radius: var(--radius-lg);
+    max-height: 46dvh;
+    border-right: none;
+    border-top: 1px solid var(--color-border);
   }
 }

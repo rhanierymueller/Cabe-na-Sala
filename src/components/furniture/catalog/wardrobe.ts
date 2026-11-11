@@ -1,6 +1,6 @@
 import type { DimensionsCm, DimensionsMeters } from '../../../types/furniture'
 import type { FurnitureLayout } from '../parts'
-import { MATERIALS, box, cylinder } from '../parts'
+import { MATERIALS, box, cylinder, roundedBox } from '../parts'
 
 /** Guarda-roupa 2 portas — medidas típicas de mercado. */
 export const DEFAULT_WARDROBE_DIMENSIONS_CM: DimensionsCm = {
@@ -16,6 +16,7 @@ const DOOR_SEAM_RATIO = 0.006
 const HANDLE_RADIUS_RATIO = 0.008
 const HANDLE_LENGTH_RATIO = 0.12
 const HANDLE_STANDOFF_RATIO = 0.02
+const DOOR_EDGE = 0.3
 
 export function computeWardrobeLayout(dimensions: DimensionsMeters): FurnitureLayout {
   const { widthM, heightM, depthM } = dimensions
@@ -42,15 +43,17 @@ export function computeWardrobeLayout(dimensions: DimensionsMeters): FurnitureLa
       MATERIALS.woodDark,
     ),
     // Portas
-    box(
+    roundedBox(
       [-(doorSeam / 2 + doorWidth / 2), doorCenterY, frontZ],
       [doorWidth, doorHeight, doorThickness],
       MATERIALS.wood,
+      DOOR_EDGE,
     ),
-    box(
+    roundedBox(
       [doorSeam / 2 + doorWidth / 2, doorCenterY, frontZ],
       [doorWidth, doorHeight, doorThickness],
       MATERIALS.wood,
+      DOOR_EDGE,
     ),
     // Puxadores verticais junto à fresta central
     cylinder(

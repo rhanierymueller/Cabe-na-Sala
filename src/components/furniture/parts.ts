@@ -13,12 +13,14 @@ export interface MaterialSpec {
 }
 
 export interface FurniturePart {
-  readonly shape: 'box' | 'cylinder'
+  readonly shape: 'box' | 'roundedBox' | 'cylinder'
   readonly position: Vec3
   /** Box: [largura, altura, profundidade]. Cilindro: [raio, comprimento, raio]. */
   readonly size: Vec3
   readonly rotation: Vec3
   readonly material: MaterialSpec
+  /** Só em `roundedBox`: raio das quinas, em metros. */
+  readonly radius?: number
 }
 
 export type FurnitureLayout = readonly FurniturePart[]
@@ -29,6 +31,26 @@ export const LYING_SIDEWAYS: Vec3 = [0, 0, Math.PI / 2]
 
 export function box(position: Vec3, size: Vec3, material: MaterialSpec): FurniturePart {
   return { shape: 'box', position, size, rotation: NO_ROTATION, material }
+}
+
+/** Quinas levemente quebradas — madeira, aço, portas. */
+export const EDGE_SOFT = 0.08
+/** Quinas bem redondas — almofadas, colchão, travesseiros. */
+export const EDGE_PLUSH = 0.38
+const MAX_RADIUS_RATIO = 0.5
+
+/**
+ * Caixa de quinas arredondadas. `radiusRatio` é relativo ao menor lado,
+ * então o arredondamento acompanha a peça quando as medidas mudam.
+ */
+export function roundedBox(
+  position: Vec3,
+  size: Vec3,
+  material: MaterialSpec,
+  radiusRatio: number = EDGE_SOFT,
+): FurniturePart {
+  const radius = Math.min(...size) * Math.min(radiusRatio, MAX_RADIUS_RATIO)
+  return { shape: 'roundedBox', position, size, rotation: NO_ROTATION, material, radius }
 }
 
 export function cylinder(
@@ -43,18 +65,20 @@ export function cylinder(
 
 /** Paleta compartilhada — o viewer e o AR mostram exatamente o mesmo material. */
 export const MATERIALS = {
-  steel: { color: '#cfd4d9', roughness: 0.35, metalness: 0.6 },
-  darkSteel: { color: '#3a3f45', roughness: 0.35, metalness: 0.6 },
-  graphite: { color: '#2d3239', roughness: 0.4, metalness: 0.55 },
-  cooktop: { color: '#3a3f45', roughness: 0.25, metalness: 0.6 },
-  burner: { color: '#1c1f23', roughness: 0.7, metalness: 0.5 },
-  glass: { color: '#14181d', roughness: 0.1, metalness: 0.2 },
-  chrome: { color: '#e8ebee', roughness: 0.15, metalness: 0.9 },
-  fabricDark: { color: '#3f4652', roughness: 0.9, metalness: 0.05 },
-  fabricSeat: { color: '#4c5563', roughness: 0.9, metalness: 0.05 },
-  wood: { color: '#8a6f52', roughness: 0.7, metalness: 0.05 },
-  woodDark: { color: '#5f4c37', roughness: 0.7, metalness: 0.05 },
-  mattress: { color: '#d9dde3', roughness: 0.85, metalness: 0 },
-  pillow: { color: '#eceef2', roughness: 0.9, metalness: 0 },
-  canvas: { color: '#e9e4d6', roughness: 0.95, metalness: 0 },
+  steel: { color: '#d4d7da', roughness: 0.42, metalness: 0.25 },
+  darkSteel: { color: '#33373c', roughness: 0.4, metalness: 0.6 },
+  graphite: { color: '#8f9499', roughness: 0.5, metalness: 0.2 },
+  cooktop: { color: '#24272b', roughness: 0.2, metalness: 0.55 },
+  burner: { color: '#121416', roughness: 0.7, metalness: 0.5 },
+  glass: { color: '#0d1013', roughness: 0.08, metalness: 0.3 },
+  chrome: { color: '#f2f3f4', roughness: 0.2, metalness: 0.6 },
+  fabricDark: { color: '#a89c8a', roughness: 0.95, metalness: 0 },
+  fabricSeat: { color: '#c9bfae', roughness: 0.95, metalness: 0 },
+  wood: { color: '#b98a5a', roughness: 0.62, metalness: 0.02 },
+  woodDark: { color: '#6e4b31', roughness: 0.66, metalness: 0.02 },
+  mattress: { color: '#eceae4', roughness: 0.9, metalness: 0 },
+  pillow: { color: '#f7f5f0', roughness: 0.92, metalness: 0 },
+  duvet: { color: '#8b9684', roughness: 0.95, metalness: 0 },
+  canvas: { color: '#efe8d8', roughness: 0.95, metalness: 0 },
+  art: { color: '#c8553d', roughness: 0.9, metalness: 0 },
 } as const satisfies Record<string, MaterialSpec>

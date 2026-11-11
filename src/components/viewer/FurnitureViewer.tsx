@@ -2,6 +2,8 @@ import { ContactShadows, Grid, OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import type { DimensionsMeters, FurnitureKind } from '../../types/furniture'
 import { FurnitureModel } from '../furniture/FurnitureModel'
+import { DimensionCotas } from './DimensionCotas'
+import { StudioLights } from './StudioLights'
 
 interface FurnitureViewerProps {
   readonly kind: FurnitureKind
@@ -9,9 +11,9 @@ interface FurnitureViewerProps {
 }
 
 const CAMERA_FOV = 45
-const BACKGROUND_COLOR = '#0e1014'
-const GRID_CELL_COLOR = '#1d2229'
-const GRID_SECTION_COLOR = '#2c333d'
+const BACKGROUND_COLOR = '#12110f'
+const GRID_CELL_COLOR = '#24211d'
+const GRID_SECTION_COLOR = '#3d3830'
 const MIN_CAMERA_DISTANCE = 1.8
 
 interface CameraPose {
@@ -32,7 +34,7 @@ function computeCameraPose(dimensions: DimensionsMeters): CameraPose {
 
 /**
  * Cena 3D do móvel: chão com grade (1 célula = 10 cm, seção = 1 m),
- * sombras de contato e câmera orbital. O Canvas remonta a cada troca de
+ * luz de estúdio, cotas técnicas e câmera orbital. O Canvas remonta a cada troca de
  * móvel (key) para reenquadrar a câmera no tamanho da nova peça.
  */
 export function FurnitureViewer({ kind, dimensions }: FurnitureViewerProps) {
@@ -47,11 +49,10 @@ export function FurnitureViewer({ kind, dimensions }: FurnitureViewerProps) {
     >
       <color attach="background" args={[BACKGROUND_COLOR]} />
 
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[3, 5, 2]} intensity={1.6} castShadow />
-      <directionalLight position={[-3, 2, -2]} intensity={0.4} />
+      <StudioLights />
 
       <FurnitureModel kind={kind} dimensions={dimensions} />
+      <DimensionCotas dimensions={dimensions} />
 
       <Grid
         infiniteGrid
@@ -62,7 +63,7 @@ export function FurnitureViewer({ kind, dimensions }: FurnitureViewerProps) {
         fadeDistance={14}
         fadeStrength={2}
       />
-      <ContactShadows opacity={0.45} scale={10} blur={2.2} far={2.5} />
+      <ContactShadows opacity={0.55} scale={10} blur={2.4} far={2.5} />
 
       <OrbitControls
         makeDefault

@@ -10,7 +10,7 @@ import { box } from '../furniture/parts'
 
 const CABINET: MaterialSpec = { color: '#4a4136', roughness: 0.75, metalness: 0.05 }
 const COUNTERTOP: MaterialSpec = { color: '#9aa0a8', roughness: 0.4, metalness: 0.2 }
-const WALL: MaterialSpec = { color: '#333944', roughness: 0.9, metalness: 0 }
+const WALL: MaterialSpec = { color: '#2e2a25', roughness: 0.9, metalness: 0 }
 
 /** Vão central — um pouco mais largo que o fogão de 60 cm da história. */
 const GAP_WIDTH_M = 0.7

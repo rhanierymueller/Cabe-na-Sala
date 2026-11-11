@@ -32,6 +32,22 @@ Diferencial vs. IKEA Place / Amazon "ver no quarto": **agnóstico de loja**
 - Zero anúncio dentro da experiência 3D/AR. Anúncio só em páginas de conteúdo,
   discreto, e só quando houver tráfego.
 
+## Identidade visual: "trena" (decidida em nov/2026)
+
+A interface antiga (azul sobre grafite, vidro fosco, cantos redondos) parecia
+genérica. A identidade é o instrumento de medir:
+
+- Grafite quente (`#12110f`) + amarelo de trena (`#ffd60a`) com tinta preta.
+  Nada de azul, degradê, brilho ou `backdrop-filter`.
+- Tipografia: Bricolage Grotesque (texto e títulos) + IBM Plex Mono (todo
+  número, medida e rótulo técnico).
+- Cantos retos (3–6 px), linhas duras, sombra dura deslocada em botão primário.
+- Elementos próprios: controle deslizante em forma de fita de trena, cotas de
+  desenho técnico em volta do móvel no 3D, marca com cota sob o nome, veredito
+  da porta como carimbo.
+- Tokens em `src/index.css` (`:root`). Móveis usam `roundedBox` de `parts.ts`
+  para quinas; viewer e AR compartilham `partGeometry.ts`.
+
 ## Stack
 
 - Vite + React + **TypeScript** (preferência forte do dev: tudo em TS)
