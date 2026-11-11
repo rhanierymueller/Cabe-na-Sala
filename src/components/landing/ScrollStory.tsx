@@ -90,7 +90,7 @@ export function ScrollStory({ onStart }: ScrollStoryProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            Role e veja o que acontece com quem compra móvel no olho.
+            Role e veja o móvel encaixar no seu espaço antes de comprar.
           </motion.p>
           <motion.button
             type="button"
