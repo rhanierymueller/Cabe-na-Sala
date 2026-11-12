@@ -5,7 +5,9 @@ import type { Object3D } from 'three'
 import { LatheGeometry, Vector2 } from 'three'
 import { useHtmlPortal } from '../../hooks/useHtmlPortal'
 import { normalizeModel } from '../furniture/scanned/fitModel'
-import { disposeModel, loadGlbModel } from '../furniture/scanned/loadModel'
+import { loadGlbModel } from '../furniture/scanned/loadModel'
+import type { CachedModel } from './modelCache'
+import { createModelCache } from './modelCache'
 import { FIGURE_HEIGHT_M } from './stageLayout'
 
 /** Pessoa gerada por IA (Higgsfield/Meshy), servida como arquivo estático. */
@@ -84,7 +86,7 @@ function mirrored(render: (side: -1 | 1) => ReactNode): ReactNode {
   return SIDES.map((side) => <group key={side}>{render(side)}</group>)
 }
 
-/** Manequim com proporção humana (oito cabeças), gerado em código: aparece enquanto a pessoa carrega, ou se o arquivo faltar. */
+/** Manequim com proporção humana (oito cabeças), gerado em código: só aparece se o arquivo da pessoa faltar. */
 function Mannequin() {
   const torsoGeometry = useMemo(
     () => new LatheGeometry(TORSO_PROFILE.map(([radius, y]) => new Vector2(radius, y)), 32),
@@ -115,29 +117,23 @@ function Mannequin() {
   )
 }
 
-/** Carrega a pessoa em 3D; devolve null enquanto carrega ou se o arquivo não vier. */
-function usePersonModel(): Object3D | null {
-  const [model, setModel] = useState<Object3D | null>(null)
+const personCache = createModelCache(() => loadGlbModel(PERSON_MODEL_URL))
+
+/** A pessoa em 3D: carregada uma vez por sessão e entregue na hora a cada cena que monta depois. */
+function usePersonModel(): CachedModel<Object3D> {
+  const [person, setPerson] = useState(personCache.peek)
 
   useEffect(() => {
     let isCancelled = false
-    let loaded: Object3D | null = null
-    loadGlbModel(PERSON_MODEL_URL)
-      .then((scene) => {
-        if (isCancelled) return disposeModel(scene)
-        loaded = scene
-        setModel(scene)
-      })
-      // Sem o arquivo a cena segue com o manequim, que já está na tela.
-      .catch(() => undefined)
-
+    void personCache.request().then((loaded) => {
+      if (!isCancelled) setPerson(loaded)
+    })
     return () => {
       isCancelled = true
-      if (loaded) disposeModel(loaded)
     }
   }, [])
 
-  return model
+  return person
 }
 
 function Person({ model }: { readonly model: Object3D }) {
@@ -154,11 +150,13 @@ function Person({ model }: { readonly model: Object3D }) {
 /** Pessoa de 1,70 m ao lado do móvel: dá ao número digitado um tamanho que o olho entende. */
 export function ScaleFigure({ position }: ScaleFigureProps) {
   const portal = useHtmlPortal()
-  const personModel = usePersonModel()
+  const person = usePersonModel()
+  // Enquanto carrega não aparece nada: mostrar o manequim e trocar depois fazia a figura piscar.
+  if (person.status === 'loading') return null
 
   return (
     <group position={[...position]}>
-      {personModel ? <Person model={personModel} /> : <Mannequin />}
+      {person.status === 'ready' ? <Person model={person.model} /> : <Mannequin />}
 
       <Html
         position={[0, FIGURE_HEIGHT_M + 0.14, 0]}
