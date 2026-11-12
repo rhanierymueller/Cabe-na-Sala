@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { useEffect } from 'react'
+import { AffiliateButton } from '../components/affiliate/AffiliateButton'
 import { ArButton } from '../components/ar/ArButton'
 import { DimensionsForm } from '../components/form/DimensionsForm'
 import { FURNITURE_CATALOG } from '../components/furniture/catalog'
@@ -62,6 +63,7 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
         <SheetHandle sheet={sheet} />
         <div className="tool__scroll">
           <DimensionsForm form={form} furnitureLabel={furnitureLabel} />
+          <AffiliateButton kind={kind} dimensionsCm={form.dimensionsCm} />
 
           <PhotoModel
             // Trocar de móvel à mão remonta o componente e cancela a geração em andamento.

@@ -69,6 +69,10 @@ Diferencial vs. IKEA Place / Amazon "ver no quarto": **agnóstico de loja**
   fica em `api/_lib/furnitureKinds.ts` e tem de acompanhar `FurnitureKind`. O
   que não tem modelo próprio (rack, cômoda, aparador, criado-mudo) cai no
   móvel baixo genérico `cabinet` ("Rack").
+- **"Outro" (nov/2026):** nono item do seletor, para o que não está no
+  catálogo (micro-ondas, aquário, freezer). É um bloco com as medidas
+  digitadas, sem desenho. O servidor não o devolve como `kind` e ele não tem
+  botão de compra.
 - Modelos 3D **gerados por código** (caixas estilizadas com encosto/pés etc.),
   para esticar limpo em qualquer medida. Assets low-poly CC0 (Kenney, Quaternius,
   Poly Haven) só como polimento futuro — modelo artístico deforma ao esticar.

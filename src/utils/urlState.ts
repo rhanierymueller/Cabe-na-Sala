@@ -24,6 +24,7 @@ const KIND_TO_SLUG: Record<FurnitureKind, string> = {
   table: 'mesa',
   cabinet: 'rack',
   frame: 'quadro',
+  other: 'outro',
 }
 
 const SLUG_TO_KIND: ReadonlyMap<string, FurnitureKind> = new Map(
