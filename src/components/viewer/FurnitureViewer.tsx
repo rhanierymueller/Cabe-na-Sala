@@ -1,10 +1,17 @@
-import { ContactShadows, Grid, OrbitControls } from '@react-three/drei'
-import { Canvas } from '@react-three/fiber'
+import { OrbitControls } from '@react-three/drei'
+import { Canvas, useThree } from '@react-three/fiber'
+import { useLayoutEffect, useRef } from 'react'
+import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
+import { useAnimatedDimensions } from '../../hooks/useAnimatedDimensions'
 import type { DimensionsMeters, FurnitureKind, ScannedModel } from '../../types/furniture'
 import { FurnitureModel } from '../furniture/FurnitureModel'
 import { ScannedModelView } from '../furniture/scanned/ScannedModelView'
 import { DimensionLines } from './DimensionLines'
+import { MeasureBackdrop } from './MeasureBackdrop'
+import { ScaleFigure } from './ScaleFigure'
+import { computeFigurePosition, computeStageFrame } from './stageLayout'
 import { StudioLights } from './StudioLights'
+import { StudioStage } from './StudioStage'
 
 interface FurnitureViewerProps {
   readonly kind: FurnitureKind
@@ -13,46 +20,61 @@ interface FurnitureViewerProps {
   readonly scannedModel?: ScannedModel | null
 }
 
-const CAMERA_FOV = 45
-const GRID_CELL_COLOR = '#2c2e33'
-const GRID_SECTION_COLOR = '#4a4d55'
-const MIN_CAMERA_DISTANCE = 1.8
-
-interface CameraPose {
-  readonly position: [number, number, number]
-  readonly target: [number, number, number]
-}
-
-/** Enquadra o móvel: quanto maior a peça, mais longe a câmera nasce. */
-function computeCameraPose(dimensions: DimensionsMeters): CameraPose {
-  const largestDimension = Math.max(dimensions.widthM, dimensions.heightM, dimensions.depthM)
-  const distance = Math.max(MIN_CAMERA_DISTANCE, largestDimension * 2.2)
-
-  return {
-    position: [distance * 0.72, Math.max(1.1, dimensions.heightM * 1.15), distance],
-    target: [0, dimensions.heightM * 0.45, 0],
-  }
-}
+const CAMERA_FOV = 32
+const FRAME_MARGIN = 1.5
+/** Mira um pouco abaixo do meio: a cena sobe e livra o cartão do QR no canto de baixo. */
+const TARGET_HEIGHT_RATIO = 0.36
+/** De onde a câmera nasce: um pouco de lado e de cima, como foto de catálogo. */
+const START_AZIMUTH = 0.4
+const START_POLAR = 1.32
 
 /**
- * Cena 3D do móvel: chão com grade (1 célula = 10 cm, seção = 1 m),
- * luz de estúdio, cotas técnicas e câmera orbital. O Canvas remonta a cada troca de
- * móvel (key) para reenquadrar a câmera no tamanho da nova peça.
+ * Enquadra móvel e pessoa uma vez, quando a cena monta (o Canvas remonta a
+ * cada troca de móvel). Depois disso a câmera é de quem está olhando: gira
+ * 360°, aproxima e afasta.
  */
-export function FurnitureViewer({ kind, dimensions, scannedModel }: FurnitureViewerProps) {
-  const cameraPose = computeCameraPose(dimensions)
+function StageCamera({ dimensions }: { readonly dimensions: DimensionsMeters }) {
+  const camera = useThree((state) => state.camera)
+  const size = useThree((state) => state.size)
+  const controlsRef = useRef<OrbitControlsImpl>(null)
+
+  useLayoutEffect(() => {
+    const { distance, target } = computeStageFrame(dimensions, size.width / size.height, {
+      fovDegrees: CAMERA_FOV,
+      margin: FRAME_MARGIN,
+      targetHeightRatio: TARGET_HEIGHT_RATIO,
+    })
+    camera.position.set(
+      target[0] + distance * Math.sin(START_POLAR) * Math.sin(START_AZIMUTH),
+      target[1] + distance * Math.cos(START_POLAR),
+      target[2] + distance * Math.sin(START_POLAR) * Math.cos(START_AZIMUTH),
+    )
+    controlsRef.current?.target.set(...target)
+    controlsRef.current?.update()
+    // Só na montagem: reenquadrar a cada medida tiraria a câmera da mão da pessoa.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
-    <Canvas
-      key={kind}
-      // PCF: o three não tem mais o PCFSoftShadowMap (só avisava e usava este).
-      shadows="percentage"
-      camera={{ position: cameraPose.position, fov: CAMERA_FOV }}
-      dpr={[1, 2]}
-      // Fundo transparente: a poça de luz e as medidas gigantes vêm do CSS.
-      gl={{ alpha: true }}
-    >
+    <OrbitControls
+      ref={controlsRef}
+      makeDefault
+      enableDamping
+      minDistance={0.8}
+      maxDistance={12}
+      maxPolarAngle={Math.PI / 2 - 0.05}
+    />
+  )
+}
+
+function Scene({ kind, dimensions, scannedModel }: FurnitureViewerProps) {
+  // A pessoa e os números de fundo andam junto com o móvel enquanto ele estica.
+  const animated = useAnimatedDimensions(dimensions)
+
+  return (
+    <>
       <StudioLights />
+      <StudioStage />
 
       {scannedModel ? (
         <ScannedModelView model={scannedModel} dimensions={dimensions} />
@@ -60,26 +82,29 @@ export function FurnitureViewer({ kind, dimensions, scannedModel }: FurnitureVie
         <FurnitureModel kind={kind} dimensions={dimensions} />
       )}
       <DimensionLines dimensions={dimensions} />
+      <ScaleFigure position={computeFigurePosition(animated)} />
+      <MeasureBackdrop dimensions={animated} />
 
-      <Grid
-        infiniteGrid
-        cellSize={0.1}
-        sectionSize={1}
-        cellColor={GRID_CELL_COLOR}
-        sectionColor={GRID_SECTION_COLOR}
-        fadeDistance={14}
-        fadeStrength={2}
-      />
-      <ContactShadows opacity={0.55} scale={10} blur={2.4} far={2.5} />
+      <StageCamera dimensions={dimensions} />
+    </>
+  )
+}
 
-      <OrbitControls
-        makeDefault
-        enableDamping
-        target={cameraPose.target}
-        minDistance={0.8}
-        maxDistance={12}
-        maxPolarAngle={Math.PI / 2 - 0.05}
-      />
+/**
+ * Cena 3D do móvel: estúdio com chão que reflete, uma pessoa de 1,70 m para
+ * dar escala, cotas técnicas e câmera orbital livre. O Canvas remonta a cada
+ * troca de móvel (key) para reenquadrar a câmera no tamanho da nova peça.
+ */
+export function FurnitureViewer({ kind, dimensions, scannedModel }: FurnitureViewerProps) {
+  return (
+    <Canvas
+      key={kind}
+      // PCF: o three não tem mais o PCFSoftShadowMap (só avisava e usava este).
+      shadows="percentage"
+      camera={{ fov: CAMERA_FOV }}
+      dpr={[1, 2]}
+    >
+      <Scene kind={kind} dimensions={dimensions} scannedModel={scannedModel} />
     </Canvas>
   )
 }

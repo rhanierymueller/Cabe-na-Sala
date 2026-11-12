@@ -1,357 +1,194 @@
+/* Landing: uma dobra só, com o móvel em 3D, o seletor da ferramenta e três medidas. */
+
 .landing {
-  min-height: 100dvh;
-  background:
-    radial-gradient(ellipse 60% 34% at 50% 62dvh, rgba(255, 233, 207, 0.2), transparent 75%) no-repeat,
-    radial-gradient(ellipse 80% 60% at 50% 30dvh, #2b2d33, transparent 70%) no-repeat,
-    var(--color-background);
-  /* clip (e não hidden): hidden cria um scroll container e quebra o
-     position: sticky do palco do scrollytelling. */
-  overflow-x: clip;
-}
-
-.landing__progress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--color-light);
-  transform-origin: left;
-  z-index: 10;
-}
-
-/* ---------- Scrollytelling ---------- */
-
-.story {
   position: relative;
-  height: 500dvh;
-}
-
-.story__stage {
-  position: sticky;
-  top: 0;
   height: 100dvh;
   overflow: hidden;
+  background: var(--color-background);
 }
 
-.story__stage canvas {
+.landing__stage {
   position: absolute;
   inset: 0;
+  cursor: grab;
+  touch-action: none;
 }
 
-.story__hero {
+.landing__stage:active {
+  cursor: grabbing;
+}
+
+/* Texto e controles ficam por cima do 3D sem roubar o arrasto. */
+.landing__head {
   position: absolute;
-  top: 7dvh;
-  left: 50%;
-  translate: -50% 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: min(92%, 40rem);
-  text-align: center;
-  pointer-events: none;
-  transition: opacity 0.45s ease, transform 0.45s ease;
-}
-
-.story__hero--hidden {
-  opacity: 0;
-  transform: translateY(-60px);
-}
-
-.story__hero--hidden .button {
+  top: clamp(20px, 4dvh, 44px);
+  left: clamp(20px, 4vw, 56px);
+  z-index: 6;
+  max-width: 26rem;
   pointer-events: none;
 }
 
-.story__hero .button {
-  pointer-events: auto;
+.landing__brand {
+  margin: 0 0 clamp(24px, 7dvh, 72px);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
-.story__badge {
+.landing__title {
   margin: 0 0 14px;
-  color: var(--color-text-muted);
-  font-size: 0.95rem;
-  font-weight: 500;
-}
-
-.story__title {
-  margin: 0 0 12px;
-  font-size: clamp(3.5rem, 11vw, 8rem);
-  line-height: 1;
-  letter-spacing: -0.04em;
+  font-size: clamp(3.2rem, 7.5vw, 6.5rem);
   font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
 }
 
-.story__subtitle {
-  margin: 0 0 28px;
+.landing__lead {
+  margin: 0;
   color: var(--color-text-muted);
-  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  font-size: clamp(1rem, 1.4vw, 1.2rem);
   line-height: 1.5;
 }
 
-.story__caption {
+.landing__dock {
   position: absolute;
-  bottom: 9dvh;
   left: 50%;
-  translate: -50% 0;
-  width: min(92%, 36rem);
-  margin: 0;
-  font-size: clamp(1.35rem, 3.4vw, 2.1rem);
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  line-height: 1.15;
-  text-align: center;
-  text-shadow: 0 6px 28px rgba(0, 0, 0, 0.65);
-  pointer-events: none;
-}
-
-.story__scroll-hint {
-  position: absolute;
-  bottom: 22px;
-  left: 50%;
-  translate: -50% 0;
-  color: var(--color-text-muted);
-  font-size: 1.3rem;
-  pointer-events: none;
-  transition: opacity 0.45s ease;
-}
-
-.story__scroll-hint--hidden {
-  opacity: 0;
-}
-
-/* ---------- Medidas flutuantes (drei Html) ---------- */
-
-.dimension-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background: rgba(13, 14, 16, 0.78);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: var(--radius-pill);
-  color: var(--color-text);
-  font-size: 13px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  opacity: 0;
-  translate: 0 8px;
-  transition: opacity 0.45s ease, translate 0.45s ease;
-  pointer-events: none;
-}
-
-.dimension-tag--visible {
-  opacity: 1;
-  translate: 0 0;
-}
-
-/* ---------- Prova real (print do AR) ---------- */
-
-.proof {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 72px;
-  max-width: 1040px;
-  margin: 0 auto;
-  padding: 140px 32px;
-}
-
-.proof__content {
-  max-width: 30rem;
-}
-
-.proof__title {
-  margin: 0 0 16px;
-  font-size: clamp(2.2rem, 5.5vw, 4rem);
-  font-weight: 700;
-  line-height: 1.05;
-  letter-spacing: -0.035em;
-}
-
-.proof__subtitle {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: 1.05rem;
-  line-height: 1.6;
-}
-
-.phone-frame {
-  margin: 0;
-  width: min(280px, 70vw);
-}
-
-.phone-frame__screen {
-  padding: 12px;
-  background: #050506;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 44px;
-  box-shadow:
-    0 40px 90px rgba(0, 0, 0, 0.6),
-    0 0 120px rgba(255, 233, 207, 0.14);
-}
-
-.phone-frame__screen img {
-  display: block;
-  width: 100%;
-  border-radius: 32px;
-}
-
-.phone-frame__caption {
-  margin-top: 16px;
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
-  text-align: center;
-}
-
-/* ---------- Fechamento ---------- */
-
-.closing {
-  position: relative;
-  padding: 140px 24px;
-  overflow: hidden;
-  text-align: center;
-}
-
-.closing__content {
-  position: relative;
-  z-index: 1;
-  max-width: 46rem;
-  margin: 0 auto;
-}
-
-.closing__backdrop {
-  position: absolute;
-  inset: -12% 0;
-  background: url('/images/sala-dark.png') center / cover no-repeat;
-  opacity: 0.55;
-  pointer-events: none;
-}
-
-.closing__scrim {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(180deg, var(--color-background) 0%, transparent 30%),
-    linear-gradient(0deg, var(--color-background) 0%, transparent 35%),
-    radial-gradient(ellipse 70% 60% at 50% 50%, rgba(13, 14, 16, 0.8), transparent);
-  pointer-events: none;
-}
-
-.closing__glow {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(90px);
-  pointer-events: none;
-}
-
-.closing__glow--slow {
-  width: 480px;
-  height: 480px;
-  left: -140px;
-  top: 10%;
-  background: rgba(255, 233, 207, 0.12);
-}
-
-.closing__glow--fast {
-  width: 360px;
-  height: 360px;
-  right: -100px;
-  bottom: 0;
-  background: rgba(255, 233, 207, 0.08);
-}
-
-.closing__title {
-  margin: 0 0 16px;
-  font-size: clamp(2.2rem, 5.5vw, 4rem);
-  font-weight: 700;
-  line-height: 1.05;
-  letter-spacing: -0.035em;
-}
-
-.closing__subtitle {
-  margin: 0 0 32px;
-  color: var(--color-text-muted);
-  font-size: 1.05rem;
-}
-
-.closing__categories {
+  bottom: clamp(16px, 4dvh, 40px);
+  z-index: 6;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  margin: 0 0 40px;
-  padding: 0;
-  list-style: none;
-}
-
-.text-accent {
-  color: var(--color-light);
-}
-
-.category-chip {
-  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
-  background: var(--color-surface-raised);
+  gap: 8px 28px;
+  padding: 14px 16px 14px 24px;
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-pill);
-  color: var(--color-text-muted);
-  font-size: 0.9rem;
+  -webkit-backdrop-filter: blur(28px) saturate(1.4);
+  backdrop-filter: blur(28px) saturate(1.4);
+  translate: -50% 0;
 }
 
-.category-chip--available {
+.landing__fields {
+  display: flex;
+  gap: 24px;
+}
+
+.landing__field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  cursor: text;
+}
+
+.landing__label {
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
+
+.landing__value {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.landing__value input {
+  width: 3.4ch;
+  padding: 0;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
   color: var(--color-text);
+  font-size: 1.9rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  outline: none;
+  transition: border-color 0.2s ease;
 }
 
-.category-chip__badge {
-  color: var(--color-text-muted);
-  font-size: 0.8rem;
+.landing__value input:hover {
+  border-bottom-color: var(--color-border);
 }
 
-/* ---------- Footer ---------- */
+.landing__value input:focus {
+  border-bottom-color: var(--color-light);
+}
 
-.landing__footer {
-  padding: 32px;
-  border-top: 1px solid var(--color-border);
+.landing__unit {
   color: var(--color-text-muted);
   font-size: 0.85rem;
-  text-align: center;
 }
 
-.landing__footer p {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+.landing__dock .button {
+  white-space: nowrap;
+}
+
+.landing__hint {
+  position: absolute;
+  right: clamp(20px, 4vw, 56px);
+  bottom: clamp(16px, 4dvh, 40px);
+  z-index: 6;
   margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  pointer-events: none;
 }
 
-.story__scroll-hint svg {
-  display: block;
+.landing__copyright {
+  position: absolute;
+  left: clamp(20px, 4vw, 56px);
+  bottom: clamp(16px, 4dvh, 40px);
+  z-index: 6;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  pointer-events: none;
 }
 
-/* ---------- Responsivo ---------- */
+/* O seletor de móveis é o da ferramenta; aqui não há painel ao lado para descontar. */
+.landing .furniture-dock {
+  left: 50%;
+}
 
+/* Celular: o palco fica em cima e os três números embaixo, sem cobrir o móvel. */
 @media (max-width: 720px) {
-  .story__hero {
-    top: 9dvh;
+  .landing__stage {
+    inset: 160px 0 190px;
   }
 
-  .story__caption {
-    bottom: 12dvh;
+  .landing__brand {
+    margin-bottom: 10px;
   }
 
-  .closing {
-    padding: 96px 20px;
+  .landing__title {
+    font-size: 2.6rem;
   }
 
-  .proof {
-    grid-template-columns: minmax(0, 1fr);
-    justify-items: center;
-    gap: 40px;
-    padding: 96px 24px;
-    text-align: center;
+  .landing__lead,
+  .landing__hint,
+  .landing__copyright {
+    display: none;
+  }
+
+  .landing__dock {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 18px 20px max(20px, env(safe-area-inset-bottom));
+    border-width: 1px 0 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    translate: none;
+  }
+
+  .landing__fields {
+    justify-content: space-between;
+  }
+
+  .landing .furniture-dock {
+    top: 112px;
+    left: 12px;
   }
 }

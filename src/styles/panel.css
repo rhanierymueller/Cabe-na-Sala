@@ -46,6 +46,35 @@
   gap: 8px;
 }
 
+/* ---------- Atalhos do anúncio, recolhidos ---------- */
+
+.ad-options {
+  padding: 16px 0 4px;
+  border-top: 1px solid var(--color-border);
+}
+
+.ad-options__toggle svg {
+  transition: rotate 0.25s ease;
+}
+
+.ad-options--open .ad-options__toggle svg {
+  rotate: 180deg;
+}
+
+/* Recolhido some da vista e do teclado, mas continua na página (o atalho do celular usa o campo de arquivo). */
+.ad-options__body {
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+.ad-options--open .ad-options__body {
+  height: auto;
+  padding-top: 16px;
+  overflow: visible;
+  visibility: visible;
+}
+
 /* ---------- Foto do anúncio → modelo 3D ---------- */
 
 /* Em destaque, entre o título e as medidas. */

@@ -4,13 +4,18 @@ import type { DimensionsMeters, FurnitureKind } from '../../types/furniture'
 import { FURNITURE_CATALOG } from './catalog'
 import { createPartGeometry } from './partGeometry'
 import type { FurniturePart } from './parts'
+import { describeSurfaceFinish } from './surfaceFinish'
+import { getWeaveTexture } from './weaveTexture'
 
 interface FurnitureModelProps {
   readonly kind: FurnitureKind
   readonly dimensions: DimensionsMeters
 }
 
-export function PartMesh({ part }: { readonly part: FurniturePart }) {
+const SHEEN_COLOR = '#fff1dd'
+const WEAVE_BUMP_SCALE = 0.6
+
+function PartMesh({ part }: { readonly part: FurniturePart }) {
   const [sizeX, sizeY, sizeZ] = part.size
   const geometry = useMemo(
     () => createPartGeometry(part),
@@ -21,6 +26,8 @@ export function PartMesh({ part }: { readonly part: FurniturePart }) {
 
   useEffect(() => () => geometry.dispose(), [geometry])
 
+  const finish = describeSurfaceFinish(part.material)
+
   return (
     <mesh
       position={part.position}
@@ -29,12 +36,33 @@ export function PartMesh({ part }: { readonly part: FurniturePart }) {
       castShadow
       receiveShadow
     >
-      <meshStandardMaterial
+      <meshPhysicalMaterial
         color={part.material.color}
         roughness={part.material.roughness}
         metalness={part.material.metalness}
+        sheen={finish.sheen}
+        sheenRoughness={0.55}
+        sheenColor={SHEEN_COLOR}
+        bumpMap={finish.hasWeave ? getWeaveTexture() : null}
+        bumpScale={finish.hasWeave ? WEAVE_BUMP_SCALE : 0}
+        clearcoat={finish.clearcoat}
+        clearcoatRoughness={0.15}
+        envMapIntensity={1.25}
       />
     </mesh>
+  )
+}
+
+/** As peças do móvel exatamente nas medidas recebidas, sem animar. */
+export function FurnitureParts({ kind, dimensions }: FurnitureModelProps) {
+  const layout = FURNITURE_CATALOG[kind].computeLayout(dimensions)
+
+  return (
+    <group>
+      {layout.map((part, index) => (
+        <PartMesh key={`${kind}-${index}`} part={part} />
+      ))}
+    </group>
   )
 }
 
@@ -45,13 +73,5 @@ export function PartMesh({ part }: { readonly part: FurniturePart }) {
  */
 export function FurnitureModel({ kind, dimensions }: FurnitureModelProps) {
   const animatedDimensions = useAnimatedDimensions(dimensions)
-  const layout = FURNITURE_CATALOG[kind].computeLayout(animatedDimensions)
-
-  return (
-    <group>
-      {layout.map((part, index) => (
-        <PartMesh key={`${kind}-${index}`} part={part} />
-      ))}
-    </group>
-  )
+  return <FurnitureParts kind={kind} dimensions={animatedDimensions} />
 }

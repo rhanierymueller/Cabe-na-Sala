@@ -24,20 +24,24 @@ function readToolStateFromLocation(): ToolUrlState | null {
  * botão voltar do navegador alterna as telas em vez de expulsar o usuário.
  */
 export function App() {
-  const [initialToolState] = useState(readToolStateFromLocation)
+  // De onde a ferramenta nasce: do link aberto, ou do móvel montado na landing.
+  const [initialToolState, setInitialToolState] = useState(readToolStateFromLocation)
   const [view, setView] = useState<AppView>(initialToolState ? 'tool' : 'landing')
 
   useEffect(() => {
     const handlePopState = (): void => {
-      setView(readToolStateFromLocation() ? 'tool' : 'landing')
+      const toolState = readToolStateFromLocation()
+      setInitialToolState(toolState)
+      setView(toolState ? 'tool' : 'landing')
     }
 
     window.addEventListener('popstate', handlePopState)
     return () => window.removeEventListener('popstate', handlePopState)
   }, [])
 
-  const handleStart = useCallback(() => {
-    window.history.pushState(null, '', '?movel=fogao')
+  const handleStart = useCallback((kind: FurnitureKind, dimensionsCm: DimensionsCm) => {
+    window.history.pushState(null, '', buildToolSearch(kind, dimensionsCm))
+    setInitialToolState({ kind, dimensionsCm, doorWidthCm: null })
     setView('tool')
   }, [])
 
