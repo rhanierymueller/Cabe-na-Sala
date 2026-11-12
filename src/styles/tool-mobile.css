@@ -123,7 +123,6 @@
 
   .tool__panel:not(.tool__panel--open) .photo-model > :not(input),
   .tool__panel:not(.tool__panel--open) .tool__more,
-  .tool__panel:not(.tool__panel--open) .ad-measures,
   .tool__panel:not(.tool__panel--open) .dimensions-form__title,
   .tool__panel:not(.tool__panel--open) .dimensions-form__subtitle,
   .tool__panel:not(.tool__panel--open) .dimension-field__hint,
@@ -131,11 +130,6 @@
   .tool__panel:not(.tool__panel--open) .ar-hint__caption,
   .tool__panel:not(.tool__panel--open) .ar-qr {
     display: none;
-  }
-
-  .tool__panel:not(.tool__panel--open) .ad-options {
-    padding: 0;
-    border: none;
   }
 
   .tool__panel:not(.tool__panel--open) .dimensions-form__fields {
@@ -174,17 +168,6 @@
 
   .dimensions-form__title {
     margin-top: 8px;
-  }
-
-  /* No celular a folha aberta já é o "mais opções": foto e anúncio ficam à vista. */
-  .ad-options__toggle {
-    display: none;
-  }
-
-  .ad-options .ad-options__body {
-    height: auto;
-    overflow: visible;
-    visibility: visible;
   }
 }
 

@@ -1,13 +1,11 @@
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { AdMeasures } from '../components/ad-measures/AdMeasures'
 import { ArButton } from '../components/ar/ArButton'
 import { DoorCheck } from '../components/door-check/DoorCheck'
 import { DimensionsForm } from '../components/form/DimensionsForm'
 import { FURNITURE_CATALOG } from '../components/furniture/catalog'
 import { PhotoModel } from '../components/photo-model/PhotoModel'
 import { ShareButton } from '../components/share/ShareButton'
-import { AdOptions } from '../components/tool/AdOptions'
 import { FurniturePicker } from '../components/tool/FurniturePicker'
 import { PhotoShortcut } from '../components/tool/PhotoShortcut'
 import { SheetHandle } from '../components/tool/SheetHandle'
@@ -65,17 +63,14 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
         <div className="tool__scroll">
           <DimensionsForm form={form} furnitureLabel={furnitureLabel} />
 
-          <AdOptions isInitiallyOpen={scannedModel !== null}>
-            <PhotoModel
-              // Trocar de móvel à mão remonta o componente e cancela a geração em andamento.
-              key={tool.photoSession}
-              dimensions={dimensions}
-              model={scannedModel}
-              onModelChange={tool.changeScannedModel}
-              onKindDetected={tool.applyPhotoKind}
-            />
-            <AdMeasures onRead={tool.applyAdMeasures} />
-          </AdOptions>
+          <PhotoModel
+            // Trocar de móvel à mão remonta o componente e cancela a geração em andamento.
+            key={tool.photoSession}
+            dimensions={dimensions}
+            model={scannedModel}
+            onModelChange={tool.changeScannedModel}
+            onKindDetected={tool.applyPhotoKind}
+          />
 
           <div className="tool__more">
             <DoorCheck dimensionsCm={form.dimensionsCm} doorWidthCm={doorWidthCm} onDoorWidthChange={setDoorWidthCm} />

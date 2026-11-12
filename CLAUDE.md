@@ -101,8 +101,10 @@ agora é página de produto Apple / SpaceX. O móvel é fotografado como produto
   (`landing/HeroStage.tsx`), o seletor de móveis, três medidas e um botão que
   abre a ferramenta com elas. A história rolada da cozinha, o print do AR e a
   foto de sala saíram; estão no histórico do git se forem voltar.
-- Painel: à primeira vista só as três medidas e a porta; foto e texto do
-  anúncio ficam atrás de "Preencher pelo anúncio" (`tool/AdOptions.tsx`).
+- Painel: as três medidas, a foto do anúncio (3D pela foto) e a porta. Ler
+  as medidas do texto ou do print do anúncio saiu da tela em nov/2026, para o
+  painel ficar simples; `AdMeasures` e `api/measures.ts` continuam no código,
+  sem uso na interface, até decidir se voltam (junto com a ideia do link).
 - Formas: pílulas e cantos de 16–28 px, vidro fosco no painel e no seletor,
   botão principal branco. Cotas do 3D em linha branca fina com etiqueta escura.
 - Computador: painel flutuante à esquerda, palco 3D no resto. Celular: 3D em
