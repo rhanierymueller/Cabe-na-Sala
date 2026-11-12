@@ -45,7 +45,8 @@ export function FurnitureViewer({ kind, dimensions, scannedModel }: FurnitureVie
   return (
     <Canvas
       key={kind}
-      shadows
+      // PCF: o three não tem mais o PCFSoftShadowMap (só avisava e usava este).
+      shadows="percentage"
       camera={{ position: cameraPose.position, fov: CAMERA_FOV }}
       dpr={[1, 2]}
       // Fundo transparente: a poça de luz e as medidas gigantes vêm do CSS.
