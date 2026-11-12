@@ -27,6 +27,18 @@ const TARGET_HEIGHT_RATIO = 0.36
 /** De onde a câmera nasce: um pouco de lado e de cima, como foto de catálogo. */
 const START_AZIMUTH = 0.4
 const START_POLAR = 1.32
+/** No celular a barra de móveis fica por cima do 3D; no computador ela é estreita e não atrapalha. */
+const TOP_BAR_SELECTOR = '.furniture-dock'
+const COVERED_TOP_QUERY = '(max-width: 900px)'
+
+/** Fração do alto do canvas escondida atrás da barra de móveis. */
+function measureTopInsetRatio(canvas: HTMLCanvasElement): number {
+  if (!window.matchMedia(COVERED_TOP_QUERY).matches) return 0
+  const bar = document.querySelector(TOP_BAR_SELECTOR)
+  const frame = canvas.getBoundingClientRect()
+  if (!bar || frame.height === 0) return 0
+  return Math.max(0, bar.getBoundingClientRect().bottom - frame.top) / frame.height
+}
 
 /**
  * Enquadra móvel e pessoa uma vez, quando a cena monta (o Canvas remonta a
@@ -36,6 +48,7 @@ const START_POLAR = 1.32
 function StageCamera({ dimensions }: { readonly dimensions: DimensionsMeters }) {
   const camera = useThree((state) => state.camera)
   const size = useThree((state) => state.size)
+  const canvas = useThree((state) => state.gl.domElement)
   const controlsRef = useRef<OrbitControlsImpl>(null)
 
   useLayoutEffect(() => {
@@ -43,6 +56,7 @@ function StageCamera({ dimensions }: { readonly dimensions: DimensionsMeters }) 
       fovDegrees: CAMERA_FOV,
       margin: FRAME_MARGIN,
       targetHeightRatio: TARGET_HEIGHT_RATIO,
+      topInsetRatio: measureTopInsetRatio(canvas),
     })
     camera.position.set(
       target[0] + distance * Math.sin(START_POLAR) * Math.sin(START_AZIMUTH),

@@ -82,6 +82,27 @@ describe('computeStageFrame', () => {
     )
   })
 
+  test.each([
+    ['sofa', SOFA],
+    ['fridge', FRIDGE],
+    ['wardrobe', WARDROBE],
+  ] as const)('keeps the top of the %s below a bar that covers a third of a phone screen', (_name, dimensions) => {
+    const topInsetRatio = 1 / 3
+    const { distance, target } = computeStageFrame(dimensions, PORTRAIT, { ...FRAME_OPTIONS, topInsetRatio })
+    const halfFrameHeight = Math.tan(halfAngles(PORTRAIT).vertical) * (distance - dimensions.depthM / 2)
+    const sceneTop = Math.max(dimensions.heightM, 1.7)
+
+    // Do meio do quadro para cima, só a parte abaixo da barra aparece.
+    expect(sceneTop - target[1]).toBeLessThanOrEqual(halfFrameHeight * (1 - 2 * topInsetRatio))
+    expect(target[1]).toBeLessThanOrEqual(halfFrameHeight)
+  })
+
+  test('frames the same as before when nothing covers the top', () => {
+    expect(computeStageFrame(SOFA, PORTRAIT, { ...FRAME_OPTIONS, topInsetRatio: 0 })).toEqual(
+      computeStageFrame(SOFA, PORTRAIT, FRAME_OPTIONS),
+    )
+  })
+
   test('steps back on a portrait screen, where width is what runs out', () => {
     const landscape = computeStageFrame(SOFA, LANDSCAPE, FRAME_OPTIONS)
     const portrait = computeStageFrame(SOFA, PORTRAIT, FRAME_OPTIONS)
