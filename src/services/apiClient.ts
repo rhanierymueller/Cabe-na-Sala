@@ -22,6 +22,7 @@ interface ApiMessages {
 interface ApiRequest {
   /** Corpo em JSON; sem ele, o pedido é um GET. */
   readonly body?: unknown
+  readonly headers?: Record<string, string>
   readonly signal: AbortSignal
 }
 
@@ -42,12 +43,12 @@ const DEFAULT_MESSAGES: ApiMessages = {
  */
 export async function callApi(
   url: string,
-  { body, signal }: ApiRequest,
+  { body, headers, signal }: ApiRequest,
   messages: ApiMessages = DEFAULT_MESSAGES,
 ): Promise<Record<string, unknown>> {
-  const response = await fetch(url, body === undefined ? { signal } : {
+  const response = await fetch(url, body === undefined ? { headers, signal } : {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...headers },
     body: JSON.stringify(body),
     signal,
   })

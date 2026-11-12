@@ -32,11 +32,12 @@ interface ClaudeRouteOptions<T> {
 export async function admitClaudeRequest<T>(
   request: Request,
   options: ClaudeRouteOptions<T>,
+  localDevelopment?: true,
 ): Promise<{ readonly input: T } | Response> {
   if (!isSameOrigin(request.headers.get('origin'), request.headers.get('host'))) {
     return respond(403, null, 'Origem não permitida.')
   }
-  const guard = isClaudeConfigured() ? resolveRouteGuard(options.routeName) : null
+  const guard = isClaudeConfigured() ? resolveRouteGuard(options.routeName, localDevelopment) : null
   if (!guard) return respond(503, null, options.unavailableMessage)
 
   const payload = await readJsonBody(request, options.maxBodyLength)

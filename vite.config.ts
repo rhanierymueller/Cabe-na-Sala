@@ -22,7 +22,8 @@ const SERVER_ENV_NAMES = [
   'ANTHROPIC_API_KEY',
   'CLAUDE_MODEL',
 ] as const
-type RouteHandler = (request: Request) => Promise<Response>
+type RouteHandler = (request: Request, localDevelopment?: true) => Promise<Response>
+const LOOPBACK_ADDRESSES = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1'])
 
 /**
  * Em produção a Vercel serve os arquivos de `api/`. No dev, este plugin entrega
@@ -56,12 +57,14 @@ function apiDevPlugin(): Plugin {
               if (typeof value === 'string') headers.set(name, value)
             })
 
+            const isLocal = LOOPBACK_ADDRESSES.has(req.socket.remoteAddress ?? '')
             const response = await handler(
               new Request(url, {
                 method,
                 headers,
                 body: method === 'GET' ? undefined : Buffer.concat(chunks),
               }),
+              isLocal ? true : undefined,
             )
 
             res.statusCode = response.status

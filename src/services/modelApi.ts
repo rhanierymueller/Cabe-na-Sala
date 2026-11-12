@@ -16,31 +16,6 @@ const MESSAGES = {
   failed: 'Não foi possível gerar o modelo. Tente de novo.',
 }
 
-type JobState =
-  | { readonly status: 'processing' }
-  | { readonly status: 'failed' }
-  | { readonly status: 'ready'; readonly modelUrl: string }
-
-async function startJob(
-  imageDataUrl: string,
-  challengeToken: string | null,
-  signal: AbortSignal,
-): Promise<{ readonly id: string; readonly kind: FurnitureKind | null }> {
-  const data = await callApi(ENDPOINT, { body: { image: imageDataUrl, challengeToken }, signal }, MESSAGES)
-  if (typeof data.id !== 'string') throw new ApiError(MESSAGES.failed)
-  return { id: data.id, kind: toFurnitureKind(data.kind) }
-}
-
-async function checkJob(id: string, signal: AbortSignal): Promise<JobState> {
-  const data = await callApi(`${ENDPOINT}?id=${encodeURIComponent(id)}`, { signal }, MESSAGES)
-
-  if (data.status === 'ready' && typeof data.modelUrl === 'string') {
-    return { status: 'ready', modelUrl: data.modelUrl }
-  }
-  if (data.status === 'processing') return { status: 'processing' }
-  return { status: 'failed' }
-}
-
 function wait(durationMs: number, signal: AbortSignal): Promise<void> {
   signal.throwIfAborted()
   return new Promise((resolve, reject) => {
@@ -78,15 +53,22 @@ export async function generateModelFromPhoto({
   signal,
   onAccepted,
 }: GenerationRequest): Promise<string> {
-  const { id, kind } = await startJob(imageDataUrl, challengeToken, signal)
-  onAccepted?.(kind)
+  const { pollToken, kind } = await callApi(ENDPOINT, {
+    body: { image: imageDataUrl, challengeToken, polling: 'bearer' },
+    signal,
+  }, MESSAGES)
+  if (typeof pollToken !== 'string') throw new ApiError(MESSAGES.failed)
+  onAccepted?.(toFurnitureKind(kind))
   const deadlineMs = Date.now() + GENERATION_TIMEOUT_MS
 
   while (Date.now() < deadlineMs) {
     await wait(POLL_INTERVAL_MS, signal)
-    const job = await checkJob(id, signal)
-    if (job.status === 'ready') return job.modelUrl
-    if (job.status === 'failed') throw new ApiError(MESSAGES.failed)
+    const { status, modelUrl } = await callApi(ENDPOINT, {
+      headers: { Authorization: `Bearer ${pollToken}` },
+      signal,
+    }, MESSAGES)
+    if (status === 'ready' && typeof modelUrl === 'string') return modelUrl
+    if (status !== 'processing') throw new ApiError(MESSAGES.failed)
   }
 
   throw new ApiError('A geração demorou demais. Tente de novo com outra foto.')

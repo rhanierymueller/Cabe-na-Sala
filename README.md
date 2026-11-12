@@ -35,8 +35,10 @@ só para guardar chaves pagas fora do navegador:
 | `/api/measures`  | Medidas lidas do anúncio (Claude)                | `ANTHROPIC_API_KEY` |
 
 Sem as chaves, cada rota responde "indisponível" e o resto do site funciona.
-Para usá-las no dev, copie `.env.example` para `.env.local` e preencha. Em deploy,
-as rotas se recusam a rodar sem o Redis e o anti-robô configurados.
+Para usá-las no dev, copie `.env.example` para `.env.local` e preencha. O Vite
+permite testar com armazenamento local e sem o anti-robô em `localhost`. Nos
+deploys e no acesso ao servidor de dev pela rede, as rotas exigem Redis e
+Turnstile.
 
 ## Scripts
 
@@ -67,9 +69,9 @@ src/
 │   ├── ar/          #   AR Quick Look e saídas de quem não tem AR
 │   ├── landing/     #   scrollytelling da landing
 │   └── ui/          #   peças genéricas (campo de arquivo)
-├── hooks/           # Estado e fluxos (seleção do móvel, foto → 3D, régua da sala…)
+├── hooks/           # Estado e fluxos (seleção do móvel, foto → 3D, medidas do anúncio…)
 ├── services/        # Tudo que fala com a rede: rotas do site, anti-robô, Analytics
-├── utils/           # Funções puras: unidades, validação, URL, porta, geometria da foto
+├── utils/           # Funções puras: unidades, validação, URL, porta, arquivo de modelo
 ├── styles/          # Um arquivo por área da interface; index.css define a ordem
 ├── types/           # Tipos compartilhados
 └── constants/       # Limites de medida
