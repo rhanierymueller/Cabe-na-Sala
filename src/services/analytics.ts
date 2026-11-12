@@ -11,6 +11,7 @@
  *   photo_model_ready  → o modelo da foto apareceu
  *   photo_model_failed → a foto não virou modelo
  *   launch_ar          → tocou em "Ver na minha casa" (a métrica-mãe)
+ *   affiliate_click    → abriu a busca da loja pelo link de afiliado
  *   share_click        → enviou para quem decide junto
  */
 
@@ -30,6 +31,7 @@ export const ANALYTICS_EVENT_NAMES = [
   'photo_model_ready',
   'photo_model_failed',
   'launch_ar',
+  'affiliate_click',
   'share_click',
 ] as const
 

@@ -84,6 +84,7 @@ describe('analytics', () => {
         'photo_model_ready',
         'photo_model_failed',
         'launch_ar',
+        'affiliate_click',
         'share_click',
       ]),
     )
