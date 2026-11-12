@@ -8,9 +8,9 @@ const respondWith = (body: unknown, status = 200) =>
 
 describe('verifyChallenge', () => {
   test('passes when Cloudflare confirms the token', async () => {
-    const fetchImpl = respondWith({ success: true })
+    const fetchImpl = respondWith({ success: true, hostname: 'cabenasala.com' })
 
-    const passed = await verifyChallenge('token', 'segredo', '203.0.113.7', fetchImpl)
+    const passed = await verifyChallenge('token', 'segredo', '203.0.113.7', 'cabenasala.com', fetchImpl)
 
     expect(passed).toBe(true)
     const [url, init] = fetchImpl.mock.calls[0] as unknown as [string, RequestInit]
@@ -22,7 +22,13 @@ describe('verifyChallenge', () => {
   })
 
   test('fails when Cloudflare rejects the token', async () => {
-    expect(await verifyChallenge('t', 's', 'ip', respondWith({ success: false }))).toBe(false)
+    expect(await verifyChallenge('t', 's', 'ip', 'cabenasala.com', respondWith({ success: false }))).toBe(false)
+  })
+
+  test.each([['outro-site.com'], [undefined]])('fails when the token was issued for hostname %j', async (hostname) => {
+    const fetchImpl = respondWith({ success: true, hostname })
+
+    expect(await verifyChallenge('t', 's', 'ip', 'cabenasala.com', fetchImpl)).toBe(false)
   })
 
   test('fails closed when the verification service errors', async () => {
@@ -31,8 +37,8 @@ describe('verifyChallenge', () => {
       throw new Error('rede fora')
     })
 
-    expect(await verifyChallenge('t', 's', 'ip', respondWith({}, 500))).toBe(false)
-    expect(await verifyChallenge('t', 's', 'ip', offline)).toBe(false)
+    expect(await verifyChallenge('t', 's', 'ip', 'cabenasala.com', respondWith({}, 500))).toBe(false)
+    expect(await verifyChallenge('t', 's', 'ip', 'cabenasala.com', offline)).toBe(false)
   })
 })
 

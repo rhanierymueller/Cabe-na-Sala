@@ -26,6 +26,8 @@ const daySeconds = 86_400
 const values = new Map<string, string>()
 /** Valor que o Redis falso se recusa a gravar, para simular falha só nessa escrita. */
 let failingSetValue: string | null = null
+/** Site para o qual o Turnstile falso diz ter emitido o token. */
+let challengeHostname = new URL(origin).hostname
 
 function post(route: string, body: unknown, ip = '192.0.2.2'): Request {
   return new Request(origin + '/api/' + route, {
@@ -49,6 +51,7 @@ beforeEach(() => {
   vi.resetAllMocks()
   values.clear()
   failingSetValue = null
+  challengeHostname = new URL(origin).hostname
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(0)
   vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -70,12 +73,25 @@ beforeEach(() => {
   fakes.result.mockResolvedValue({ data: { model_glb: { url: modelUrl } } })
   vi.stubGlobal('fetch', vi.fn(async (input: string, init?: RequestInit) => {
     if (input === 'https://challenges.cloudflare.com/turnstile/v0/siteverify') {
-      return Response.json({ success: true })
+      return Response.json({ success: true, hostname: challengeHostname })
     }
     if (input !== 'https://redis.invalid/pipeline') throw new Error('Unexpected network call')
-    const commands = JSON.parse(init?.body as string) as string[][]
-    return Response.json(commands.map(([command, key, value]) => {
+    const commands = JSON.parse(init?.body as string) as (string | number)[][]
+    return Response.json(commands.map((parts) => {
+      const [command, key, value] = parts.map(String)
       switch (command) {
+        case 'EVAL': {
+          // parts: EVAL, script, 1, bucket, [limit, ttl]. Com teto é reserva; sem, devolução.
+          const bucket = String(parts[3])
+          const total = Number(values.get(bucket) ?? 0)
+          if (parts.length === 4) {
+            if (total > 0) values.set(bucket, String(total - 1))
+            return { result: 1 }
+          }
+          if (total >= Number(parts[4])) return { result: 0 }
+          values.set(bucket, String(total + 1))
+          return { result: 1 }
+        }
         case 'GET': return { result: values.get(key) ?? null }
         case 'SET':
           if (value === failingSetValue) return { error: 'READONLY' }
@@ -137,6 +153,7 @@ describe('paid routes', () => {
   })
 
   it('limits concurrent paid analyses even before a generation has been queued', async () => {
+    vi.stubEnv('MODEL3D_DAILY_LIMIT', '5')
     values.set(windowKey('check:global:day', daySeconds, Date.now()), '299')
     const responses = await Promise.all([generate('192.0.2.3'), generate('192.0.2.4')])
 
@@ -172,5 +189,52 @@ describe('paid routes', () => {
 
     expect(await response.json()).toMatchObject({ data: { status: 'ready', modelUrl } })
     expect(console.error).toHaveBeenCalledWith(expect.stringContaining('cache'), expect.anything())
+  })
+
+  it('rejects a Turnstile token solved on another site', async () => {
+    challengeHostname = 'outro-site.example'
+
+    expect((await generate()).status).toBe(403)
+    expect((await readMeasures(post('measures', { text: 'sofa 200 x 90 x 80 cm', challengeToken: 'synthetic' }))).status).toBe(403)
+    expect(fakes.analyze).not.toHaveBeenCalled()
+  })
+
+  it('pays for one photo check per free generation slot, even under a burst', async () => {
+    const responses = await Promise.all(
+      Array.from({ length: 10 }, (_, index) => generate('192.0.2.' + (index + 10))),
+    )
+
+    expect(responses.filter((response) => response.status === 202)).toHaveLength(1)
+    expect(responses.filter((response) => response.status === 429)).toHaveLength(9)
+    expect(fakes.analyze).toHaveBeenCalledTimes(1)
+  })
+
+  it('gives the daily slot back when the provider fails to queue', async () => {
+    fakes.submit.mockRejectedValueOnce(new Error('provider down'))
+
+    expect((await generate('192.0.2.3')).status).toBe(502)
+    expect((await generate('192.0.2.4')).status).toBe(202)
+  })
+
+  it('keeps the daily slot counted when the provider queued but the poll token could not be saved', async () => {
+    failingSetValue = providerId
+
+    expect((await generate('192.0.2.3')).status).toBe(502)
+    expect((await generate('192.0.2.4')).status).toBe(429)
+    expect(fakes.submit).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not spend the photo-check quota on requests that have no daily slot', async () => {
+    expect((await generate('192.0.2.3')).status).toBe(202)
+    await Promise.all(Array.from({ length: 5 }, (_, index) => generate('192.0.2.' + (index + 20))))
+
+    expect(values.get(windowKey('check:global:day', daySeconds, Date.now()))).toBe('1')
+  })
+
+  it('gives the daily slot back when the photo is refused', async () => {
+    fakes.analyze.mockResolvedValueOnce({ ok: false, reason: 'no_object' })
+
+    expect((await generate('192.0.2.3')).status).toBe(422)
+    expect((await generate('192.0.2.4')).status).toBe(202)
   })
 })

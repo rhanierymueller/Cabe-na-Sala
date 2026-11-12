@@ -24,6 +24,28 @@ describe('createMemoryStore', () => {
     expect(await store.increment('ip', HOUR_S)).toBe(1)
   })
 
+  test('reserves up to the limit and frees a slot on release', async () => {
+    const store = createMemoryStore(() => 0)
+    const first = await store.reserve('dia', HOUR_S, 1)
+
+    expect(first).not.toBeNull()
+    expect(await store.reserve('dia', HOUR_S, 1)).toBeNull()
+    await store.release(first as string)
+    expect(await store.reserve('dia', HOUR_S, 1)).not.toBeNull()
+  })
+
+  test('a release after the window turned does not open an extra slot in the new window', async () => {
+    let nowMs = 0
+    const store = createMemoryStore(() => nowMs)
+    const yesterday = await store.reserve('dia', HOUR_S, 1)
+    nowMs = HOUR_S * 1000 + 1
+
+    await store.release(yesterday as string)
+
+    expect(await store.reserve('dia', HOUR_S, 1)).not.toBeNull()
+    expect(await store.reserve('dia', HOUR_S, 1)).toBeNull()
+  })
+
   test('counts each key on its own', async () => {
     const store = createMemoryStore(() => 0)
     await store.increment('a', HOUR_S)
@@ -114,5 +136,35 @@ describe('resolveStore', () => {
   test('falls back to memory, flagged as not shared', () => {
     expect(resolveStore({}).isShared).toBe(false)
     expect(resolveStore({ KV_REST_API_URL: 'https://kv' }).isShared).toBe(false)
+  })
+})
+
+describe('createRedisStore reservations', () => {
+  const respondWith = (results: unknown[]) =>
+    vi.fn(async () => new Response(JSON.stringify(results), { status: 200 }))
+  const sentCommand = (fetchImpl: ReturnType<typeof respondWith>): unknown[] =>
+    (JSON.parse((fetchImpl.mock.calls[0] as unknown as [string, RequestInit])[1].body as string) as unknown[][])[0]
+
+  test('reserves in one script call and returns the window key it counted', async () => {
+    const fetchImpl = respondWith([{ result: 1 }])
+    const store = createRedisStore('https://kv.example', 'segredo', fetchImpl, () => 0)
+
+    expect(await store.reserve('dia', HOUR_S, 5)).toBe('dia:0')
+    expect(sentCommand(fetchImpl)).toEqual(['EVAL', expect.stringContaining('INCR'), 1, 'dia:0', 5, HOUR_S])
+  })
+
+  test('returns null when the limit was already reached', async () => {
+    const store = createRedisStore('https://kv.example', 'segredo', respondWith([{ result: 0 }]), () => 0)
+
+    expect(await store.reserve('dia', HOUR_S, 5)).toBeNull()
+  })
+
+  test('releases the exact key of the reservation, whatever the current window', async () => {
+    const fetchImpl = respondWith([{ result: 1 }])
+    const store = createRedisStore('https://kv.example', 'segredo', fetchImpl, () => HOUR_S * 1000 * 9)
+
+    await store.release('dia:0')
+
+    expect(sentCommand(fetchImpl)).toEqual(['EVAL', expect.stringContaining('DECR'), 1, 'dia:0'])
   })
 })
