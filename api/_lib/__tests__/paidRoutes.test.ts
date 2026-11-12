@@ -76,20 +76,28 @@ beforeEach(() => {
       return Response.json({ success: true, hostname: challengeHostname })
     }
     if (input !== 'https://redis.invalid/pipeline') throw new Error('Unexpected network call')
-    const commands = JSON.parse(init?.body as string) as string[][]
-    return Response.json(commands.map(([command, key, value]) => {
+    const commands = JSON.parse(init?.body as string) as (string | number)[][]
+    return Response.json(commands.map((parts) => {
+      const [command, key, value] = parts.map(String)
       switch (command) {
+        case 'EVAL': {
+          // parts: EVAL, script, 1, bucket, [limit, ttl]. Com teto é reserva; sem, devolução.
+          const bucket = String(parts[3])
+          const total = Number(values.get(bucket) ?? 0)
+          if (parts.length === 4) {
+            if (total > 0) values.set(bucket, String(total - 1))
+            return { result: 1 }
+          }
+          if (total >= Number(parts[4])) return { result: 0 }
+          values.set(bucket, String(total + 1))
+          return { result: 1 }
+        }
         case 'GET': return { result: values.get(key) ?? null }
         case 'SET':
           if (value === failingSetValue) return { error: 'READONLY' }
           values.set(key, value)
           return { result: 'OK' }
         case 'EXPIRE': return { result: 1 }
-        case 'DECR': {
-          const total = Number(values.get(key) ?? 0) - 1
-          values.set(key, String(total))
-          return { result: total }
-        }
         case 'INCR': {
           const total = Number(values.get(key) ?? 0) + 1
           values.set(key, String(total))

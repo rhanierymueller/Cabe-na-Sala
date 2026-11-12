@@ -23,7 +23,7 @@ import {
   parseVerdict,
 } from './_lib/photoCheck.js'
 import type { RouteGuard } from './_lib/routeGuard.js'
-import { isOverLimit, readJsonBody, reserve, resolveRouteGuard, respond } from './_lib/routeGuard.js'
+import { isOverLimit, readJsonBody, resolveRouteGuard, respond } from './_lib/routeGuard.js'
 import type { UsageStore } from './_lib/usageStore.js'
 
 /**
@@ -73,9 +73,9 @@ function pollKey(token: string): string {
 }
 
 /** Devolve ao teto do dia a vaga de uma geração que não chegou a ser enfileirada. */
-async function releaseDailySlot(store: UsageStore): Promise<void> {
+async function releaseDailySlot(store: UsageStore, dailySlot: string): Promise<void> {
   try {
-    await store.decrement(GLOBAL_JOB_COUNT_KEY, DAY_S)
+    await store.release(dailySlot)
   } catch (error: unknown) {
     console.error('Falha ao devolver a vaga de geração do dia', error)
   }
@@ -151,7 +151,7 @@ export async function POST(request: Request, localDevelopment: true | undefined 
   }
 
   let verdict: PhotoVerdict = { ok: true, kind: null, object: null }
-  let hasDailySlot = false
+  let dailySlot: string | null = null
   try {
     const shouldCheckPhoto = isClaudeConfigured()
     if (
@@ -163,15 +163,13 @@ export async function POST(request: Request, localDevelopment: true | undefined 
     }
 
     // A vaga do dia é reservada antes da conferência: numa rajada, só paga o Claude quem ainda pode gerar.
-    if (!(await reserve(store, GLOBAL_JOB_COUNT_KEY, DAY_S, maxJobsPerDay))) {
-      return respond(429, null, DAILY_LIMIT_MESSAGE)
-    }
-    hasDailySlot = true
+    dailySlot = await store.reserve(GLOBAL_JOB_COUNT_KEY, DAY_S, maxJobsPerDay)
+    if (dailySlot === null) return respond(429, null, DAILY_LIMIT_MESSAGE)
 
     if (shouldCheckPhoto) {
       verdict = await checkPhoto(image)
       if (!verdict.ok) {
-        await releaseDailySlot(store)
+        await releaseDailySlot(store, dailySlot)
         return respond(422, null, REJECTION_MESSAGES[verdict.reason])
       }
     }
@@ -180,13 +178,13 @@ export async function POST(request: Request, localDevelopment: true | undefined 
       (await isOverLimit(store, `job:ip:hour:${clientIp}`, HOUR_S, MAX_JOBS_PER_IP_PER_HOUR)) ||
       (await isOverLimit(store, `job:ip:day:${clientIp}`, DAY_S, MAX_JOBS_PER_IP_PER_DAY))
     ) {
-      await releaseDailySlot(store)
+      await releaseDailySlot(store, dailySlot)
       return respond(429, null, 'Você já gerou vários modelos. Tente de novo mais tarde.')
     }
   } catch (error: unknown) {
     // Sem conseguir contar, não gastamos: falha fechada.
     console.error('Falha no controle de uso da rota de modelo 3D', error)
-    if (hasDailySlot) await releaseDailySlot(store)
+    if (dailySlot !== null) await releaseDailySlot(store, dailySlot)
     return unavailable()
   }
 
@@ -200,7 +198,7 @@ export async function POST(request: Request, localDevelopment: true | undefined 
   } catch (error: unknown) {
     console.error('Falha ao enfileirar a geração do modelo 3D', error)
     // Nada foi gerado: a vaga volta, para uma instabilidade do provedor não gastar o teto do dia.
-    await releaseDailySlot(store)
+    await releaseDailySlot(store, dailySlot)
     return respond(502, null, 'Não foi possível iniciar a geração. Tente de novo.')
   }
 }

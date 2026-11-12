@@ -58,21 +58,6 @@ export async function readJsonBody(request: Request, maxLength: number): Promise
   }
 }
 
-/**
- * Reserva uma unidade de um teto compartilhado, de forma atômica: quem não
- * coube devolve a própria contagem, para o contador nunca passar do teto.
- */
-export async function reserve(
-  store: UsageStore,
-  key: string,
-  windowSeconds: number,
-  limit: number,
-): Promise<boolean> {
-  if ((await store.increment(key, windowSeconds)) <= limit) return true
-  await store.decrement(key, windowSeconds)
-  return false
-}
-
 export async function isOverLimit(
   store: UsageStore,
   key: string,

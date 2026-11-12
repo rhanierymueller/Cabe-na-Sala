@@ -9,8 +9,13 @@
 export interface UsageStore {
   /** Soma 1 ao contador da janela atual e devolve o total. */
   readonly increment: (key: string, windowSeconds: number) => Promise<number>
-  /** Devolve 1 ao contador da janela atual: desfaz um increment que não virou gasto. */
-  readonly decrement: (key: string, windowSeconds: number) => Promise<void>
+  /**
+   * Reserva uma unidade de um teto, de forma atômica. Devolve a chave da
+   * janela que contou (para o release) ou null quando o teto já foi atingido.
+   */
+  readonly reserve: (key: string, windowSeconds: number, limit: number) => Promise<string | null>
+  /** Desfaz uma reserva que não virou gasto, na mesma janela em que ela contou. */
+  readonly release: (reservation: string) => Promise<void>
   readonly get: (key: string) => Promise<string | null>
   readonly set: (key: string, value: string, ttlSeconds: number) => Promise<void>
 }
@@ -52,10 +57,17 @@ export function createMemoryStore(now: () => number = Date.now): UsageStore {
       set(bucket, String(total), windowSeconds)
       return total
     },
-    async decrement(key, windowSeconds) {
+    async reserve(key, windowSeconds, limit) {
       const bucket = windowKey(key, windowSeconds, now())
       const total = Number(get(bucket) ?? 0)
-      if (total > 0) set(bucket, String(total - 1), windowSeconds)
+      if (total >= limit) return null
+      set(bucket, String(total + 1), windowSeconds)
+      return bucket
+    },
+    async release(reservation) {
+      const entry = entries.get(reservation)
+      const total = Number(get(reservation) ?? 0)
+      if (entry && total > 0) entries.set(reservation, { ...entry, value: String(total - 1) })
     },
     async get(key) {
       return get(key)
@@ -65,6 +77,19 @@ export function createMemoryStore(now: () => number = Date.now): UsageStore {
     },
   }
 }
+
+/** Conta e, se passou do teto, desconta na mesma chamada: o contador nunca fica acima do teto. */
+const RESERVE_SCRIPT = [
+  "local total = redis.call('INCR', KEYS[1])",
+  "redis.call('EXPIRE', KEYS[1], ARGV[2])",
+  "if total > tonumber(ARGV[1]) then redis.call('DECR', KEYS[1]) return 0 end",
+  'return 1',
+].join('\n')
+/** Desconta sem ir abaixo de zero e sem recriar uma chave que já expirou. */
+const RELEASE_SCRIPT = [
+  "if tonumber(redis.call('GET', KEYS[1]) or '0') > 0 then redis.call('DECR', KEYS[1]) end",
+  'return 1',
+].join('\n')
 
 /** Redis pela API REST do Upstash (a mesma do Vercel KV). Erro de rede propaga. */
 export function createRedisStore(
@@ -98,8 +123,14 @@ export function createRedisStore(
       if (typeof total !== 'number') throw new Error('Redis: contador inválido')
       return total
     },
-    async decrement(key, windowSeconds) {
-      await run([['DECR', windowKey(key, windowSeconds, now())]])
+    async reserve(key, windowSeconds, limit) {
+      const bucket = windowKey(key, windowSeconds, now())
+      const [reserved] = await run([['EVAL', RESERVE_SCRIPT, 1, bucket, limit, windowSeconds]])
+      if (reserved !== 0 && reserved !== 1) throw new Error('Redis: reserva inválida')
+      return reserved === 1 ? bucket : null
+    },
+    async release(reservation) {
+      await run([['EVAL', RELEASE_SCRIPT, 1, reservation]])
     },
     async get(key) {
       const [value] = await run([['GET', key]])
