@@ -59,7 +59,8 @@ export function ScrollStory({ onStart }: ScrollStoryProps) {
     <div ref={containerRef} className="story">
       <div className="story__stage">
         <Canvas
-          shadows
+          // PCF: o three não tem mais o PCFSoftShadowMap (só avisava e usava este).
+          shadows="percentage"
           camera={{ position: [1.5, 1.15, 2.1], fov: 42 }}
           dpr={[1, 2]}
           gl={{ alpha: true, antialias: true }}
