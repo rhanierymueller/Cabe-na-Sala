@@ -153,6 +153,7 @@ describe('paid routes', () => {
   })
 
   it('limits concurrent paid analyses even before a generation has been queued', async () => {
+    vi.stubEnv('MODEL3D_DAILY_LIMIT', '5')
     values.set(windowKey('check:global:day', daySeconds, Date.now()), '299')
     const responses = await Promise.all([generate('192.0.2.3'), generate('192.0.2.4')])
 
@@ -213,6 +214,21 @@ describe('paid routes', () => {
 
     expect((await generate('192.0.2.3')).status).toBe(502)
     expect((await generate('192.0.2.4')).status).toBe(202)
+  })
+
+  it('keeps the daily slot counted when the provider queued but the poll token could not be saved', async () => {
+    failingSetValue = providerId
+
+    expect((await generate('192.0.2.3')).status).toBe(502)
+    expect((await generate('192.0.2.4')).status).toBe(429)
+    expect(fakes.submit).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not spend the photo-check quota on requests that have no daily slot', async () => {
+    expect((await generate('192.0.2.3')).status).toBe(202)
+    await Promise.all(Array.from({ length: 5 }, (_, index) => generate('192.0.2.' + (index + 20))))
+
+    expect(values.get(windowKey('check:global:day', daySeconds, Date.now()))).toBe('1')
   })
 
   it('gives the daily slot back when the photo is refused', async () => {

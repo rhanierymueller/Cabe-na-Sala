@@ -153,20 +153,18 @@ export async function POST(request: Request, localDevelopment: true | undefined 
   let verdict: PhotoVerdict = { ok: true, kind: null, object: null }
   let dailySlot: string | null = null
   try {
-    const shouldCheckPhoto = isClaudeConfigured()
-    if (
-      shouldCheckPhoto &&
-      ((await isOverLimit(store, `check:ip:hour:${clientIp}`, HOUR_S, MAX_CHECKS_PER_IP_PER_HOUR)) ||
-        (await isOverLimit(store, 'check:global:day', DAY_S, MAX_CHECKS_PER_DAY)))
-    ) {
-      return respond(429, null, 'Limite de análises de foto atingido. Tente novamente mais tarde.')
-    }
-
-    // A vaga do dia é reservada antes da conferência: numa rajada, só paga o Claude quem ainda pode gerar.
+    // A vaga do dia vem antes de tudo: numa rajada, só conta e paga a conferência quem ainda pode gerar.
     dailySlot = await store.reserve(GLOBAL_JOB_COUNT_KEY, DAY_S, maxJobsPerDay)
     if (dailySlot === null) return respond(429, null, DAILY_LIMIT_MESSAGE)
 
-    if (shouldCheckPhoto) {
+    if (isClaudeConfigured()) {
+      if (
+        (await isOverLimit(store, `check:ip:hour:${clientIp}`, HOUR_S, MAX_CHECKS_PER_IP_PER_HOUR)) ||
+        (await isOverLimit(store, 'check:global:day', DAY_S, MAX_CHECKS_PER_DAY))
+      ) {
+        await releaseDailySlot(store, dailySlot)
+        return respond(429, null, 'Limite de análises de foto atingido. Tente novamente mais tarde.')
+      }
       verdict = await checkPhoto(image)
       if (!verdict.ok) {
         await releaseDailySlot(store, dailySlot)
@@ -188,18 +186,28 @@ export async function POST(request: Request, localDevelopment: true | undefined 
     return unavailable()
   }
 
+  const startFailed = (): Response => respond(502, null, 'Não foi possível iniciar a geração. Tente de novo.')
+  let requestId: string
   try {
-    const pollToken = randomBytes(32).toString('base64url')
     const job = await fal.queue.submit(MODEL_ENDPOINT, {
       input: { image_url: image, prompt: verdict.object ?? FALLBACK_SEGMENT_PROMPT, export_textured_glb: true },
     })
-    await store.set(pollKey(pollToken), job.request_id, JOB_TTL_S)
-    return respond(202, { pollToken, kind: verdict.kind })
+    requestId = job.request_id
   } catch (error: unknown) {
     console.error('Falha ao enfileirar a geração do modelo 3D', error)
     // Nada foi gerado: a vaga volta, para uma instabilidade do provedor não gastar o teto do dia.
     await releaseDailySlot(store, dailySlot)
-    return respond(502, null, 'Não foi possível iniciar a geração. Tente de novo.')
+    return startFailed()
+  }
+
+  try {
+    const pollToken = randomBytes(32).toString('base64url')
+    await store.set(pollKey(pollToken), requestId, JOB_TTL_S)
+    return respond(202, { pollToken, kind: verdict.kind })
+  } catch (error: unknown) {
+    // O provedor já aceitou e vai cobrar: a vaga continua contada, mesmo sem dar para consultar.
+    console.error('Geração enfileirada, mas sem credencial de consulta guardada', { requestId, error })
+    return startFailed()
   }
 }
 
