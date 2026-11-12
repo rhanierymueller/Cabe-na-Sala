@@ -1,6 +1,7 @@
 import { Html } from '@react-three/drei'
 import type { LucideIcon } from 'lucide-react'
 import { MoveDiagonal, MoveHorizontal, MoveVertical } from 'lucide-react'
+import { useHtmlPortal } from '../../hooks/useHtmlPortal'
 import type { DimensionsMeters } from '../../types/furniture'
 import { metersToCentimeters } from '../../utils/units'
 
@@ -17,6 +18,7 @@ const LABEL_ICON_SIZE = 13
  * usuário verá em AR (medidas sobre o objeto compensam a falta de colisão).
  */
 export function DimensionLabels({ dimensions, isVisible }: DimensionLabelsProps) {
+  const portal = useHtmlPortal()
   const { widthM, heightM, depthM } = dimensions
   const visibilityClass = isVisible ? ' dimension-tag--visible' : ''
 
@@ -49,7 +51,7 @@ export function DimensionLabels({ dimensions, isVisible }: DimensionLabelsProps)
   return (
     <>
       {labels.map((label) => (
-        <Html key={label.key} position={[...label.position]} center zIndexRange={[5, 0]}>
+        <Html key={label.key} position={[...label.position]} center portal={portal} zIndexRange={[5, 0]}>
           <span className={`dimension-tag${visibilityClass}`}>
             <label.icon size={LABEL_ICON_SIZE} aria-hidden="true" />
             {Math.round(label.valueCm)} cm

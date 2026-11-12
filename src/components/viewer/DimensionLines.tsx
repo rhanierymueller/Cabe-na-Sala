@@ -1,4 +1,5 @@
 import { Html, Line } from '@react-three/drei'
+import { useHtmlPortal } from '../../hooks/useHtmlPortal'
 import type { DimensionsMeters } from '../../types/furniture'
 import { metersToCentimeters } from '../../utils/units'
 
@@ -44,6 +45,7 @@ function midpoint(from: Point, to: Point): [number, number, number] {
  * anima até elas, e as linhas não são recriadas a cada quadro da animação.
  */
 export function DimensionLines({ dimensions }: DimensionLinesProps) {
+  const portal = useHtmlPortal()
   const halfWidth = dimensions.widthM / 2
   const halfDepth = dimensions.depthM / 2
   const frontZ = halfDepth + OFFSET_M
@@ -89,6 +91,7 @@ export function DimensionLines({ dimensions }: DimensionLinesProps) {
           <Html
             position={midpoint(line.from, line.to)}
             center
+            portal={portal}
             zIndexRange={[5, 0]}
             // O contêiner do drei recebe o gesto antes do canvas; sem isto a órbita não começa sobre o número.
             style={{ pointerEvents: 'none' }}
