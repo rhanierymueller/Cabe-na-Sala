@@ -59,6 +59,15 @@ export function isSameOrigin(originHeader: string | null, hostHeader: string | n
   }
 }
 
+/** Nome do site que fez o pedido, a partir de um Origin já aprovado por isSameOrigin. */
+export function originHostname(originHeader: string | null): string {
+  try {
+    return new URL(originHeader ?? '').hostname
+  } catch {
+    return ''
+  }
+}
+
 /** Bytes iniciais de cada formato aceito — o que o arquivo é de verdade. */
 const IMAGE_SIGNATURES: Readonly<Record<string, (bytes: Uint8Array) => boolean>> = {
   jpeg: (bytes) => bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff,

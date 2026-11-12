@@ -24,6 +24,17 @@ describe('createMemoryStore', () => {
     expect(await store.increment('ip', HOUR_S)).toBe(1)
   })
 
+  test('gives a count back without going below zero', async () => {
+    const store = createMemoryStore(() => 0)
+    await store.increment('ip', HOUR_S)
+    await store.increment('ip', HOUR_S)
+
+    await store.decrement('ip', HOUR_S)
+    expect(await store.increment('ip', HOUR_S)).toBe(2)
+    await store.decrement('outra', HOUR_S)
+    expect(await store.increment('outra', HOUR_S)).toBe(1)
+  })
+
   test('counts each key on its own', async () => {
     const store = createMemoryStore(() => 0)
     await store.increment('a', HOUR_S)

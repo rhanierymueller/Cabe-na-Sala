@@ -17,11 +17,14 @@ export function isPlausibleChallengeToken(value: unknown): value is string {
 /**
  * Confere o token com a Cloudflare. Falha fechada: qualquer erro (rede,
  * resposta inesperada, token recusado) conta como "não passou".
+ * O token tem de ter sido resolvido neste site: a chave do widget é pública,
+ * e sem isto valeria um token colhido em outra página.
  */
 export async function verifyChallenge(
   token: string,
   secret: string,
   clientIp: string,
+  expectedHostname: string,
   fetchImpl: FetchLike = fetch,
 ): Promise<boolean> {
   try {
@@ -31,8 +34,8 @@ export async function verifyChallenge(
       signal: AbortSignal.timeout(VERIFY_TIMEOUT_MS),
     })
     if (!response.ok) return false
-    const outcome = (await response.json()) as { success?: unknown }
-    return outcome.success === true
+    const outcome = (await response.json()) as { success?: unknown; hostname?: unknown }
+    return outcome.success === true && outcome.hostname === expectedHostname
   } catch (error: unknown) {
     console.error('Falha ao verificar o desafio anti-robô', error)
     return false

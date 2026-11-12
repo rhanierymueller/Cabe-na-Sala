@@ -9,6 +9,8 @@
 export interface UsageStore {
   /** Soma 1 ao contador da janela atual e devolve o total. */
   readonly increment: (key: string, windowSeconds: number) => Promise<number>
+  /** Devolve 1 ao contador da janela atual: desfaz um increment que não virou gasto. */
+  readonly decrement: (key: string, windowSeconds: number) => Promise<void>
   readonly get: (key: string) => Promise<string | null>
   readonly set: (key: string, value: string, ttlSeconds: number) => Promise<void>
 }
@@ -50,6 +52,11 @@ export function createMemoryStore(now: () => number = Date.now): UsageStore {
       set(bucket, String(total), windowSeconds)
       return total
     },
+    async decrement(key, windowSeconds) {
+      const bucket = windowKey(key, windowSeconds, now())
+      const total = Number(get(bucket) ?? 0)
+      if (total > 0) set(bucket, String(total - 1), windowSeconds)
+    },
     async get(key) {
       return get(key)
     },
@@ -90,6 +97,9 @@ export function createRedisStore(
       ])
       if (typeof total !== 'number') throw new Error('Redis: contador inválido')
       return total
+    },
+    async decrement(key, windowSeconds) {
+      await run([['DECR', windowKey(key, windowSeconds, now())]])
     },
     async get(key) {
       const [value] = await run([['GET', key]])

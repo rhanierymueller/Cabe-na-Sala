@@ -11,6 +11,7 @@ import {
   isTrustedModelUrl,
   isValidImageDataUrl,
   isValidRequestId,
+  originHostname,
   pickModelUrl,
 } from './_lib/modelRequest.js'
 import type { PhotoVerdict } from './_lib/photoCheck.js'
@@ -22,8 +23,8 @@ import {
   parseVerdict,
 } from './_lib/photoCheck.js'
 import type { RouteGuard } from './_lib/routeGuard.js'
-import { isOverLimit, readJsonBody, resolveRouteGuard, respond } from './_lib/routeGuard.js'
-import { windowKey } from './_lib/usageStore.js'
+import { isOverLimit, readJsonBody, reserve, resolveRouteGuard, respond } from './_lib/routeGuard.js'
+import type { UsageStore } from './_lib/usageStore.js'
 
 /**
  * POST enfileira a geração e devolve uma credencial temporária de consulta.
@@ -69,6 +70,15 @@ function readDailyCap(rawValue: string | undefined): number {
 
 function pollKey(token: string): string {
   return 'job:poll:' + createHash('sha256').update(token).digest('hex')
+}
+
+/** Devolve ao teto do dia a vaga de uma geração que não chegou a ser enfileirada. */
+async function releaseDailySlot(store: UsageStore): Promise<void> {
+  try {
+    await store.decrement(GLOBAL_JOB_COUNT_KEY, DAY_S)
+  } catch (error: unknown) {
+    console.error('Falha ao devolver a vaga de geração do dia', error)
+  }
 }
 
 /** Configura provedor e proteções; null quando a rota não pode rodar com segurança. */
@@ -135,38 +145,48 @@ export async function POST(request: Request, localDevelopment: true | undefined 
   if (challengeSecret) {
     const token = payload?.challengeToken
     const passed =
-      isPlausibleChallengeToken(token) && (await verifyChallenge(token, challengeSecret, clientIp))
+      isPlausibleChallengeToken(token) &&
+      (await verifyChallenge(token, challengeSecret, clientIp, originHostname(request.headers.get('origin'))))
     if (!passed) return respond(403, null, 'Não foi possível confirmar que você não é um robô.')
   }
 
   let verdict: PhotoVerdict = { ok: true, kind: null, object: null }
+  let hasDailySlot = false
   try {
-    if (isClaudeConfigured()) {
-      const dailyJobs = Number(await store.get(windowKey(GLOBAL_JOB_COUNT_KEY, DAY_S, Date.now())) ?? 0)
-      if (!Number.isSafeInteger(dailyJobs) || dailyJobs < 0) throw new Error('Redis: contador inválido')
-      if (dailyJobs >= maxJobsPerDay) return respond(429, null, DAILY_LIMIT_MESSAGE)
-      if (
-        (await isOverLimit(store, `check:ip:hour:${clientIp}`, HOUR_S, MAX_CHECKS_PER_IP_PER_HOUR)) ||
-        (await isOverLimit(store, 'check:global:day', DAY_S, MAX_CHECKS_PER_DAY))
-      ) {
-        return respond(429, null, 'Limite de análises de foto atingido. Tente novamente mais tarde.')
-      }
+    const shouldCheckPhoto = isClaudeConfigured()
+    if (
+      shouldCheckPhoto &&
+      ((await isOverLimit(store, `check:ip:hour:${clientIp}`, HOUR_S, MAX_CHECKS_PER_IP_PER_HOUR)) ||
+        (await isOverLimit(store, 'check:global:day', DAY_S, MAX_CHECKS_PER_DAY)))
+    ) {
+      return respond(429, null, 'Limite de análises de foto atingido. Tente novamente mais tarde.')
+    }
+
+    // A vaga do dia é reservada antes da conferência: numa rajada, só paga o Claude quem ainda pode gerar.
+    if (!(await reserve(store, GLOBAL_JOB_COUNT_KEY, DAY_S, maxJobsPerDay))) {
+      return respond(429, null, DAILY_LIMIT_MESSAGE)
+    }
+    hasDailySlot = true
+
+    if (shouldCheckPhoto) {
       verdict = await checkPhoto(image)
-      if (!verdict.ok) return respond(422, null, REJECTION_MESSAGES[verdict.reason])
+      if (!verdict.ok) {
+        await releaseDailySlot(store)
+        return respond(422, null, REJECTION_MESSAGES[verdict.reason])
+      }
     }
 
     if (
       (await isOverLimit(store, `job:ip:hour:${clientIp}`, HOUR_S, MAX_JOBS_PER_IP_PER_HOUR)) ||
       (await isOverLimit(store, `job:ip:day:${clientIp}`, DAY_S, MAX_JOBS_PER_IP_PER_DAY))
     ) {
+      await releaseDailySlot(store)
       return respond(429, null, 'Você já gerou vários modelos. Tente de novo mais tarde.')
-    }
-    if (await isOverLimit(store, GLOBAL_JOB_COUNT_KEY, DAY_S, maxJobsPerDay)) {
-      return respond(429, null, DAILY_LIMIT_MESSAGE)
     }
   } catch (error: unknown) {
     // Sem conseguir contar, não gastamos: falha fechada.
     console.error('Falha no controle de uso da rota de modelo 3D', error)
+    if (hasDailySlot) await releaseDailySlot(store)
     return unavailable()
   }
 
@@ -179,6 +199,8 @@ export async function POST(request: Request, localDevelopment: true | undefined 
     return respond(202, { pollToken, kind: verdict.kind })
   } catch (error: unknown) {
     console.error('Falha ao enfileirar a geração do modelo 3D', error)
+    // Nada foi gerado: a vaga volta, para uma instabilidade do provedor não gastar o teto do dia.
+    await releaseDailySlot(store)
     return respond(502, null, 'Não foi possível iniciar a geração. Tente de novo.')
   }
 }

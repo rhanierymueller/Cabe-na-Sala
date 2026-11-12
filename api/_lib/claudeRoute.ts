@@ -1,6 +1,6 @@
 import { isPlausibleChallengeToken, verifyChallenge } from './challenge.js'
 import { isClaudeConfigured } from './claude.js'
-import { clientIpFrom, isSameOrigin } from './modelRequest.js'
+import { clientIpFrom, isSameOrigin, originHostname } from './modelRequest.js'
 import { isOverLimit, readJsonBody, resolveRouteGuard, respond } from './routeGuard.js'
 
 /**
@@ -52,7 +52,7 @@ export async function admitClaudeRequest<T>(
     const token = (payload as { challengeToken?: unknown }).challengeToken
     const passed =
       isPlausibleChallengeToken(token) &&
-      (await verifyChallenge(token, guard.challengeSecret, clientIp))
+      (await verifyChallenge(token, guard.challengeSecret, clientIp, originHostname(request.headers.get('origin'))))
     if (!passed) return respond(403, null, 'Não foi possível confirmar que você não é um robô.')
   }
 
