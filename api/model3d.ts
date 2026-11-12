@@ -221,7 +221,10 @@ export async function GET(request: Request, localDevelopment: true | undefined =
     if (!isTrustedModelUrl(modelUrl)) {
       throw new Error('Resultado do provedor sem URL de modelo confiável')
     }
-    await store.set(key, modelUrl, JOB_TTL_S)
+    // O modelo já está pronto: sem o cache, a próxima consulta só pergunta à fal de novo.
+    await store.set(key, modelUrl, JOB_TTL_S).catch((error: unknown) => {
+      console.error('Falha ao guardar o modelo pronto no cache', { id, error })
+    })
     return respond(200, { status: 'ready', modelUrl })
   } catch (error: unknown) {
     console.error('Falha ao consultar a geração do modelo 3D', { id, error })

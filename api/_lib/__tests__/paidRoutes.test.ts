@@ -24,6 +24,8 @@ const providerId = '00000000-0000-4000-8000-000000000001'
 const modelUrl = 'https://files.fal.media/synthetic.glb'
 const daySeconds = 86_400
 const values = new Map<string, string>()
+/** Valor que o Redis falso se recusa a gravar, para simular falha só nessa escrita. */
+let failingSetValue: string | null = null
 
 function post(route: string, body: unknown, ip = '192.0.2.2'): Request {
   return new Request(origin + '/api/' + route, {
@@ -46,6 +48,7 @@ function poll(token?: string): Promise<Response> {
 beforeEach(() => {
   vi.resetAllMocks()
   values.clear()
+  failingSetValue = null
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(0)
   vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -75,6 +78,7 @@ beforeEach(() => {
       switch (command) {
         case 'GET': return { result: values.get(key) ?? null }
         case 'SET':
+          if (value === failingSetValue) return { error: 'READONLY' }
           values.set(key, value)
           return { result: 'OK' }
         case 'EXPIRE': return { result: 1 }
@@ -157,5 +161,16 @@ describe('paid routes', () => {
     expect(await second.json()).toMatchObject({ data: { status: 'ready', modelUrl } })
     expect(fakes.status).toHaveBeenCalledExactlyOnceWith('fal-ai/sam-3/3d-objects', { requestId: providerId, logs: false })
     expect(fakes.result).toHaveBeenCalledTimes(1)
+  })
+
+  it('still answers ready when only caching the finished model fails', async () => {
+    const created = await generate()
+    const { data } = await created.json() as { data: { pollToken: string } }
+    failingSetValue = modelUrl
+
+    const response = await poll(data.pollToken)
+
+    expect(await response.json()).toMatchObject({ data: { status: 'ready', modelUrl } })
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining('cache'), expect.anything())
   })
 })
