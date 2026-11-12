@@ -41,7 +41,7 @@ export function App() {
 
   const handleStart = useCallback((kind: FurnitureKind, dimensionsCm: DimensionsCm) => {
     window.history.pushState(null, '', buildToolSearch(kind, dimensionsCm))
-    setInitialToolState({ kind, dimensionsCm, doorWidthCm: null })
+    setInitialToolState({ kind, dimensionsCm })
     setView('tool')
   }, [])
 
@@ -57,10 +57,10 @@ export function App() {
   }, [])
 
   const handleToolStateChange = useCallback(
-    (kind: FurnitureKind, dimensionsCm: DimensionsCm, doorWidthCm: number | null): void => {
+    (kind: FurnitureKind, dimensionsCm: DimensionsCm): void => {
       window.clearTimeout(urlSyncTimerRef.current)
       urlSyncTimerRef.current = window.setTimeout(() => {
-        window.history.replaceState(null, '', buildToolSearch(kind, dimensionsCm, doorWidthCm))
+        window.history.replaceState(null, '', buildToolSearch(kind, dimensionsCm))
       }, URL_SYNC_DEBOUNCE_MS)
     },
     [],

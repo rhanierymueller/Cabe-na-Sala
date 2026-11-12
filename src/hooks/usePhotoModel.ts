@@ -120,11 +120,14 @@ export function usePhotoModel(
   }, [request])
 
   const handleFile = (file: File): void => {
+    const source: ScannedModelSource = isGlbFile(file) ? 'file' : 'photo'
     const validationError = validateModelFile(file)
     if (validationError) {
+      trackEvent('photo_model_failed', { source, reason: 'invalid_file' })
       showError(validationError)
       return
     }
+    trackEvent('photo_model_start', { source })
 
     const controller = request.start()
     setErrorMessage(null)
@@ -142,7 +145,7 @@ export function usePhotoModel(
 
     const run = async (): Promise<void> => {
       try {
-        const { scene, source } = await loadModelFromFile(file, steps)
+        const { scene } = await loadModelFromFile(file, steps)
         if (!isActive()) return
         const { baseSize } = normalizeModel(scene, 0)
         const quarterTurns = suggestQuarterTurns(baseSize, dimensionsRef.current)
@@ -152,6 +155,8 @@ export function usePhotoModel(
       } catch (error: unknown) {
         if (isAbortError(error) || !isActive()) return
         console.error('Falha ao transformar o arquivo em modelo 3D', error)
+        // Só a categoria do erro vai para o Analytics, nunca o texto dele.
+        trackEvent('photo_model_failed', { source, reason: error instanceof ApiError ? 'server' : 'other' })
         showError(describeError(error))
       }
     }

@@ -1,10 +1,11 @@
 import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FURNITURE_CATALOG } from '../components/furniture/catalog'
 import { HeroStage } from '../components/landing/HeroStage'
 import { FurniturePicker } from '../components/tool/FurniturePicker'
 import { DIMENSION_FIELDS } from '../constants/dimensions'
 import { COPYRIGHT_NOTICE } from '../constants/site'
+import { trackEvent } from '../services/analytics'
 import type { DimensionAxis, DimensionsCm, FurnitureKind } from '../types/furniture'
 import { clampDimensionCm, parseDimensionInput } from '../utils/dimensionValidation'
 import { dimensionsCmToMeters } from '../utils/units'
@@ -28,7 +29,7 @@ function toTexts(dimensions: DimensionsCm): DimensionTexts {
 
 /**
  * A landing é uma dobra só: o móvel grande, em luz de produto, o seletor de
- * móveis e três números para mexer. Tudo o mais (porta, foto, anúncio, AR)
+ * móveis e três números para mexer. Tudo o mais (foto do anúncio, AR)
  * fica na ferramenta, para onde o botão leva com estas medidas.
  */
 export function LandingPage({ onStart }: LandingPageProps) {
@@ -40,8 +41,13 @@ export function LandingPage({ onStart }: LandingPageProps) {
   // o móvel só muda quando o texto vira uma medida válida.
   const [texts, setTexts] = useState<DimensionTexts>(() => toTexts(dimensionsCm))
 
+  useEffect(() => {
+    trackEvent('view_landing')
+  }, [])
+
   const handleKindChange = (nextKind: FurnitureKind) => {
     const defaults = FURNITURE_CATALOG[nextKind].defaultDimensionsCm
+    if (nextKind !== kind) trackEvent('select_furniture', { furniture: nextKind, where: 'landing' })
     setKind(nextKind)
     setDimensionsCm(defaults)
     setTexts(toTexts(defaults))
@@ -81,6 +87,9 @@ export function LandingPage({ onStart }: LandingPageProps) {
         className="landing__dock"
         onSubmit={(event) => {
           event.preventDefault()
+          const defaults = FURNITURE_CATALOG[kind].defaultDimensionsCm
+          const hasChangedMeasures = DIMENSION_FIELDS.some(({ axis }) => dimensionsCm[axis] !== defaults[axis])
+          trackEvent('landing_start', { furniture: kind, changed_measures: hasChangedMeasures })
           onStart(kind, dimensionsCm)
         }}
       >

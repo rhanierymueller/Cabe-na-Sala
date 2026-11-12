@@ -14,7 +14,7 @@ No ar em [cabenasala.com](https://cabenasala.com).
 
 - Ferramenta com 8 móveis gerados por código (fogão, sofá, geladeira,
   guarda-roupa, cama, mesa, rack, quadro) que esticam na medida digitada.
-- Veredito "passa na porta?" e link compartilhável com móvel, medidas e porta.
+- Link compartilhável com o móvel e as medidas.
 - AR Quick Look no iPhone (USDZ gerado no navegador, escala travada).
 - Foto do anúncio → modelo 3D do produto real, esticado até as medidas digitadas.
 - Medidas lidas do texto ou do print do anúncio.
@@ -64,14 +64,13 @@ src/
 │   ├── viewer/      #   cena 3D da ferramenta
 │   ├── photo-model/ #   foto do anúncio → modelo 3D
 │   ├── ad-measures/ #   medidas pelo anúncio
-│   ├── door-check/  #   "passa na porta?"
 │   ├── share/       #   enviar para quem decide junto
 │   ├── ar/          #   AR Quick Look e saídas de quem não tem AR
 │   ├── landing/     #   palco 3D da landing (uma dobra só)
 │   └── ui/          #   peças genéricas (campo de arquivo)
 ├── hooks/           # Estado e fluxos (seleção do móvel, foto → 3D, medidas do anúncio…)
 ├── services/        # Tudo que fala com a rede: rotas do site, anti-robô, Analytics
-├── utils/           # Funções puras: unidades, validação, URL, porta, arquivo de modelo
+├── utils/           # Funções puras: unidades, validação, URL, arquivo de modelo
 ├── styles/          # Um arquivo por área da interface; index.css define a ordem
 ├── types/           # Tipos compartilhados
 └── constants/       # Limites de medida

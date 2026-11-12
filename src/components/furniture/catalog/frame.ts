@@ -18,7 +18,6 @@ const ART_HEIGHT_RATIO = 0.45
 /**
  * Quadro em pé (apoiado no chão, como na loja ou encostado na parede):
  * quatro réguas de moldura, tela recuada e um bloco de "arte" ao centro.
- * A profundidade fina faz o veredito da porta ser quase sempre "passa".
  */
 export function computeFrameLayout(dimensions: DimensionsMeters): FurnitureLayout {
   const { widthM, heightM, depthM } = dimensions
