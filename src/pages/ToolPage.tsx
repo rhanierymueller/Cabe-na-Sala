@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { AdMeasures } from '../components/ad-measures/AdMeasures'
 import { ArButton } from '../components/ar/ArButton'
 import { DoorCheck } from '../components/door-check/DoorCheck'
 import { DimensionsForm } from '../components/form/DimensionsForm'
@@ -14,6 +13,7 @@ import { ToolHeader } from '../components/tool/ToolHeader'
 import { ToolStage } from '../components/tool/ToolStage'
 import { useBottomSheet } from '../hooks/useBottomSheet'
 import { useToolSelection } from '../hooks/useToolSelection'
+import { COPYRIGHT_NOTICE } from '../constants/site'
 import { trackEvent } from '../services/analytics'
 import type { DimensionsCm, FurnitureKind } from '../types/furniture'
 import { dimensionsCmToMeters } from '../utils/units'
@@ -61,22 +61,22 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
       <aside className={`tool__panel${sheet.isExpanded ? ' tool__panel--open' : ''}`} style={sheet.panelStyle}>
         <SheetHandle sheet={sheet} />
         <div className="tool__scroll">
-          <DimensionsForm form={form} furnitureLabel={furnitureLabel}>
-            <PhotoModel
-              // Trocar de móvel à mão remonta o componente e cancela a geração em andamento.
-              key={tool.photoSession}
-              dimensions={dimensions}
-              model={scannedModel}
-              onModelChange={tool.changeScannedModel}
-              onKindDetected={tool.applyPhotoKind}
-            />
-          </DimensionsForm>
+          <DimensionsForm form={form} furnitureLabel={furnitureLabel} />
+
+          <PhotoModel
+            // Trocar de móvel à mão remonta o componente e cancela a geração em andamento.
+            key={tool.photoSession}
+            dimensions={dimensions}
+            model={scannedModel}
+            onModelChange={tool.changeScannedModel}
+            onKindDetected={tool.applyPhotoKind}
+          />
 
           <div className="tool__more">
-            <AdMeasures onRead={tool.applyAdMeasures} />
             <DoorCheck dimensionsCm={form.dimensionsCm} doorWidthCm={doorWidthCm} onDoorWidthChange={setDoorWidthCm} />
             <ShareButton furnitureLabel={furnitureLabel} dimensionsCm={form.dimensionsCm} doorWidthCm={doorWidthCm} shareUrl={shareUrl} />
-            <p className="tool__footer">Cada quadrado do chão mede 10 cm. Cotas em centímetros.</p>
+            <p className="tool__footer">A pessoa ao lado tem 1,70 m. Cotas em centímetros.</p>
+            <p className="tool__footer tool__footer--copyright">{COPYRIGHT_NOTICE}</p>
           </div>
         </div>
 

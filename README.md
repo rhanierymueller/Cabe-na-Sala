@@ -67,7 +67,7 @@ src/
 │   ├── door-check/  #   "passa na porta?"
 │   ├── share/       #   enviar para quem decide junto
 │   ├── ar/          #   AR Quick Look e saídas de quem não tem AR
-│   ├── landing/     #   scrollytelling da landing
+│   ├── landing/     #   palco 3D da landing (uma dobra só)
 │   └── ui/          #   peças genéricas (campo de arquivo)
 ├── hooks/           # Estado e fluxos (seleção do móvel, foto → 3D, medidas do anúncio…)
 ├── services/        # Tudo que fala com a rede: rotas do site, anti-robô, Analytics

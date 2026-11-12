@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion'
-import type { ReactNode } from 'react'
 import { DIMENSION_FIELDS } from '../../constants/dimensions'
 import type { DimensionsForm as DimensionsFormValues } from '../../hooks/useDimensionsForm'
 import { DimensionInput } from './DimensionInput'
@@ -7,11 +6,9 @@ import { DimensionInput } from './DimensionInput'
 interface DimensionsFormProps {
   readonly form: DimensionsFormValues
   readonly furnitureLabel: string
-  /** Conteúdo em destaque entre o título e os campos (a foto do anúncio). */
-  readonly children?: ReactNode
 }
 
-export function DimensionsForm({ form, furnitureLabel, children }: DimensionsFormProps) {
+export function DimensionsForm({ form, furnitureLabel }: DimensionsFormProps) {
   const { dimensionsCm, fieldValues, fieldErrors, handleFieldChange, handleFieldBlur } = form
 
   return (
@@ -24,10 +21,8 @@ export function DimensionsForm({ form, furnitureLabel, children }: DimensionsFor
     >
       <h2 className="dimensions-form__title">{furnitureLabel}</h2>
       <p className="dimensions-form__subtitle">
-        Comece pela foto ou pelas medidas do anúncio.
+        Digite as medidas do anúncio.
       </p>
-
-      {children}
 
       <div className="dimensions-form__fields">
         {DIMENSION_FIELDS.map(({ axis, label, hint }) => (

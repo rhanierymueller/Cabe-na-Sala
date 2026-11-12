@@ -10,7 +10,7 @@ export function SheetHandle({ sheet }: SheetHandleProps) {
   return (
     <button type="button" className="tool__handle" aria-expanded={sheet.isOpen} {...sheet.handleProps}>
       <ChevronUp size={14} aria-hidden="true" />
-      {sheet.isExpanded ? 'Fechar' : 'Anúncio, porta e ajustes'}
+      {sheet.isExpanded ? 'Fechar' : 'Foto, porta e mais'}
     </button>
   )
 }

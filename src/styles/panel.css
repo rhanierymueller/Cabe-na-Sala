@@ -48,9 +48,9 @@
 
 /* ---------- Foto do anúncio → modelo 3D ---------- */
 
-/* Em destaque, entre o título e as medidas. */
+/* Em destaque, logo abaixo das medidas. */
 .photo-model {
-  margin-bottom: 18px;
+  margin: 18px 0;
   padding: 16px;
   background: var(--color-surface-raised);
   border: 1px solid rgba(255, 233, 207, 0.22);

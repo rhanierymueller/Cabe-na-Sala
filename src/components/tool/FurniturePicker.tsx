@@ -11,7 +11,7 @@ const ICON_SIZE = 19
 
 /**
  * Dock de móveis flutuando sobre o 3D: o indicador desliza entre os itens
- * (layoutId) e o item ativo expande mostrando o nome.
+ * (layoutId). Em tela larga todos mostram o nome; nas outras, só o ativo (CSS).
  */
 export function FurniturePicker({ selectedKind, onSelect }: FurniturePickerProps) {
   return (
@@ -40,7 +40,7 @@ export function FurniturePicker({ selectedKind, onSelect }: FurniturePickerProps
               />
             )}
             <definition.icon size={ICON_SIZE} aria-hidden="true" />
-            {isSelected && <span className="furniture-dock__label">{definition.label}</span>}
+            <span className="furniture-dock__label">{definition.label}</span>
           </motion.button>
         )
       })}

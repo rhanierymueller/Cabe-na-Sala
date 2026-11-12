@@ -8,13 +8,10 @@ interface ToolStageProps {
   readonly scannedModel: ScannedModel | null
 }
 
-/** O palco: as medidas gigantes e quase apagadas atrás, o móvel em 3D na frente. */
+/** O palco: o móvel em 3D. As medidas gigantes de fundo agora vivem dentro da cena. */
 export function ToolStage({ kind, dimensionsCm, scannedModel }: ToolStageProps) {
   return (
     <div className="tool__canvas" aria-label="Visualização 3D do móvel">
-      <p className="tool__backdrop" aria-hidden="true">
-        {dimensionsCm.widthCm} × {dimensionsCm.heightCm} × {dimensionsCm.depthCm}
-      </p>
       <FurnitureViewer
         kind={kind}
         dimensions={dimensionsCmToMeters(dimensionsCm)}

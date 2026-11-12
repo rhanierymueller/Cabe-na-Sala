@@ -88,8 +88,23 @@ agora é página de produto Apple / SpaceX. O móvel é fotografado como produto
 - Tipografia: fonte do sistema nos aparelhos Apple (SF Pro) e Inter (Google
   Fonts, já na CSP) no resto. Largura normal, peso 600–700, números com
   `tabular-nums`. Fonte condensada foi testada e rejeitada pelo dev.
-- Assinatura: as medidas gigantes e quase apagadas atrás do móvel
-  (`.tool__backdrop`; o canvas é transparente e fica por cima).
+- Assinatura: as medidas gigantes e quase apagadas atrás do móvel, agora
+  dentro da cena 3D (`viewer/MeasureBackdrop.tsx`): contam enquanto o móvel
+  estica e somem quando a câmera vai para trás.
+- Palco (nov/2026, `viewer/StudioStage.tsx`): chão que reflete e some no escuro
+  no lugar da grade, e uma pessoa de 1,70 m ao lado do móvel para dar escala
+  (`viewer/ScaleFigure.tsx`, modelo em `public/models/person.glb`, gerado por IA;
+  sem o arquivo aparece um manequim feito em código). O enquadramento sai de
+  `viewer/stageLayout.ts`. Tecido ganha trama e brilho, superfície polida ganha
+  verniz (`furniture/surfaceFinish.ts`): só na tela, o AR segue o catálogo.
+- Landing (nov/2026): uma dobra só, sem rolagem. O mesmo palco da ferramenta
+  (`landing/HeroStage.tsx`), o seletor de móveis, três medidas e um botão que
+  abre a ferramenta com elas. A história rolada da cozinha, o print do AR e a
+  foto de sala saíram; estão no histórico do git se forem voltar.
+- Painel: as três medidas, a foto do anúncio (3D pela foto) e a porta. Ler
+  as medidas do texto ou do print do anúncio saiu da tela em nov/2026, para o
+  painel ficar simples; `AdMeasures` e `api/measures.ts` continuam no código,
+  sem uso na interface, até decidir se voltam (junto com a ideia do link).
 - Formas: pílulas e cantos de 16–28 px, vidro fosco no painel e no seletor,
   botão principal branco. Cotas do 3D em linha branca fina com etiqueta escura.
 - Computador: painel flutuante à esquerda, palco 3D no resto. Celular: 3D em
