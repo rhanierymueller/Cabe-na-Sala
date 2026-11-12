@@ -27,6 +27,8 @@ export type FurnitureKind =
   | 'table'
   | 'cabinet'
   | 'frame'
+  /** Qualquer objeto fora do catálogo: um bloco com as medidas digitadas. */
+  | 'other'
 
 /** Onde o AR ancora o objeto: chão (padrão) ou parede (quadros). */
 export type ArPlacement = 'floor' | 'wall'

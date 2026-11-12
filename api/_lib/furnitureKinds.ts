@@ -1,7 +1,8 @@
 /**
  * Tipos de móvel que o site sabe desenhar. O modelo escolhe um deles (ou
  * nenhum); quem valida a resposta é este arquivo. Tem de acompanhar
- * `FurnitureKind` em src/types/furniture.ts.
+ * `FurnitureKind` em src/types/furniture.ts, menos o `other` ("Outro"): ele
+ * não é um tipo que o modelo reconhece, é o que a pessoa escolhe quando nenhum serve.
  */
 
 const FURNITURE_KIND_VALUES = [

@@ -2,6 +2,7 @@ import type { LucideIcon } from 'lucide-react'
 import {
   Archive,
   BedDouble,
+  Box,
   DoorClosed,
   Flame,
   Image,
@@ -20,6 +21,7 @@ import { DEFAULT_BED_DIMENSIONS_CM, computeBedLayout } from './bed'
 import { DEFAULT_CABINET_DIMENSIONS_CM, computeCabinetLayout } from './cabinet'
 import { DEFAULT_FRAME_DIMENSIONS_CM, computeFrameLayout } from './frame'
 import { DEFAULT_FRIDGE_DIMENSIONS_CM, computeFridgeLayout } from './fridge'
+import { DEFAULT_OTHER_DIMENSIONS_CM, computeOtherLayout } from './other'
 import { DEFAULT_SOFA_DIMENSIONS_CM, computeSofaLayout } from './sofa'
 import { DEFAULT_STOVE_DIMENSIONS_CM, computeStoveLayout } from './stove'
 import { DEFAULT_TABLE_DIMENSIONS_CM, computeTableLayout } from './table'
@@ -93,6 +95,13 @@ export const FURNITURE_CATALOG: Record<FurnitureKind, FurnitureDefinition> = {
     computeLayout: computeFrameLayout,
     arPlacement: 'wall',
   },
+  other: {
+    kind: 'other',
+    label: 'Outro',
+    icon: Box,
+    defaultDimensionsCm: DEFAULT_OTHER_DIMENSIONS_CM,
+    computeLayout: computeOtherLayout,
+  },
 }
 
 /** Ordem de exibição no menu. */
@@ -105,6 +114,7 @@ export const FURNITURE_KINDS: readonly FurnitureKind[] = [
   'table',
   'cabinet',
   'frame',
+  'other',
 ]
 
 /** Valida um tipo vindo de fora (URL, servidor). */
