@@ -3,12 +3,10 @@ import { useEffect, useRef, useState } from 'react'
 import type { DimensionsCm } from '../../types/furniture'
 import { trackEvent } from '../../services/analytics'
 import { isAbortError } from '../../utils/abort'
-import { computeDoorFit, formatFitCm } from '../../utils/doorFit'
 
 interface ShareButtonProps {
   readonly furnitureLabel: string
   readonly dimensionsCm: DimensionsCm
-  readonly doorWidthCm: number | null
   readonly shareUrl: string
 }
 
@@ -16,36 +14,16 @@ type ShareStatus = 'idle' | 'copied' | 'error'
 
 const COPIED_FEEDBACK_MS = 2000
 
-/** O veredito é o que se compartilha ("amor, não passa!") — não a ferramenta. */
-function buildShareText(
-  furnitureLabel: string,
-  dimensionsCm: DimensionsCm,
-  doorWidthCm: number | null,
-): string {
+function buildShareText(furnitureLabel: string, dimensionsCm: DimensionsCm): string {
   const { widthCm, heightCm, depthCm } = dimensionsCm
-  const base = `Vai caber? ${furnitureLabel} de ${widthCm} × ${heightCm} × ${depthCm} cm`
-
-  if (doorWidthCm === null) {
-    return `${base} — veja em tamanho real na sua casa, sem baixar nada.`
-  }
-
-  const fit = computeDoorFit(dimensionsCm, doorWidthCm)
-  const gapText = formatFitCm(fit.gapCm)
-
-  if (fit.status === 'blocked') {
-    return `${base}: NÃO passa na porta de ${doorWidthCm} cm — faltam ${gapText} cm. Confere aí:`
-  }
-  if (fit.status === 'tight') {
-    return `${base}: passa JUSTO na porta de ${doorWidthCm} cm (sobram só ${gapText} cm). Confere aí:`
-  }
-  return `${base}: passa na porta de ${doorWidthCm} cm, sobram ${gapText} cm. Vê como fica na sala:`
+  return `Vai caber? ${furnitureLabel} de ${widthCm} × ${heightCm} × ${depthCm} cm — veja em tamanho real na sua casa, sem baixar nada.`
 }
 
 /**
  * "Enviar para quem decide junto" — decisão de móvel é quase sempre em dupla.
  * Usa o share nativo do celular (WhatsApp etc.); no desktop copia o link.
  */
-export function ShareButton({ furnitureLabel, dimensionsCm, doorWidthCm, shareUrl }: ShareButtonProps) {
+export function ShareButton({ furnitureLabel, dimensionsCm, shareUrl }: ShareButtonProps) {
   const [status, setStatus] = useState<ShareStatus>('idle')
   const feedbackTimerRef = useRef<number | undefined>(undefined)
 
@@ -61,12 +39,9 @@ export function ShareButton({ furnitureLabel, dimensionsCm, doorWidthCm, shareUr
 
   const handleShare = (): void => {
     const share = async (): Promise<void> => {
-      const text = buildShareText(furnitureLabel, dimensionsCm, doorWidthCm)
+      const text = buildShareText(furnitureLabel, dimensionsCm)
       const hasNativeShare = typeof navigator.share === 'function'
-      trackEvent('share_click', {
-        method: hasNativeShare ? 'native' : 'copy',
-        has_verdict: doorWidthCm !== null,
-      })
+      trackEvent('share_click', { method: hasNativeShare ? 'native' : 'copy' })
 
       if (typeof navigator.share === 'function') {
         try {

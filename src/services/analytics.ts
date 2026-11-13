@@ -2,11 +2,17 @@
  * Google Analytics 4 com carregamento condicional: sem VITE_GA_ID definido
  * (dev local, forks), tudo vira no-op — nenhum script externo é carregado.
  *
- * Eventos do funil que definem o produto:
- *   view_tool     → chegou na ferramenta
- *   verdict_shown → viu o veredito "passa na porta?"
- *   launch_ar     → tocou em "Ver na minha casa" (a métrica-mãe)
- *   share_click   → enviou para quem decide junto
+ * O funil, na ordem em que a pessoa anda pelo site:
+ *   view_landing       → chegou na página inicial
+ *   landing_start      → clicou em "Ver na minha casa" na página inicial
+ *   view_tool          → chegou na ferramenta (pela inicial ou por um link)
+ *   select_furniture   → trocou de móvel no seletor
+ *   photo_model_start  → enviou a foto do anúncio (ou um .glb)
+ *   photo_model_ready  → o modelo da foto apareceu
+ *   photo_model_failed → a foto não virou modelo
+ *   launch_ar          → tocou em "Ver na minha casa" (a métrica-mãe)
+ *   affiliate_click    → abriu a busca da loja pelo link de afiliado
+ *   share_click        → enviou para quem decide junto
  */
 
 declare global {
@@ -16,12 +22,20 @@ declare global {
   }
 }
 
-type AnalyticsEventName =
-  | 'view_tool'
-  | 'verdict_shown'
-  | 'launch_ar'
-  | 'share_click'
-  | 'photo_model_ready'
+export const ANALYTICS_EVENT_NAMES = [
+  'view_landing',
+  'landing_start',
+  'view_tool',
+  'select_furniture',
+  'photo_model_start',
+  'photo_model_ready',
+  'photo_model_failed',
+  'launch_ar',
+  'affiliate_click',
+  'share_click',
+] as const
+
+type AnalyticsEventName = (typeof ANALYTICS_EVENT_NAMES)[number]
 
 type AnalyticsParams = Readonly<Record<string, string | number | boolean>>
 

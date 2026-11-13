@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
+import { AffiliateButton } from '../components/affiliate/AffiliateButton'
 import { ArButton } from '../components/ar/ArButton'
-import { DoorCheck } from '../components/door-check/DoorCheck'
 import { DimensionsForm } from '../components/form/DimensionsForm'
 import { FURNITURE_CATALOG } from '../components/furniture/catalog'
 import { PhotoModel } from '../components/photo-model/PhotoModel'
@@ -24,27 +24,22 @@ interface ToolPageProps {
   /** Estado vindo de um link compartilhado (`?movel=...`), se houver. */
   readonly initialState: ToolUrlState | null
   readonly onBackToLanding: () => void
-  readonly onStateChange: (
-    kind: FurnitureKind,
-    dimensionsCm: DimensionsCm,
-    doorWidthCm: number | null,
-  ) => void
+  readonly onStateChange: (kind: FurnitureKind, dimensionsCm: DimensionsCm) => void
 }
 
 export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolPageProps) {
   const tool = useToolSelection(initialState)
   const { kind, form, scannedModel } = tool
-  const [doorWidthCm, setDoorWidthCm] = useState<number | null>(initialState?.doorWidthCm ?? null)
   // Só importa no celular: a folha de baixo, que abre por toque ou arrasto.
   const sheet = useBottomSheet()
   const furnitureLabel = FURNITURE_CATALOG[kind].label
   const dimensions = dimensionsCmToMeters(form.dimensionsCm)
-  const shareUrl = `${window.location.origin}${window.location.pathname}${buildToolSearch(kind, form.dimensionsCm, doorWidthCm)}`
+  const shareUrl = `${window.location.origin}${window.location.pathname}${buildToolSearch(kind, form.dimensionsCm)}`
 
   // Mantém a URL espelhando o estado — todo ajuste vira link compartilhável.
   useEffect(() => {
-    onStateChange(kind, form.dimensionsCm, doorWidthCm)
-  }, [kind, form.dimensionsCm, doorWidthCm, onStateChange])
+    onStateChange(kind, form.dimensionsCm)
+  }, [kind, form.dimensionsCm, onStateChange])
 
   useEffect(() => {
     trackEvent('view_tool', { furniture: kind })
@@ -56,12 +51,19 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
     <motion.div className="tool" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }}>
       <ToolStage kind={kind} dimensionsCm={form.dimensionsCm} scannedModel={scannedModel} />
       <ToolHeader onBack={onBackToLanding} />
-      <FurniturePicker selectedKind={kind} onSelect={tool.selectKind} />
+      <FurniturePicker
+        selectedKind={kind}
+        onSelect={(nextKind) => {
+          if (nextKind !== kind) trackEvent('select_furniture', { furniture: nextKind, where: 'tool' })
+          tool.selectKind(nextKind)
+        }}
+      />
 
       <aside className={`tool__panel${sheet.isExpanded ? ' tool__panel--open' : ''}`} style={sheet.panelStyle}>
         <SheetHandle sheet={sheet} />
         <div className="tool__scroll">
           <DimensionsForm form={form} furnitureLabel={furnitureLabel} />
+          <AffiliateButton kind={kind} dimensionsCm={form.dimensionsCm} />
 
           <PhotoModel
             // Trocar de móvel à mão remonta o componente e cancela a geração em andamento.
@@ -73,8 +75,7 @@ export function ToolPage({ initialState, onBackToLanding, onStateChange }: ToolP
           />
 
           <div className="tool__more">
-            <DoorCheck dimensionsCm={form.dimensionsCm} doorWidthCm={doorWidthCm} onDoorWidthChange={setDoorWidthCm} />
-            <ShareButton furnitureLabel={furnitureLabel} dimensionsCm={form.dimensionsCm} doorWidthCm={doorWidthCm} shareUrl={shareUrl} />
+            <ShareButton furnitureLabel={furnitureLabel} dimensionsCm={form.dimensionsCm} shareUrl={shareUrl} />
             <p className="tool__footer">A pessoa ao lado tem 1,70 m. Cotas em centímetros.</p>
             <p className="tool__footer tool__footer--copyright">{COPYRIGHT_NOTICE}</p>
           </div>

@@ -34,7 +34,7 @@ export function ArButton({ kind, dimensions, handoffUrl, scannedModel = null }: 
     return (
       <p className="ar-hint">
         <Smartphone size={15} aria-hidden="true" /> No Android a câmera ao vivo ainda não abre. Por
-        enquanto, confira o móvel em 3D aqui e veja se passa na porta.
+        enquanto, confira o móvel em 3D aqui, ao lado de uma pessoa de 1,70 m.
       </p>
     )
   }

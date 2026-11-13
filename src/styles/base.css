@@ -1,7 +1,7 @@
 /*
  * Identidade "estúdio": o móvel é fotografado como produto. Fundo grafite
  * neutro, uma poça de luz quente no chão, tudo em branco sobre escuro.
- * A única cor da interface é a luz; verde/âmbar/vermelho só no veredito.
+ * A única cor da interface é a luz; verde e vermelho só em confirmação e erro.
  */
 :root {
   --color-background: #0d0e10;
@@ -15,7 +15,6 @@
   --color-light: #ffe9cf;
   --color-error: #ff7a6b;
   --color-ok: #6fdc9a;
-  --color-warn: #ffc26b;
   --radius-lg: 28px;
   --radius-md: 16px;
   --radius-pill: 999px;

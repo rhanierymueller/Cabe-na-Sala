@@ -69,6 +69,10 @@ Diferencial vs. IKEA Place / Amazon "ver no quarto": **agnóstico de loja**
   fica em `api/_lib/furnitureKinds.ts` e tem de acompanhar `FurnitureKind`. O
   que não tem modelo próprio (rack, cômoda, aparador, criado-mudo) cai no
   móvel baixo genérico `cabinet` ("Rack").
+- **"Outro" (nov/2026):** nono item do seletor, para o que não está no
+  catálogo (micro-ondas, aquário, freezer). É um bloco com as medidas
+  digitadas, sem desenho. O servidor não o devolve como `kind` e ele não tem
+  botão de compra.
 - Modelos 3D **gerados por código** (caixas estilizadas com encosto/pés etc.),
   para esticar limpo em qualquer medida. Assets low-poly CC0 (Kenney, Quaternius,
   Poly Haven) só como polimento futuro — modelo artístico deforma ao esticar.
@@ -83,8 +87,8 @@ agora é página de produto Apple / SpaceX. O móvel é fotografado como produto
 
 - Grafite neutro (`#0d0e10`), tudo em branco (`#f5f5f7`) sobre escuro. **A única
   cor é a luz**: uma poça quente (`--color-light`, `#ffe9cf`) no chão sob o
-  móvel e uma contraluz no 3D, para móvel escuro não sumir no fundo. Verde,
-  âmbar e vermelho só no veredito da porta. Nada de fundo claro (cansa à noite).
+  móvel e uma contraluz no 3D, para móvel escuro não sumir no fundo. Verde e
+  vermelho só em confirmação e erro. Nada de fundo claro (cansa à noite).
 - Tipografia: fonte do sistema nos aparelhos Apple (SF Pro) e Inter (Google
   Fonts, já na CSP) no resto. Largura normal, peso 600–700, números com
   `tabular-nums`. Fonte condensada foi testada e rejeitada pelo dev.
@@ -101,7 +105,9 @@ agora é página de produto Apple / SpaceX. O móvel é fotografado como produto
   (`landing/HeroStage.tsx`), o seletor de móveis, três medidas e um botão que
   abre a ferramenta com elas. A história rolada da cozinha, o print do AR e a
   foto de sala saíram; estão no histórico do git se forem voltar.
-- Painel: as três medidas, a foto do anúncio (3D pela foto) e a porta. Ler
+- Painel: as três medidas e a foto do anúncio (3D pela foto). O teste "vai
+  passar na porta?" foi removido em nov/2026 (o dev achou inútil); links
+  antigos com `porta=` continuam abrindo, o parâmetro é ignorado. Ler
   as medidas do texto ou do print do anúncio saiu da tela em nov/2026, para o
   painel ficar simples; `AdMeasures` e `api/measures.ts` continuam no código,
   sem uso na interface, até decidir se voltam (junto com a ideia do link).

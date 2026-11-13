@@ -15,6 +15,7 @@ const PANEL_HEIGHT_M = (PANEL_WIDTH_M * TEXTURE_HEIGHT_PX) / TEXTURE_WIDTH_PX
 const BEHIND_M = 0.9
 /** Altura do pé dos números: sobem o bastante para aparecer por cima de um sofá. */
 const FLOOR_GAP_M = 0.35
+const AFTER_FLOOR_FADE = 1
 const FONT = '700 300px -apple-system, "SF Pro Display", "Inter", "Helvetica Neue", Arial, sans-serif'
 
 /**
@@ -48,7 +49,12 @@ export function MeasureBackdrop({ dimensions }: MeasureBackdropProps) {
   }, [canvas, texture, text])
 
   return (
-    <mesh position={[0, PANEL_HEIGHT_M / 2 + FLOOR_GAP_M, -(dimensions.depthM / 2 + BEHIND_M)]}>
+    // Desenhado depois do esmaecimento do chão: os números não gravam profundidade, então o
+    // chão distante (já da cor do fundo) era pintado por cima deles e abria uma faixa preta.
+    <mesh
+      renderOrder={AFTER_FLOOR_FADE}
+      position={[0, PANEL_HEIGHT_M / 2 + FLOOR_GAP_M, -(dimensions.depthM / 2 + BEHIND_M)]}
+    >
       <planeGeometry args={[PANEL_WIDTH_M, PANEL_HEIGHT_M]} />
       <meshBasicMaterial map={texture} transparent opacity={0.13} depthWrite={false} toneMapped={false} />
     </mesh>

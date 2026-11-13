@@ -123,6 +123,7 @@
 
   .tool__panel:not(.tool__panel--open) .photo-model > :not(input),
   .tool__panel:not(.tool__panel--open) .tool__more,
+  .tool__panel:not(.tool__panel--open) .affiliate,
   .tool__panel:not(.tool__panel--open) .dimensions-form__title,
   .tool__panel:not(.tool__panel--open) .dimensions-form__subtitle,
   .tool__panel:not(.tool__panel--open) .dimension-field__hint,
